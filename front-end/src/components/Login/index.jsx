@@ -64,12 +64,12 @@ export default function SignIn() {
       alert('A senha deve conter pelo menos uma letra maiúscula, um número e um caractere especial.');
       return;
     }
-
     console.log({
       email: email,
       password: password,
     });
   };
+
   const validatePassword = (password) => {
     const uppercaseRegex = /[A-Z]/;
     const numberRegex = /\d/;
@@ -81,8 +81,6 @@ export default function SignIn() {
 
     return containsUppercase && containsNumber && containsSpecialChar && password.length >= 8;
   };
-
-
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -101,6 +99,8 @@ export default function SignIn() {
               <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
                 <Input
                   type="email"
+                  id="email"
+                  name="email"
                   color='success'
                   required
                   fullWidth
@@ -111,6 +111,8 @@ export default function SignIn() {
                 />
                 <Input
                   type={showPassword ? "text" : "password"}
+                  id="password"
+                  name="password"
                   required
                   color='success'
                   variant="outlined"
