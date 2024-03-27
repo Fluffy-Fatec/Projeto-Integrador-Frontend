@@ -1,0 +1,24 @@
+.message{
+  color: #5F5F5F;
+  font-size: 16px; 
+  text-align: center;
+}
+.text {
+  font-size: 12px; 
+  padding-bottom: 10px;
+  color: #5F5F5F;
+}
+.welcome {
+  font-size: 12px; 
+  color: #11BF4E;
+  font-weight: bolder;
+}
+.link-um{
+  margin-right: 12%;
+  text-decoration: 'none';
+  color: #11BF4E;
+}
+
+
+
+
