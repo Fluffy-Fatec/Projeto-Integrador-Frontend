@@ -44,7 +44,7 @@ export default function SignIn() {
   };
 
   const validatePassword = (password) => {
-    const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]+$/;
+    const regex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,}$/;
     return regex.test(password);
   };
 
@@ -78,7 +78,7 @@ export default function SignIn() {
     }
 
     if (!validatePassword(password)) {
-      alert('The password must contain at least one capital letter, one number and one special character!');
+      alert('The password must contain at least 8 characters, a lowercase letter, an uppercase letter, a number and a special character!');
       return;
     }
 
@@ -109,7 +109,7 @@ export default function SignIn() {
             alignItems: 'center',
           }}
         >
-          <Card sx={{ width: '100%' }}>
+          <Card sx={{ width: '100%' , padding: '15px',}}>
             <CardContent>
               <Typography sx={{ fontSize: '1.4rem', marginBottom: '2%', color: "#5F5F5F" }}>
                 We are almost there...
@@ -129,7 +129,7 @@ export default function SignIn() {
                       placeholder="First Name"
                       name="firstName"
                       id="firstName"
-                      sx={{ height: '30px' }}
+                      sx={{ height: '30px' , fontSize: '0.8rem' }}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -140,7 +140,7 @@ export default function SignIn() {
                       placeholder="Surname"
                       name="surname"
                       id="surname"
-                      sx={{ height: '30px' }}
+                      sx={{ height: '30px' , fontSize: '0.8rem' }}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -152,6 +152,7 @@ export default function SignIn() {
                       placeholder="Email"
                       name="email"
                       id="email"
+                      sx={{ height: '30px' , fontSize: '0.8rem' }}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -164,6 +165,8 @@ export default function SignIn() {
                       placeholder="Cell Phone"
                       name="cellPhone"
                       id="cellPhone"
+                      inputProps={{ maxLength: 15 }}
+                      sx={{ height: '30px' , fontSize: '0.8rem' }}
                     />
                   </Grid>
                   <Grid item xs={12} sm={4}>
@@ -176,6 +179,8 @@ export default function SignIn() {
                       placeholder="CPF"
                       name="cpf"
                       id="cpf"
+                      inputProps={{ maxLength: 14 }}
+                      sx={{ height: '30px' , fontSize: '0.8rem' }}
                     />
                   </Grid>
                   <Grid item xs={12} sm={4}>
@@ -187,6 +192,7 @@ export default function SignIn() {
                       placeholder="Password"
                       name="password"
                       id="password"
+                      inputProps={{ maxLength: 20 }}
                       endAdornment={
                         <IconButton
                           onClick={togglePasswordVisibility}
@@ -196,7 +202,7 @@ export default function SignIn() {
                           {showPassword ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
                         </IconButton>
                       }
-                      sx={{ height: '30px' }}
+                      sx={{ height: '30px' , fontSize: '0.8rem' }}
                     />
                   </Grid>
                   <Grid item xs={12} sm={4}>
@@ -208,6 +214,7 @@ export default function SignIn() {
                       placeholder="Confirm Password"
                       name="confirmPassword"
                       id="confirmPassword"
+                      inputProps={{ maxLength: 20 }}
                       endAdornment={
                         <IconButton
                           onClick={toggleConfirmPasswordVisibility}
@@ -217,10 +224,17 @@ export default function SignIn() {
                           {showConfirmPassword ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
                         </IconButton>
                       }
-                      sx={{ height: '30px' }}
+                      sx={{ height: '30px' , fontSize: '0.8rem' }}
                     />
                   </Grid>
                 </Grid>
+                <Box mt={2}>
+                  <Typography sx={{ fontSize: '0.73rem', marginBottom: '2%', color: "#5F5F5F" }}>
+                    By submitting, I agree to the processing of my personal data by Fluffy Tech in accordance with the
+                    <a href="#" style={{ color: '#11BF4E' }}> Privacy Policy</a>.
+                    I understand that I can change my preferences at any time.
+                  </Typography>
+                </Box>
                 <Button
                   type="submit"
                   fullWidth
