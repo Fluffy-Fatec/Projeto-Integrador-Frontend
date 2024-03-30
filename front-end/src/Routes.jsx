@@ -1,18 +1,67 @@
-import React from "react"
-import { BrowserRouter, Routes, Route } from "react-router-dom"
-import PaginaLogin from "./pages/Login"
-import Registration from "./pages/Registration"
-import DashBoard from "./pages/Menu"
+import React, { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import PaginaLogin from "./pages/Login";
+import Registration from "./pages/Registration";
+import Dashboard from "./pages/Menu";
 
+const useAuthentication = () => {
+  const [authenticated, setAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const token = sessionStorage.getItem("token");
+    if (token) {
+      setAuthenticated(true);
+    } else {
+      setAuthenticated(false);
+    }
+  }, []);
+
+  return authenticated;
+};
+
+const useAdmin = () => {
+  const [admin, setAdmin] = useState(false);
+
+  useEffect(() => {
+    const role = sessionStorage.getItem("role");
+    if (role === "admin") {
+      setAdmin(true);
+    } else {
+      setAdmin(false);
+    }
+  }, []);
+  
+  return admin;
+};
 
 export default function AppRoutes() {
-	return (
-		<BrowserRouter>
-			<Routes>
-				<Route path="/" element={<PaginaLogin />} />
-				<Route path="/registration" element={<Registration />} />
-				<Route path="dashboard" element={<DashBoard />} />
-			</Routes>
-		</BrowserRouter>
-	)
+  const isAuthenticated = useAuthentication();
+  const isAdmin = useAdmin();
+
+  useEffect(() => {
+    document.addEventListener("DOMContentLoaded", function () {
+      sessionStorage.clear();
+    });
+  }, []);
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<PaginaLogin />} />
+        <Route path="/registration" element={<Registration />} />
+        <Route
+          path="/dashboard"
+          element={
+            isAuthenticated && isAdmin ? (
+              <Dashboard />
+            ) : isAuthenticated ? (
+              <Navigate to="/" />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
+      </Routes>
+    </BrowserRouter>
+  );
 }
