@@ -13,11 +13,15 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import logo from "../../assets/login.png";
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const defaultTheme = createTheme();
 
 export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [typedText, setTypedText] = useState('');
   const [textIndex, setTextIndex] = useState(0);
   const texts = [
@@ -26,6 +30,42 @@ export default function SignIn() {
     'FOR YOUR PRODUCT.',
     'FOR YOUR CUSTOMER.'
   ];
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const navigate = useNavigate();
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      console.error('Password must contain at least 8 characters, one uppercase letter, one lowercase letter, and one special character.');
+
+      alert('Password must contain at least 8 characters, one uppercase letter, one lowercase letter, and one special character.');
+      return;
+    }
+
+    try {
+      const response = await axios.post('http://localhost:8080/auth/login', {
+        username: username,
+        password: password
+      });
+
+      const token = response.data.token;
+      sessionStorage.setItem('token', token);
+
+      const role = response.data.role;
+      sessionStorage.setItem('role', role);
+
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Login error:', error);
+
+      alert('Error logging in. Please check your credentials and try again.');
+    }
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -50,38 +90,6 @@ export default function SignIn() {
     return () => clearInterval(interval);
   }, [textIndex, typedText, texts]);
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const email = data.get('email');
-    const password = data.get('password');
-
-    if (!validatePassword(password)) {
-      alert('A senha deve conter pelo menos uma letra maiúscula, um número e um caractere especial.');
-      return;
-    }
-    console.log({
-      email: email,
-      password: password,
-    });
-  };
-
-  const validatePassword = (password) => {
-    const uppercaseRegex = /[A-Z]/;
-    const numberRegex = /\d/;
-    const specialCharRegex = /[@$!%*?&]/;
-
-    const containsUppercase = uppercaseRegex.test(password);
-    const containsNumber = numberRegex.test(password);
-    const containsSpecialChar = specialCharRegex.test(password);
-
-    return containsUppercase && containsNumber && containsSpecialChar && password.length >= 8;
-  };
-
   return (
     <ThemeProvider theme={defaultTheme}>
       <CssBaseline />
@@ -98,16 +106,18 @@ export default function SignIn() {
               </Typography>
               <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
                 <Input
-                  type="email"
-                  id="email"
-                  name="email"
+                  type="text"
+                  id="username"
+                  name="username"
                   color='success'
                   required
                   fullWidth
                   autoFocus
                   variant="outlined"
-                  placeholder="Email Address"
+                  placeholder="Username"
                   sx={{ width: '90%', marginLeft: '5%', height: '30px', marginBottom: '10px', marginTop: "5%" }}
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                 />
                 <Input
                   type={showPassword ? "text" : "password"}
@@ -128,6 +138,8 @@ export default function SignIn() {
                     </IconButton>
                   }
                   sx={{ width: '90%', marginLeft: '5%', height: '30px', marginBottom: '15%', marginTop: "5%" }}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
                 <Button
                   type="submit"
