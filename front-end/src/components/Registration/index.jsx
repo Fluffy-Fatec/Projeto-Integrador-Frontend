@@ -12,6 +12,7 @@ import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import axios from 'axios';
 
 const defaultTheme = createTheme();
 
@@ -20,6 +21,14 @@ export default function SignIn() {
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
   const [cellPhone, setCellPhone] = React.useState('');
   const [cpf, setCpf] = React.useState('');
+  const [codigo, setCodigo] = React.useState('');
+
+  React.useEffect(() => {
+    const urlAtual = window.location.href;
+    const partesDaURL = urlAtual.split('/');
+    const parteFinalDaURL = partesDaURL[partesDaURL.length - 1];
+    setCodigo(parteFinalDaURL);
+  }, []);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -48,16 +57,16 @@ export default function SignIn() {
     return regex.test(password);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const email = data.get('email');
     const password = data.get('password');
     const confirmPassword = data.get('confirmPassword');
-    const firstName = data.get('firstName');
-    const surname = data.get('surname');
+    const fullName = data.get('fullName');
+    const username = data.get('username');
 
-    if (!email || !firstName || !surname || !cellPhone || !cpf || !password || !confirmPassword) {
+    if (!email || !fullName || !username || !cellPhone || !cpf || !password || !confirmPassword) {
       alert('There are empty fields!');
       return;
     }
@@ -88,13 +97,30 @@ export default function SignIn() {
     }
 
     console.log({
-      name: firstName + ' ' + surname,
+      fullName: fullName,
+      username: username,
       email: email,
       cellPhone: cellPhone,
       cpf: cpf,
       password: password,
       confirmPassword: confirmPassword
     });
+
+    try {
+      const response = await axios.post('http://localhost:8080/auth/register/' + codigo, {
+        username: username,
+        password: password,
+        name: fullName,
+        celphone: cellPhone,
+        cpf: cpf
+      });
+
+      window.location.href = "http://localhost:5173/";
+
+    } catch (error) {
+      console.error('Registration error:', error);
+      alert('Error when registering. Please check your information and try again.');
+    }
   };
 
   return (
@@ -109,7 +135,7 @@ export default function SignIn() {
             alignItems: 'center',
           }}
         >
-          <Card sx={{ width: '100%' , padding: '15px',}}>
+          <Card sx={{ width: '100%', padding: '15px', }}>
             <CardContent>
               <Typography sx={{ fontSize: '1.4rem', marginBottom: '2%', color: "#5F5F5F" }}>
                 We are almost there...
@@ -126,10 +152,10 @@ export default function SignIn() {
                       fullWidth
                       autoFocus
                       variant="outlined"
-                      placeholder="First Name"
-                      name="firstName"
-                      id="firstName"
-                      sx={{ height: '30px' , fontSize: '0.8rem' }}
+                      placeholder="Full Name"
+                      name="fullName"
+                      id="fullName"
+                      sx={{ height: '30px', fontSize: '0.8rem' }}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -137,10 +163,10 @@ export default function SignIn() {
                       required
                       variant="outlined"
                       fullWidth
-                      placeholder="Surname"
-                      name="surname"
-                      id="surname"
-                      sx={{ height: '30px' , fontSize: '0.8rem' }}
+                      placeholder="Username"
+                      name="username"
+                      id="username"
+                      sx={{ height: '30px', fontSize: '0.8rem' }}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -152,7 +178,7 @@ export default function SignIn() {
                       placeholder="Email"
                       name="email"
                       id="email"
-                      sx={{ height: '30px' , fontSize: '0.8rem' }}
+                      sx={{ height: '30px', fontSize: '0.8rem' }}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -166,7 +192,7 @@ export default function SignIn() {
                       name="cellPhone"
                       id="cellPhone"
                       inputProps={{ maxLength: 15 }}
-                      sx={{ height: '30px' , fontSize: '0.8rem' }}
+                      sx={{ height: '30px', fontSize: '0.8rem' }}
                     />
                   </Grid>
                   <Grid item xs={12} sm={4}>
@@ -180,7 +206,7 @@ export default function SignIn() {
                       name="cpf"
                       id="cpf"
                       inputProps={{ maxLength: 14 }}
-                      sx={{ height: '30px' , fontSize: '0.8rem' }}
+                      sx={{ height: '30px', fontSize: '0.8rem' }}
                     />
                   </Grid>
                   <Grid item xs={12} sm={4}>
@@ -202,7 +228,7 @@ export default function SignIn() {
                           {showPassword ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
                         </IconButton>
                       }
-                      sx={{ height: '30px' , fontSize: '0.8rem' }}
+                      sx={{ height: '30px', fontSize: '0.8rem' }}
                     />
                   </Grid>
                   <Grid item xs={12} sm={4}>
@@ -224,7 +250,7 @@ export default function SignIn() {
                           {showConfirmPassword ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
                         </IconButton>
                       }
-                      sx={{ height: '30px' , fontSize: '0.8rem' }}
+                      sx={{ height: '30px', fontSize: '0.8rem' }}
                     />
                   </Grid>
                 </Grid>

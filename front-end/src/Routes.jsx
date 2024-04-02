@@ -30,7 +30,7 @@ const useAdmin = () => {
       setAdmin(false);
     }
   }, []);
-  
+
   return admin;
 };
 
@@ -44,11 +44,14 @@ export default function AppRoutes() {
     });
   }, []);
 
+  const pathParts = window.location.pathname.split('/');
+  const dynamicPath = pathParts[pathParts.length - 1];
+
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<PaginaLogin />} />
-        <Route path="/registration" element={<Registration />} />
+        <Route path={`/auth/register/${dynamicPath}`} element={<Registration />} />
         <Route
           path="/dashboard"
           element={
