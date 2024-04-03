@@ -1,0 +1,28 @@
+.grid-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  
+  .grid-item {
+    flex: 0 0 calc(33.33% - 10px); /* Defina a largura desejada para cada item */
+    margin-bottom: 20px; /* Espaçamento entre os itens */
+    background-color: #f0f0f0;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  
+  /* Estilo para telas menores (por exemplo, dispositivos móveis) */
+  @media screen and (max-width: 768px) {
+    .grid-item {
+      flex-basis: calc(50% - 10px); /* Altere a largura para 50% em telas menores */
+    }
+  }
+  
+  /* Estilo para telas ainda menores (por exemplo, dispositivos móveis em orientação paisagem) */
+  @media screen and (max-width: 480px) {
+    .grid-item {
+      flex-basis: 100%; /* Altere a largura para 100% em telas ainda menores */
+    }
+  }
+  

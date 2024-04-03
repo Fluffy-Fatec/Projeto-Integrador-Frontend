@@ -25,6 +25,9 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import TroubleshootIcon from '@mui/icons-material/Troubleshoot';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
+import Paper from '@mui/material/Paper';
+import Grid from '@mui/material/Grid'
+
 
 const drawerWidth = 240;
 
@@ -147,6 +150,15 @@ const themeDark = createTheme({
         },
     },
 });
+
+const Item = styled(Paper)(({ theme }) => ({
+    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+    ...theme.typography.body2,
+    padding: theme.spacing(1),
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
+    height: '105px', // Defina a altura desejada aqui
+}));
 
 export default function Menu() {
     const theme = useTheme();
@@ -318,9 +330,36 @@ export default function Menu() {
                         </ListItem>
                     </List>
                 </Drawer>
-                <Box component="main" sx={{ p: 3 }}>
-                    {/* grids aqui */}
-                </Box>
+                <Box component="main" sx={{ p: 10 }}>
+    <Box sx={1}>
+        <Box display="grid" gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }} gap={2}>
+            <Box>
+            <Item sx={{ height: '230px', width: '100px' }}>A</Item>
+            </Box>
+            <Box>
+                <Item sx={{ height: '50px' }}>B</Item>
+            </Box>
+            <Box>
+                <Item sx={{ height: '50px' }}>C</Item>
+            </Box>
+            <Box>
+                <Item sx={{ height: '50px' }}>D</Item>
+            </Box>
+            <Box>
+                <Item sx={{ height: '50px' }}>E</Item>
+            </Box>
+            <Box>
+                <Item sx={{ height: '50px' }}>F</Item>
+            </Box>
+            <Box>
+                <Item sx={{ height: '50px' }}>G</Item>
+            </Box>
+        </Box>
+    </Box>
+</Box>
+
+
+
                 <IconButton
                     onClick={toggleDarkMode}
                     sx={{
