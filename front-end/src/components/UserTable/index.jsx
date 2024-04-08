@@ -125,12 +125,15 @@ function EnhancedTable() {
   const isSelected = (id) => selected.indexOf(id) !== -1;
 
   const handleDelete = async () => {
+    if (window.confirm("Are you sure you want to delete this item?")) {
+      alert("Item deleted successfully!");
+    }
+
     try {
-      await axios.delete('http://localhost:8080/auth/delete/user', {
+      await axios.delete('http://localhost:8080/auth/delete/user/' + selected, {
         headers: {
           'Authorization': `Bearer ${token}`
         },
-        data: { ids: selected }
       });
       const remainingUsers = rows.filter(row => !selected.includes(row.id));
       setRows(remainingUsers);
@@ -139,6 +142,7 @@ function EnhancedTable() {
       console.log("An error occurred while deleting:", error);
     }
   };
+
 
   const handleButtonClick = () => {
     setOpenPopup(true);
