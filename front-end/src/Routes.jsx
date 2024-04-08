@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import PaginaLogin from "./pages/Login";
-import Registration from "./pages/Registration";
 import Dashboard from "./pages/Menu";
-import Grid from "./pages/Grid";
+import Registration from "./pages/Registration";
 
 const useAuthentication = () => {
   const [authenticated, setAuthenticated] = useState(false);
@@ -52,7 +51,6 @@ export default function AppRoutes() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<PaginaLogin />} />
-        <Route path="/grid" element={<Grid />} />
         <Route path={`/auth/register/${dynamicPath}`} element={<Registration />} />
         <Route
           path="/dashboard"

@@ -1,33 +1,32 @@
-import React from 'react';
-import { styled, useTheme, ThemeProvider, createTheme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import MuiDrawer from '@mui/material/Drawer';
-import MuiAppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
-import CssBaseline from '@mui/material/CssBaseline';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import DocumentationIcon from '@mui/icons-material/Description';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import MenuIcon from '@mui/icons-material/Menu';
+import SettingsIcon from '@mui/icons-material/Settings';
+import StorageIcon from '@mui/icons-material/Storage';
+import TroubleshootIcon from '@mui/icons-material/Troubleshoot';
+import MuiAppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import CssBaseline from '@mui/material/CssBaseline';
+import Divider from '@mui/material/Divider';
+import MuiDrawer from '@mui/material/Drawer';
+import IconButton from '@mui/material/IconButton';
+import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import Logo from "../../assets/pandalyze.png";
-import StorageIcon from '@mui/icons-material/Storage';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import DocumentationIcon from '@mui/icons-material/Description';
-import SettingsIcon from '@mui/icons-material/Settings';
-import TroubleshootIcon from '@mui/icons-material/Troubleshoot';
-import Brightness4Icon from '@mui/icons-material/Brightness4';
-import Brightness7Icon from '@mui/icons-material/Brightness7';
 import Paper from '@mui/material/Paper';
-import Grid from '@mui/material/Grid'
-
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import { ThemeProvider, createTheme, styled, useTheme } from '@mui/material/styles';
+import React from 'react';
+import Logo from "../../assets/pandalyze.png";
+import GridDashboard from '../GridDashboard';
 
 const drawerWidth = 240;
 
@@ -330,38 +329,11 @@ export default function Menu() {
                         </ListItem>
                     </List>
                 </Drawer>
-                <Box component="main" sx={{ p: 10 }}>
-    <Box sx={1}>
-        <Box display="grid" gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }} gap={2}>
-            <Box>
-            <Item sx={{ height: '230px', width: '100px' }}>A</Item>
-            </Box>
-            <Box>
-                <Item sx={{ height: '50px' }}>B</Item>
-            </Box>
-            <Box>
-                <Item sx={{ height: '50px' }}>C</Item>
-            </Box>
-            <Box>
-                <Item sx={{ height: '50px' }}>D</Item>
-            </Box>
-            <Box>
-                <Item sx={{ height: '50px' }}>E</Item>
-            </Box>
-            <Box>
-                <Item sx={{ height: '50px' }}>F</Item>
-            </Box>
-            <Box>
-                <Item sx={{ height: '50px' }}>G</Item>
-            </Box>
-        </Box>
-    </Box>
-</Box>
 
-
+                <GridDashboard />
 
                 <IconButton
-                    onClick={toggleDarkMode}
+                    onClick={toggleDarkMode}F
                     sx={{
                         position: 'fixed',
                         bottom: '16px',
