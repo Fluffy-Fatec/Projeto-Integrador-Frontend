@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import PaginaLogin from "./pages/Login";
 import Dashboard from "./pages/Menu";
 import Registration from "./pages/Registration";
+import GridDashboard from "./components/GridDashboard";
 
 const useAuthentication = () => {
   const [authenticated, setAuthenticated] = useState(false);
@@ -51,6 +52,7 @@ export default function AppRoutes() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<PaginaLogin />} />
+        <Route path="/grid" element={<GridDashboard />} />
         <Route path={`/auth/register/${dynamicPath}`} element={<Registration />} />
         <Route
           path="/dashboard"

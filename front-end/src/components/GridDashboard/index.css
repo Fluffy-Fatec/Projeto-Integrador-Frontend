@@ -1,0 +1,25 @@
+@media (min-width: 1920px) {
+    .MuiPaper-root {
+      height: 765px;
+      width: 675px;
+      margin-top: 5px;
+    }
+    .MuiBox-root {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1;
+    }
+    .MuiGrid-item {
+      height: 300px;
+      width: 675px;
+      margin-top: 5px;
+    }
+  }
+  @media (max-width: 1000px) {
+    body {
+      background-color: white;
+    }
+    p {
+      color: black;
+    }
+  }

@@ -14,7 +14,7 @@ function App() {
           'Authorization': `Bearer ${token}`
         },
         params: {
-          limit: 10 // Limite para os primeiros 100 registros
+          limit: 10
         }
       });
       console.log('Dados da API:', response.data);
@@ -27,12 +27,10 @@ function App() {
         5: { positives: 0, negatives: 0 }
       };
 
-      // Loop através dos dados da resposta para contar positivos e negativos por pontuação
       response.data.forEach(item => {
         const score = item.reviewScore;
         const sentiment = item.sentiment;
 
-        // Incrementa as contagens de positivos e negativos
         if (sentiment === 'Positivo') {
           scores[score].positives++;
         } else if (sentiment === 'Negativo') {
@@ -40,7 +38,6 @@ function App() {
         }
       });
 
-      // Prepara os dados para o gráfico de barras
       const chartData = [
         ['Score', 'Positive', 'Negative']
       ];
