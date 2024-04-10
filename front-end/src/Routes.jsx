@@ -4,6 +4,8 @@ import PaginaLogin from "./pages/Login";
 import Registration from "./pages/Registration";
 import Dashboard from "./pages/Menu";
 
+
+
 const useAuthentication = () => {
   const [authenticated, setAuthenticated] = useState(false);
 
