@@ -14,7 +14,7 @@ function App() {
           'Authorization': `Bearer ${token}`
         },
         params: {
-          limit: 10
+          limit: 100
         }
       });
       console.log('Dados da API:', response.data);
@@ -29,11 +29,11 @@ function App() {
 
       response.data.forEach(item => {
         const score = item.reviewScore;
-        const sentiment = item.sentiment;
+        const sentimentoPredito = item.sentimentoPredito;
 
-        if (sentiment === 'Positivo') {
+        if (sentimentoPredito === '1') {
           scores[score].positives++;
-        } else if (sentiment === 'Negativo') {
+        } else if (sentimentoPredito === '0') {
           scores[score].negatives++;
         }
       });
@@ -66,7 +66,7 @@ function App() {
   }, []);
 
   const options = {
-    title: "Review Score by Sentiment",
+    title: "Sentiment by State",
     chartArea: { width: "50%" },
     isStacked: true,
     hAxis: {
