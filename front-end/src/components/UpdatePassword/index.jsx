@@ -17,13 +17,62 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 const defaultTheme = createTheme();
 
-export default function SignIn() {
+export default function SignIn({ token }) {
     const [isChecked, setIsChecked] = React.useState(false);
-    const [open, setOpen] = React.useState(true); 
+    const [open, setOpen] = React.useState(true);
     const [newPassword, setNewPassword] = React.useState('');
     const [confirmNewPassword, setConfirmNewPassword] = React.useState('');
     const [showNewPassword, setShowNewPassword] = React.useState(false);
     const [showConfirmNewPassword, setShowConfirmNewPassword] = React.useState(false);
+    const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+    const handleUpdatePassword = async () => {
+        if (isSubmitting) {
+            return;
+        }
+
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%?&#])[A-Za-z\d@$!%?&#]{8,}$/;
+        if (!passwordRegex.test(newPassword)) {
+            console.error('Password must contain at least 8 characters, one uppercase letter, one lowercase letter, and one special character.');
+            alert('Password must contain at least 8 characters, one uppercase letter, one lowercase letter, and one special character.');
+            return;
+        }
+
+        if (newPassword !== confirmNewPassword) {
+            alert("New Password and Confirm New Password don't match!");
+            return;
+        }
+
+        setNewPassword('');
+        setConfirmNewPassword('');
+        setOpen(false);
+
+        console.log(token)
+        try {
+            setIsSubmitting(true);
+            const response = await fetch('http://localhost:8080/auth/update/pass', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ password: newPassword })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update password');
+            }
+
+            const data = await response.json();
+            console.log('Response:', data);
+
+            handleClose();
+        } catch (error) {
+            console.error('Error:', error);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     const handleCheckboxChange = (event) => {
         setIsChecked(event.target.checked);
@@ -35,8 +84,8 @@ export default function SignIn() {
 
     const handlePasswordChange = (event) => {
         const { name, value } = event.target;
-     
-         if (name === 'newPassword') {
+
+        if (name === 'newPassword') {
             setNewPassword(value);
         } else if (name === 'confirmNewPassword') {
             setConfirmNewPassword(value);
@@ -54,23 +103,6 @@ export default function SignIn() {
             default:
                 break;
         }
-    };
-
-    const handleUpdatePassword = () => {
-        const passwordRegex = /^(?=.[a-z])(?=.[A-Z])(?=.\d)(?=.[@$!%?&#])[A-Za-z\d@$!%?&#]{8,}$/;
-        if (!passwordRegex.test(newPassword)) {
-            console.error('Password must contain at least 8 characters, one uppercase letter, one lowercase letter, and one special character.');
-            alert('Password must contain at least 8 characters, one uppercase letter, one lowercase letter, and one special character.');
-            return;
-        }
-
-        if (newPassword !== confirmNewPassword) {
-            alert("New Password and Confirm New Password don't match!");
-            return;
-        }
-        setNewPassword('');
-        setConfirmNewPassword('');
-        setOpen(false);
     };
 
     return (
@@ -95,7 +127,7 @@ export default function SignIn() {
                                         placeholder="New Password"
                                         name="newPassword"
                                         id="newPassword"
-                                        color='success'
+                                        color="success"
                                         type={showNewPassword ? 'text' : 'password'}
                                         value={newPassword}
                                         onChange={handlePasswordChange}
@@ -114,7 +146,7 @@ export default function SignIn() {
                                         placeholder="Confirm New Password"
                                         name="confirmNewPassword"
                                         id="confirmNewPassword"
-                                        color='success'
+                                        color="success"
                                         type={showConfirmNewPassword ? 'text' : 'password'}
                                         value={confirmNewPassword}
                                         onChange={handlePasswordChange}
@@ -131,9 +163,8 @@ export default function SignIn() {
                         </DialogContent>
                         <DialogActions>
                             <Button
-                                type="submit"
                                 fullWidth
-                                color='success'
+                                color="success"
                                 variant="contained"
                                 onClick={handleUpdatePassword}
                                 sx={{
@@ -151,9 +182,8 @@ export default function SignIn() {
                                 Update
                             </Button>
                             <Button
-                                type="submit"
                                 fullWidth
-                                color='success'
+                                color="success"
                                 variant="contained"
                                 onClick={handleClose}
                                 sx={{

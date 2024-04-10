@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Input from '@mui/material/Input';
@@ -12,7 +13,7 @@ import UpdatePassword from "../UpdatePassword";
 import Dialog from '@mui/material/Dialog';
 
 const Item = styled(Paper)(({ theme }) => ({
-    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fffff',
+    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#ffffff',
     ...theme.typography.body2,
     padding: theme.spacing(1),
     textAlign: 'center',
@@ -22,19 +23,73 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 const CustomComponent = () => {
+    const [fullName, setFullName] = useState('');
+    const [userName, setUserName] = useState('');
+    const [email, setEmail] = useState('');
+    const [cpf, setCpf] = useState('');
+    const [cellPhone, setCellPhone] = useState('');
     const [isChecked, setIsChecked] = useState(false);
-    const [cellPhone, setCellPhone] = React.useState('');
-    const [cpf, setCpf] = React.useState('');
     const [openModal, setOpenModal] = useState(false);
+    const [token, setToken] = useState('');
+
+    useEffect(() => {
+        const tokenFromLocalStorage = sessionStorage.getItem('token');
+        if (tokenFromLocalStorage) {
+            setToken(tokenFromLocalStorage);
+            fetchData(tokenFromLocalStorage);
+        }
+    }, []);
+
+    const fetchData = async (token) => {
+        try {
+            const response = await axios.get('http://localhost:8080/auth/list/user/logged', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            const userData = response.data; 
+            setFullName(userData.name);
+            setUserName(userData.username);
+            setEmail(userData.email);
+            setCpf(userData.cpf);
+            setCellPhone(userData.celphone);
+
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+        }
+    };
+
+    const handleSubmit = async () => {
+        try {
+            const response = await axios.put(
+                'http://localhost:8080/auth/update/user',
+                {
+                    username: userName,
+                    name: fullName,
+                    celphone: cellPhone,
+                    cpf: cpf
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+            console.log('Update successful:', response.data);
+            alert('User information updated successfully!');
+        } catch (error) {
+            console.error('Error updating user:', error);
+            alert('Error updating user. Please try again.');
+        }
+    };
 
     const handleCheckboxChange = (event) => {
         setIsChecked(event.target.checked);
     };
 
     const capitalizeFirstLetter = (string) => {
-        return string.replace(/\b\w/g, function (match) {
-            return match.toUpperCase();
-        });
+        return string.replace(/\b\w/g, (match) => match.toUpperCase());
     };
 
     const handleOpenModal = () => {
@@ -44,31 +99,22 @@ const CustomComponent = () => {
     const handleCloseModal = () => {
         setOpenModal(false);
     };
-    
+
     const formatPhoneNumber = (input) => {
         const phoneNumber = input.replace(/\D/g, '');
         const formattedPhoneNumber = phoneNumber.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
-
         setCellPhone(formattedPhoneNumber);
     };
 
     const formatCPF = (input) => {
         const cpfNumber = input.replace(/\D/g, '');
         const formattedCPF = cpfNumber.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-
         setCpf(formattedCPF);
     };
 
     return (
         <Box sx={{ flexGrow: 1, marginTop: '64px' }}>
             <Grid container spacing={2}>
-                <Grid container justifyContent="flex-end" sx={{ marginBottom: '-13px' }}>
-                    <Button variant="text" startIcon={<DeleteIcon />} sx={{ color: '#FF5151', fontWeight: 'bold', textTransform: 'none', textAlign: 'right', marginRight: '30px' }}>
-                        <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                            Delete account
-                        </Typography>
-                    </Button>
-                </Grid>
                 <Grid item xs={12} sx={{ marginLeft: '25px', marginRight: '25px' }}>
                     <Item sx={{ height: 'calc(50vh - 64px)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                         <Grid container spacing={2} sx={{ padding: "15px" }}>
@@ -82,24 +128,25 @@ const CustomComponent = () => {
                                     type="text"
                                     required
                                     fullWidth
-                                    color='success'
-                                    autoFocus
+                                    value={fullName}
+                                    onChange={(e) => setFullName(e.target.value)}
                                     variant="outlined"
                                     placeholder="Full Name"
-                                    name="Full Name"
-                                    id="Full Name"
+                                    name="fullName"
+                                    id="fullName"
                                     sx={{ height: '30px' }}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
                                 <Input
                                     required
-                                    color='success'
-                                    variant="outlined"
                                     fullWidth
+                                    value={userName}
+                                    onChange={(e) => setUserName(e.target.value)}
+                                    variant="outlined"
                                     placeholder="User Name"
-                                    name="User Name"
-                                    id="User Name"
+                                    name="userName"
+                                    id="userName"
                                     sx={{ height: '30px' }}
                                 />
                             </Grid>
@@ -108,11 +155,11 @@ const CustomComponent = () => {
                                     type="text"
                                     required
                                     fullWidth
-                                    autoFocus
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                     variant="outlined"
                                     placeholder="E-mail"
                                     name="email"
-                                    color='success'
                                     id="email"
                                     sx={{ height: '30px' }}
                                 />
@@ -166,7 +213,7 @@ const CustomComponent = () => {
                                 Update Password
                             </Button>
                             <Dialog open={openModal} onClose={handleCloseModal}>
-                                <UpdatePassword />
+                                <UpdatePassword token={token} />
                             </Dialog>
                             <Button
                                 type="submit"
@@ -183,6 +230,7 @@ const CustomComponent = () => {
                                     color: 'white',
                                     textTransform: 'none',
                                 }}
+                                onClick={handleSubmit}
                             >
                                 {capitalizeFirstLetter("Save Change")}
                             </Button>
@@ -213,26 +261,24 @@ const CustomComponent = () => {
                                     </a>.
                                     I understand that I can change my preferences at any time.
                                 </Typography>
-                            </Grid>
-                            <Grid item xs={12} sx={{ textAlign: 'right', marginTop: '-12px', marginRight: '15px' }}>
                                 <Button
-                                    type="submit"
-                                    fullWidth
-                                    variant="contained"
-                                    sx={{
-                                        borderRadius: 5,
-                                        mt: 3,
-                                        mb: 2,
-                                        width: { xs: '100%', sm: 'auto' },
-                                    }}
-                                    style={{
-                                        backgroundColor: '#11BF4E',
-                                        color: 'white',
-                                        textTransform: 'none',
-                                    }}
-                                >
-                                    {capitalizeFirstLetter("Save Change")}
-                                </Button>
+                                type="submit"
+                                fullWidth
+                                variant="outlined"
+                                sx={{
+                                    borderRadius: 5,
+                                    mt: 3,
+                                    mb: 2,
+                                    width: { xs: '100%', sm: 'auto' },
+                                }}
+                                style={{
+                                    backgroundColor: '#11BF4E',
+                                    color: 'white',
+                                    textTransform: 'none',
+                                }}
+                            >
+                                {capitalizeFirstLetter("Save Change")}
+                            </Button>
                             </Grid>
                         </Grid>
                     </Item>
