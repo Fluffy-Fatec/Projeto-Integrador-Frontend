@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+  
+  import React, { useState, useEffect } from 'react';
 import Input from '@mui/material/Input';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -39,7 +40,7 @@ export default function SignIn() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const passwordRegex = /^(?=.[a-z])(?=.[A-Z])(?=.\d)(?=.[@$!%?&#])[A-Za-z\d@$!%?&#]{8,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%?&##])[A-Za-z\d@$!%?&##]{8,}$/;
     if (!passwordRegex.test(password)) {
       console.error('Password must contain at least 8 characters, one uppercase letter, one lowercase letter, and one special character.');
 
