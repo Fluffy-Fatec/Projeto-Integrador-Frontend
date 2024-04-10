@@ -48,7 +48,7 @@ const CustomComponent = () => {
                 }
             });
 
-            const userData = response.data; 
+            const userData = response.data;
             setFullName(userData.name);
             setUserName(userData.username);
             setEmail(userData.email);
@@ -116,6 +116,15 @@ const CustomComponent = () => {
         <Box sx={{ flexGrow: 1, marginTop: '64px' }}>
             <Grid container spacing={2}>
                 <Grid item xs={12} sx={{ marginLeft: '25px', marginRight: '25px' }}>
+                    {/* 
+    <Grid container justifyContent="flex-end" sx={{ marginBottom: '-13px' }}>
+        <Button variant="text" startIcon={<DeleteIcon />} sx={{ color: '#FF5151', fontWeight: 'bold', textTransform: 'none', textAlign: 'right', marginRight: '30px' }}>
+            <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                Delete account
+            </Typography>
+        </Button>
+    </Grid>
+    */}
                     <Item sx={{ height: 'calc(50vh - 64px)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                         <Grid container spacing={2} sx={{ padding: "15px" }}>
                             <Grid item xs={12}>
@@ -262,23 +271,23 @@ const CustomComponent = () => {
                                     I understand that I can change my preferences at any time.
                                 </Typography>
                                 <Button
-                                type="submit"
-                                fullWidth
-                                variant="outlined"
-                                sx={{
-                                    borderRadius: 5,
-                                    mt: 3,
-                                    mb: 2,
-                                    width: { xs: '100%', sm: 'auto' },
-                                }}
-                                style={{
-                                    backgroundColor: '#11BF4E',
-                                    color: 'white',
-                                    textTransform: 'none',
-                                }}
-                            >
-                                {capitalizeFirstLetter("Save Change")}
-                            </Button>
+                                    type="submit"
+                                    fullWidth
+                                    variant="outlined"
+                                    sx={{
+                                        borderRadius: 5,
+                                        mt: 3,
+                                        mb: 2,
+                                        width: { xs: '100%', sm: 'auto' },
+                                    }}
+                                    style={{
+                                        backgroundColor: '#11BF4E',
+                                        color: 'white',
+                                        textTransform: 'none',
+                                    }}
+                                >
+                                    {capitalizeFirstLetter("Save Change")}
+                                </Button>
                             </Grid>
                         </Grid>
                     </Item>

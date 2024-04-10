@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import PaginaLogin from "./pages/Login";
 import Registration from "./pages/Registration";
 import Dashboard from "./pages/Menu";
-import User from "./pages/UserUpdate";
+
 
 
 const useAuthentication = () => {
@@ -53,7 +53,6 @@ export default function AppRoutes() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<PaginaLogin />} />
-        <Route path="/User" element={<User />} />
         <Route path={`/auth/register/${dynamicPath}`} element={<Registration />} />
         <Route
           path="/dashboard"
