@@ -330,7 +330,9 @@ export default function Menu() {
                     </List>
                 </Drawer>
 
-                <GridDashboard />
+                <Box component="main" sx={{ p: 3 }}>                   
+                    <GridDashboard />
+                </Box>
 
                 <IconButton
                     onClick={toggleDarkMode}F
