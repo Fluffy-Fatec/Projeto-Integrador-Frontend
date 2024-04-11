@@ -5,6 +5,8 @@ import Dashboard from "./pages/Menu";
 import Registration from "./pages/Registration";
 import GridDashboard from "./components/GridDashboard";
 
+
+
 const useAuthentication = () => {
   const [authenticated, setAuthenticated] = useState(false);
 
