@@ -1,5 +1,5 @@
 import React from "react";
-import Registration from "../../components/GridDashboard";
+import Registration from "../../components/Registration";
 
 function RegistrationPage(){
   return (  
