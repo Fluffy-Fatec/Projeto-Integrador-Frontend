@@ -3,7 +3,7 @@ import { Chart } from "react-google-charts";
 import axios from "axios";
 import Cookies from 'js-cookie'; // Importe a biblioteca js-cookie
 
-function App() {
+function App({token}) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -47,7 +47,6 @@ function App() {
   };
 
   useEffect(() => {
-    const token =  Cookies.get("token");
     if (token) {
       fetchData(token);
     } else {

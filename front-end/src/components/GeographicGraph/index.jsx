@@ -3,7 +3,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie'; 
 import { Chart } from 'react-google-charts';
 
-function GeographicGraph() {
+function GeographicGraph({token}) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -11,7 +11,6 @@ function GeographicGraph() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = Cookies.get("token"); 
         if (!token) {
           setError('Token de autenticação não encontrado.');
           setLoading(false);

@@ -2,12 +2,11 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { TagCloud } from "react-tagcloud";
 import { useSpring, animated } from "react-spring";
-import { Select, MenuItem } from "@mui/material";
+import { Select, MenuItem, Button } from "@mui/material";
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
-import Cookies from 'js-cookie'; 
 
-const WorldGraphics = () => {
+const WorldGraphics = ({ token }) => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -18,7 +17,6 @@ const WorldGraphics = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const token = Cookies.get("token");
                 if (!token) {
                     setError("Token de autenticação não encontrado.");
                     setLoading(false);
@@ -41,7 +39,7 @@ const WorldGraphics = () => {
         };
 
         fetchData();
-    }, [filter]);
+    }, [token, filter]);
 
     const wordTransitionProps = useSpring({
         scale: highlightedWord ? 1.2 : 1,

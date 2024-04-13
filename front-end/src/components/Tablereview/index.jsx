@@ -8,21 +8,17 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import TablePagination from '@mui/material/TablePagination';
-import Cookies from 'js-cookie'; 
 
-function EnhancedTable() {
+function EnhancedTable({ token }) {
   const [rows, setRows] = useState([]);
-  const [token, setToken] = useState('');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   useEffect(() => {
-    const tokenFromSessionStorage = Cookies.get('token');
-    if (tokenFromSessionStorage) {
-      setToken(tokenFromSessionStorage);
-      fetchData(tokenFromSessionStorage);
+    if (token) {
+      fetchData(token);
     }
-  }, []);
+  }, [token]);
 
   const fetchData = async (token) => {
     try {

@@ -35,7 +35,7 @@ import { ThemeProvider, createTheme, styled, useTheme } from '@mui/material/styl
 import GridDashboard from '../GridDashboard';
 import GridManageAccounts from '../GridManageAccounts';
 import UserUpdateGrid from '../UserUpdateGrid';
-import Cookies from 'js-cookie'; // Importe a biblioteca js-cookie
+import Cookies from 'js-cookie';
 
 const drawerWidth = 240;
 
@@ -51,6 +51,7 @@ const useAdmin = () => {
     const [admin, setAdmin] = useState(false);
 
     useEffect(() => {
+
         const role = Cookies.get("role");
         if (role === "admin") {
             setAdmin(true);
@@ -231,6 +232,7 @@ export default function Menu() {
     const [clickedButtons, setClickedButtons] = useState([]);
     const [openAboutModal, setOpenAboutModal] = useState(false);
     const isAdmin = useAdmin();
+    const token = Cookies.get("token");
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -457,10 +459,11 @@ export default function Menu() {
                     </ListItem>
                 </Drawer>
                 <Box component="main" sx={{ p: 3 }}>
-                    {clickedIndex === 1 && <GridDashboard darkMode={darkMode} theme={theme} />}
-                    {clickedIndex === 3 && <UserUpdateGrid darkMode={darkMode} theme={theme} />}
-                    {isAdmin && clickedIndex === 5 && <GridManageAccounts darkMode={darkMode} theme={theme} />}
+                    {clickedIndex === 1 && <GridDashboard darkMode={darkMode} token={token} theme={theme} />}
+                    {clickedIndex === 3 && <UserUpdateGrid darkMode={darkMode} token={token} theme={theme} />}
+                    {isAdmin && clickedIndex === 5 && <GridManageAccounts token={token} darkMode={darkMode} theme={theme} />}
                 </Box>
+
                 <IconButton
                     onClick={toggleDarkMode}
                     sx={{
