@@ -16,8 +16,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Button from '@mui/material/Button';
 
-function Row(props) {
-  const { row, onApprove } = props;
+function Row({ row, onApprove }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -83,8 +82,6 @@ function Row(props) {
                 Data to be approved:
               </Typography>
               <Table size="small" aria-label="update-details">
-                <TableHead>
-                </TableHead>
                 <TableBody>
                   <TableRow>
                     <TableCell>Username</TableCell>
@@ -146,7 +143,10 @@ function TableUserUpdate() {
   const fetchData = async () => {
     try {
       const token = sessionStorage.getItem('token');
-      console.log(token)
+      if (!token) {
+        console.error('Token not found in session storage');
+        return;
+      }
       const response = await axios.get('http://localhost:8080/auth/update/user/list', {
         headers: {
           Authorization: `Bearer ${token}`
@@ -161,6 +161,10 @@ function TableUserUpdate() {
   const handleApprove = async (userId, status) => {
     try {
       const token = sessionStorage.getItem('token');
+      if (!token) {
+        console.error('Token not found in session storage');
+        return;
+      }
       await approveUser(userId, status, token);
     } catch (error) {
       console.error('Error approving user:', error);

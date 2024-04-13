@@ -223,6 +223,7 @@ const CustomComponent = () => {
                             </Button>
                             <Dialog open={openModal} onClose={handleCloseModal}>
                                 <UpdatePassword token={token} />
+                                <UpdatePassword token={token} />
                             </Dialog>
                             <Button
                                 type="submit"
