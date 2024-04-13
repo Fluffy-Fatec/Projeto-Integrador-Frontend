@@ -28,13 +28,13 @@ function createData(id, name, email, creation_date, userRole) {
   return { id, name, email, creation_date, userRole };
 }
 
-function EnhancedTable() {
+function EnhancedTable(darkMode) {
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('name');
   const [selected, setSelected] = useState([]);
   const [page, setPage] = useState(0);
   const [dense, setDense] = useState(false);
-  const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [rowsPerPage, setRowsPerPage] = useState(4);
   const [rows, setRows] = useState([]);
   const [token, setToken] = useState('');
   const [openPopup, setOpenPopup] = useState(false);
@@ -188,7 +188,7 @@ function EnhancedTable() {
   };
 
   return (
-    <Box sx={{ width: '100%', height: '87vh', marginTop: 10, marginLeft: 2, marginRight: 2 }}>
+    <Box sx={{ max: '100%' }}>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
         <Button variant="text" startIcon={<PersonAddAltIcon />} sx={{ color: '#11BF4E', fontWeight: 'bold', textTransform: 'none' }} onClick={handleButtonClick}>
           <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
@@ -196,7 +196,9 @@ function EnhancedTable() {
           </Typography>
         </Button>
       </Box>
-      <Paper sx={{ width: '100%', height: '82vh', mb: 2 }}>
+      <Paper sx={{ width: '100%', height: '52vh', mb: 2 }}>
+        <Typography variant="h6" component="div" sx={{ p: 2 }}>
+          Users      </Typography>
         <TableContainer style={{ overflowX: 'auto' }}>
           <Table
             sx={{ minWidth: "100%" }}
@@ -280,7 +282,7 @@ function EnhancedTable() {
           </Table>
         </TableContainer>
         <TablePagination
-          rowsPerPageOptions={[20, 40, 60]}
+          rowsPerPageOptions={[4]}
           component="div"
           count={rows.length}
           rowsPerPage={rowsPerPage}
@@ -293,7 +295,7 @@ function EnhancedTable() {
         open={openPopup}
         onClose={handleClosePopup}
       >
-        <New token={token} />
+        <New token={token} darkMode={darkMode} />
       </Dialog>
     </Box>
   );
