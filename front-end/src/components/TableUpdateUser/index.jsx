@@ -40,7 +40,7 @@ function Row({ row, onApprove }) {
         <TableCell align="right">{row.user.cpf}</TableCell>
         <TableCell align="right">{row.status}</TableCell>
         <TableCell align="right">
-          {row.status === 'pendente' && (
+          {row.status === 'Pendente' && (
             <React.Fragment>
               <Button
                 variant="contained"
@@ -229,7 +229,7 @@ function TableUserUpdate() {
               <TableCell align="right">Cellphone</TableCell>
               <TableCell align="right">CPF</TableCell>
               <TableCell align="right">Status</TableCell>
-              {userData.some((row) => row.status === 'pendente') && (
+              {userData.some((row) => row.status === 'Pendente') && (
                 <TableCell align="right">Actions</TableCell>
               )}
             </TableRow>

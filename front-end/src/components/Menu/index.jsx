@@ -19,17 +19,22 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import Modal from '@mui/material/Modal';
 import Paper from '@mui/material/Paper';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { ThemeProvider, createTheme, styled, useTheme } from '@mui/material/styles';
-import React from 'react';
+import React, { useState } from 'react';
 import Logo from "../../assets/pandalyze.png";
-import GridDashboard from '../GridDashboard';
-import Person2Icon from '@mui/icons-material/Person2';
+//about
+import EmailIcon from '@mui/icons-material/Email';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import InfoIcon from '@mui/icons-material/Info';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
-import UserUpdateGrid from '../UserUpdateGrid';
+import Person2Icon from '@mui/icons-material/Person2';
+import { ThemeProvider, createTheme, styled, useTheme } from '@mui/material/styles';
+import GridDashboard from '../GridDashboard';
 import GridManageAccounts from '../GridManageAccounts';
+import UserUpdateGrid from '../UserUpdateGrid';
 
 const drawerWidth = 240;
 
@@ -42,6 +47,20 @@ const openedMixin = (theme) => ({
     overflowX: 'hidden',
 });
 
+const useAuthentication = () => {
+    const [authenticated, setAuthenticated] = useState(false);
+  
+    useEffect(() => {
+      if (token) {
+        setAuthenticated(true);
+      } else {
+        setAuthenticated(false);
+      }
+    }, []);
+  
+    return authenticated;
+  };
+
 const iconMap = {
     'Data Source': StorageIcon,
     'Dashboard': DashboardIcon,
@@ -50,6 +69,7 @@ const iconMap = {
     'Monitoring': TroubleshootIcon,
     'User Management': ManageAccountsIcon,
     'Logout': ExitToAppIcon,
+    'About': InfoIcon,
 };
 
 const closedMixin = (theme) => ({
@@ -154,7 +174,53 @@ const Item = styled(Paper)(({ theme }) => ({
     height: '105px',
 }));
 
-const menuItems = ['Data Source', 'Dashboard', 'Documentation', 'My Profile', 'Monitoring', 'User Management', 'Logout'];
+const menuItems = ['Data Source', 'Dashboard', 'Documentation', 'My Profile', 'Monitoring', 'User Management', 'About', 'Logout'];
+
+function AboutModal({ open, onClose, darkMode }) {
+    return (
+        <Modal
+            open={open}
+            onClose={onClose}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+        >
+            <Box sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: '500px',
+                borderRadius: 5,
+                bgcolor: 'background.paper',
+                boxShadow: 24,
+                p: 4,
+            }}>
+                <Typography id="modal-modal-title" variant="h6" component="h2">
+                    <strong>About</strong>
+                </Typography>
+                <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                    @Pandalyze is a platform that, with data, returns valuable insights for your company.
+                    <br /><br />
+                    @Fluffy is a university project group that developed the entire platform.
+                    <br /><br />
+                    <strong>Version Application:</strong> 1.0.0
+                    <br />
+                    <strong>Version IA:</strong> 1.0.0
+                    <br /><br />
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <a href="https://github.com/Fluffy-Fatec/Projeto-Integrador-Imagem" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+                            <GitHubIcon sx={{ marginRight: '5px', color: '#3c3c3c' }} />
+                        </a>
+                        <a href="mailto:fluffyfatec@gmail.com" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', color: 'black' }}>
+                            <EmailIcon sx={{ marginRight: '5px', color: '#db4a39' }} />
+                        </a>
+                    </div>
+
+                </Typography>
+            </Box>
+        </Modal>
+    );
+}
 
 export default function Menu() {
     const theme = useTheme();
@@ -162,6 +228,7 @@ export default function Menu() {
     const [clickedIndex, setClickedIndex] = React.useState(1);
     const [darkMode, setDarkMode] = React.useState(false);
     const [clickedButtons, setClickedButtons] = React.useState([]);
+    const [openAboutModal, setOpenAboutModal] = useState(false);
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -185,6 +252,7 @@ export default function Menu() {
         window.location.href = '/';
     };
 
+
     const toggleDarkMode = () => {
         setDarkMode(!darkMode);
     };
@@ -193,6 +261,14 @@ export default function Menu() {
         if (!clickedButtons.includes(text)) {
             setClickedButtons([...clickedButtons, text]);
         }
+    };
+
+    const handleOpenAboutModal = () => {
+        setOpenAboutModal(true);
+    };
+
+    const handleCloseAboutModal = () => {
+        setOpenAboutModal(false);
     };
 
     return (
@@ -259,7 +335,8 @@ export default function Menu() {
                             <ListItem key={text} disablePadding>
                                 <ListItemButton
                                     onClick={() => handleItemClick(index)}
-                                    disabled={text === 'Data Source' || text === 'Documentation'} // Desabilita os itens 'Data Source' e 'Documentation'
+                                    disabled={text === 'Data Source' || text === 'Documentation'} // Desabilita os itens 'Data Source', 'Monitoring' e 'Documentation'
+
                                     sx={{
                                         height: '40px',
                                         borderRadius: clickedIndex === index ? '20px' : '0',
@@ -299,6 +376,7 @@ export default function Menu() {
                             <ListItemButton
                                 onClick={() => handleItemClick(index + 4)}
                                 disabled={text === 'Monitoring'} // Desabilita os itens 'Data Source', 'Monitoring' e 'Documentation'
+
                                 sx={{
                                     height: '40px',
                                     borderRadius: clickedIndex === index + 4 ? '10px' : '0',
@@ -323,6 +401,21 @@ export default function Menu() {
                             </ListItemButton>
                         </ListItem>
                     ))}
+                    <Divider sx={{ mt: 2, mb: 1 }} />
+                    <ListItem disablePadding>
+                        <ListItemButton
+                            onClick={handleOpenAboutModal}
+                            sx={{
+                                height: '40px',
+                                borderRadius: '10px',
+                            }}
+                        >
+                            <ListItemIcon>
+                                <InfoIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="About" />
+                        </ListItemButton>
+                    </ListItem>
                     <Box sx={{ flexGrow: 1 }} />
                     <List>
                         {clickedButtons.map((text) => (
@@ -368,12 +461,7 @@ export default function Menu() {
                         </ListItemButton>
                     </ListItem>
                 </Drawer>
-                <Box component="main" sx={{
-                    p: 2,
-                    flexGrow: 1,
-                    height: "100vh",
-                    overflow: "auto"
-                }}>
+                <Box component="main" sx={{ p: 2 }}>
                     {clickedIndex === 1 && <GridDashboard darkMode={darkMode} theme={theme} />}
                     {clickedIndex === 3 && <UserUpdateGrid darkMode={darkMode} theme={theme} />}
                     {clickedIndex === 5 && <GridManageAccounts darkMode={darkMode} theme={theme} />}
@@ -391,6 +479,7 @@ export default function Menu() {
                     {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
                 </IconButton>
             </Box>
+            <AboutModal open={openAboutModal} onClose={handleCloseAboutModal} />
         </ThemeProvider>
     );
 }
