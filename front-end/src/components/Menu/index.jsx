@@ -23,7 +23,7 @@ import Modal from '@mui/material/Modal';
 import Paper from '@mui/material/Paper';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Logo from "../../assets/pandalyze.png";
 //about
 import EmailIcon from '@mui/icons-material/Email';
@@ -46,20 +46,20 @@ const openedMixin = (theme) => ({
     }),
     overflowX: 'hidden',
 });
+const useAdmin = () => {
+    const [admin, setAdmin] = useState(false);
 
-const useAuthentication = () => {
-    const [authenticated, setAuthenticated] = useState(false);
-  
     useEffect(() => {
-      if (token) {
-        setAuthenticated(true);
-      } else {
-        setAuthenticated(false);
-      }
+        const role = sessionStorage.getItem("role");
+        if (role === "admin") {
+            setAdmin(true);
+        } else {
+            setAdmin(false);
+        }
     }, []);
-  
-    return authenticated;
-  };
+
+    return admin;
+};
 
 const iconMap = {
     'Data Source': StorageIcon,
@@ -224,11 +224,12 @@ function AboutModal({ open, onClose, darkMode }) {
 
 export default function Menu() {
     const theme = useTheme();
-    const [open, setOpen] = React.useState(false);
-    const [clickedIndex, setClickedIndex] = React.useState(1);
-    const [darkMode, setDarkMode] = React.useState(false);
-    const [clickedButtons, setClickedButtons] = React.useState([]);
+    const [open, setOpen] = useState(false);
+    const [clickedIndex, setClickedIndex] = useState(1);
+    const [darkMode, setDarkMode] = useState(false);
+    const [clickedButtons, setClickedButtons] = useState([]);
     const [openAboutModal, setOpenAboutModal] = useState(false);
+    const isAdmin = useAdmin();
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -239,19 +240,14 @@ export default function Menu() {
     };
 
     const handleItemClick = (index) => {
-        if (index === clickedIndex) {
-            setOpen(!open);
-        } else {
-            setClickedIndex(index);
-            setOpen(true);
-        }
+        setClickedIndex(index);
+        setOpen(true);
     };
 
     const handleLogout = () => {
         localStorage.removeItem('accessToken');
         window.location.href = '/';
     };
-
 
     const toggleDarkMode = () => {
         setDarkMode(!darkMode);
@@ -336,7 +332,6 @@ export default function Menu() {
                                 <ListItemButton
                                     onClick={() => handleItemClick(index)}
                                     disabled={text === 'Data Source' || text === 'Documentation'} // Desabilita os itens 'Data Source', 'Monitoring' e 'Documentation'
-
                                     sx={{
                                         height: '40px',
                                         borderRadius: clickedIndex === index ? '20px' : '0',
@@ -362,7 +357,7 @@ export default function Menu() {
                             </ListItem>
                         ))}
                     </List>
-                    {open && (
+                    {isAdmin && open && (
                         <>
                             <Divider />
                             <Typography variant="subtitle2" sx={{ ml: 2, mt: 1, mb: 1, color: '#606060' }}>
@@ -371,12 +366,11 @@ export default function Menu() {
                             <Divider sx={{ ml: 2, mr: 2, mb: 1, color: '#606060' }} />
                         </>
                     )}
-                    {menuItems.slice(4, 6).map((text, index) => (
+                    {isAdmin && menuItems.slice(4, 6).map((text, index) => (
                         <ListItem key={text} disablePadding>
                             <ListItemButton
                                 onClick={() => handleItemClick(index + 4)}
                                 disabled={text === 'Monitoring'} // Desabilita os itens 'Data Source', 'Monitoring' e 'Documentation'
-
                                 sx={{
                                     height: '40px',
                                     borderRadius: clickedIndex === index + 4 ? '10px' : '0',
@@ -461,10 +455,10 @@ export default function Menu() {
                         </ListItemButton>
                     </ListItem>
                 </Drawer>
-                <Box component="main" sx={{ p: 2 }}>
+                <Box component="main" sx={{ p: 3 }}>
                     {clickedIndex === 1 && <GridDashboard darkMode={darkMode} theme={theme} />}
                     {clickedIndex === 3 && <UserUpdateGrid darkMode={darkMode} theme={theme} />}
-                    {clickedIndex === 5 && <GridManageAccounts darkMode={darkMode} theme={theme} />}
+                    {isAdmin && clickedIndex === 5 && <GridManageAccounts darkMode={darkMode} theme={theme} />}
                 </Box>
                 <IconButton
                     onClick={toggleDarkMode}
