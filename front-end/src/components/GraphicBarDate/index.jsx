@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Chart } from 'react-google-charts';
+import Cookies from 'js-cookie'; // Importe a biblioteca js-cookie
 
-export function App() {
+export function App({token}) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -68,7 +69,6 @@ export function App() {
   };
 
   useEffect(() => {
-    const token = sessionStorage.getItem('token');
     if (token) {
       fetchData(token);
     } else {

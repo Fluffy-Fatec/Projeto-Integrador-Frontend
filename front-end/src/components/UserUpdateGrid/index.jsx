@@ -8,7 +8,6 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
 import Checkbox from '@mui/material/Checkbox';
-import DeleteIcon from '@mui/icons-material/Delete';
 import UpdatePassword from "../UpdatePassword";
 import Dialog from '@mui/material/Dialog';
 
@@ -18,7 +17,7 @@ const Item = styled(Paper)(({ theme, darkMode }) => ({
     overflowY: 'auto',
 }));
 
-const CustomComponent = ({ darkMode }) => {
+const CustomComponent = ({ darkMode, token }) => {
     const [fullName, setFullName] = useState('');
     const [userName, setUserName] = useState('');
     const [email, setEmail] = useState('');
@@ -26,15 +25,12 @@ const CustomComponent = ({ darkMode }) => {
     const [cellPhone, setCellPhone] = useState('');
     const [isChecked, setIsChecked] = useState(false);
     const [openModal, setOpenModal] = useState(false);
-    const [token, setToken] = useState('');
 
     useEffect(() => {
-        const tokenFromLocalStorage = sessionStorage.getItem('token');
-        if (tokenFromLocalStorage) {
-            setToken(tokenFromLocalStorage);
-            fetchData(tokenFromLocalStorage);
+        if (token) {
+            fetchData(token);
         }
-    }, []);
+    }, [token]);
 
     const fetchData = async (token) => {
         try {
@@ -79,6 +75,7 @@ const CustomComponent = ({ darkMode }) => {
             alert('Error updating user. Please try again.');
         }
     };
+    
 
     const handleCheckboxChange = (event) => {
         setIsChecked(event.target.checked);
@@ -112,15 +109,6 @@ const CustomComponent = ({ darkMode }) => {
         <Box sx={{ flexGrow: 1, marginTop: '64px' }}>
             <Grid container spacing={2}>
                 <Grid item xs={12} sx={{ marginLeft: '25px', marginRight: '25px' }}>
-                    {/* 
-    <Grid container justifyContent="flex-end" sx={{ marginBottom: '-13px' }}>
-        <Button variant="text" startIcon={<DeleteIcon />} sx={{ color: '#FF5151', fontWeight: 'bold', textTransform: 'none', textAlign: 'right', marginRight: '30px' }}>
-            <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                Delete account
-            </Typography>
-        </Button>
-    </Grid>
-    */}
                     <Item sx={{ height: 'calc(50vh - 64px)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }} darkMode={darkMode}>
                         <Grid container spacing={2} sx={{ padding: "15px" }}>
                             <Grid item xs={12}>

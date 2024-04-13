@@ -3,7 +3,7 @@ import { Chart } from "react-google-charts";
 import axios from "axios";
 import Typography from '@mui/material/Typography';
 
-function App() {
+function App({ token }) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -52,14 +52,13 @@ function App() {
   };
 
   useEffect(() => {
-    const token = sessionStorage.getItem('token');
     if (token) {
       fetchData(token);
     } else {
       setError('Token de autenticação não encontrado.');
       setLoading(false);
     }
-  }, []);
+  }, [token]);
 
   const options = {
     title: "Sentiment Over Time",
@@ -125,7 +124,6 @@ function App() {
         height="95%"
         data={chartData}
         options={options}
-      // style={{ marginBottom: '-20px' }} // Adicione isso para remover o espaço superior
       />
     </>
   );

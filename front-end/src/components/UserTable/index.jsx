@@ -23,6 +23,7 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import Cookies from 'js-cookie'; 
 
 function createData(id, name, email, creation_date, userRole) {
   return { id, name, email, creation_date, userRole };
@@ -42,7 +43,7 @@ function EnhancedTable(darkMode) {
   const [editedUserRole, setEditedUserRole] = useState('');
 
   useEffect(() => {
-    const tokenFromLocalStorage = sessionStorage.getItem('token');
+    const tokenFromLocalStorage = Cookies.get("token");
     if (tokenFromLocalStorage) {
       setToken(tokenFromLocalStorage);
     }

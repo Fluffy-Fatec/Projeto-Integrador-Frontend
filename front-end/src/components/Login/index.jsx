@@ -15,6 +15,7 @@ import CardContent from '@mui/material/CardContent';
 import logo from "../../assets/login.png";
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 const defaultTheme = createTheme();
 
@@ -54,10 +55,10 @@ export default function SignIn() {
       });
 
       const token = response.data.token;
-      sessionStorage.setItem('token', token);
+      Cookies.set('token', token); // Armazena o token como cookie
 
       const role = response.data.role;
-      sessionStorage.setItem('role', role);
+      Cookies.set('role', role); // Armazena a função de administrador como cookie
 
       navigate('/dashboard');
     } catch (error) {

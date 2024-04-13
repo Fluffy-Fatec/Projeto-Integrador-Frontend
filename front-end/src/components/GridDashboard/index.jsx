@@ -7,50 +7,52 @@ import GraphicArea from '../GraphicArea';
 import GraphicPie from '../GraphicPie';
 import GeographicGraph from '../GeographicGraph';
 import CloudWord from '../CloudWord';
+import Tablereview from '../Tablereview';
 
-const GridDashboard = () => {
+
+const GridDashboard = ({ darkMode, theme, token }) => {
   return (
     <Grid container spacing={2} sx={{ marginTop: '50px'}}>
       {/* Primeira coluna */}
       <Grid item xs={12} sm={6}>
         <Paper style={{ height: 550 }}>
-          <CloudWord />
+          <CloudWord darkMode={darkMode} token={token} />
         </Paper>
       </Grid>
       <Grid item xs={12} sm={6}>
         <Paper style={{ height: 550 }}>
-          <GraphicArea />
+          <GraphicArea  darkMode={darkMode} token={token} />
         </Paper>
       </Grid>
       {/* Segunda coluna */}
       <Grid item xs={12} sm={6}>
         <Paper style={{ height: 350 }}>
-          <GraphicBarScore />
+          <GraphicBarScore darkMode={darkMode} token={token} />
         </Paper>
       </Grid>
       <Grid item xs={12} sm={6}>
         <Paper style={{ height: 350 }}>
-          <GraphicBarDate />
+          <GraphicBarDate darkMode={darkMode} token={token} />
         </Paper>
       </Grid>
       <Grid item xs={12} sm={6}>
         <Paper style={{ height: 350 }}>
-          <GraphicBarPercentage />
+          <GraphicBarPercentage  darkMode={darkMode}  token={token} />
         </Paper>
       </Grid>
       <Grid item xs={12} sm={6}>
         <Paper style={{ height: 350 }}>
-          <GraphicPie />
+          <GraphicPie darkMode={darkMode}  token={token} />
         </Paper>
       </Grid>
       <Grid item xs={12} sm={6}>
         <Paper style={{ height: 350 }}>
-          <GraphicBarScore />
+          <GeographicGraph   darkMode={darkMode}  token={token}/>
         </Paper>
       </Grid>
       <Grid item xs={12} sm={6}>
         <Paper style={{ height: 350 }}>
-          <GraphicBarScore />
+          <Tablereview  darkMode={darkMode}  token={token}/>
         </Paper>
       </Grid>
     </Grid>

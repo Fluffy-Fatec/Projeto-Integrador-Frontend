@@ -16,6 +16,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Button from '@mui/material/Button';
 import TablePagination from '@mui/material/TablePagination';
+import Cookies from 'js-cookie'; // Importe a biblioteca js-cookie
 
 function Row({ row, onApprove }) {
   const [open, setOpen] = useState(false);
@@ -40,7 +41,7 @@ function Row({ row, onApprove }) {
         <TableCell align="right">{row.user.cpf}</TableCell>
         <TableCell align="right">{row.status}</TableCell>
         <TableCell align="right">
-          {row.status === 'pendente' && (
+          {row.status === 'Pendente' && (
             <React.Fragment>
               <Button
                 variant="contained"
@@ -151,7 +152,7 @@ function TableUserUpdate() {
 
   const fetchData = async () => {
     try {
-      const token = sessionStorage.getItem('token');
+      const token = Cookies.get("token");
       if (!token) {
         console.error('Token not found in session storage');
         return;
@@ -173,7 +174,7 @@ function TableUserUpdate() {
 
   const handleApprove = async (userId, status) => {
     try {
-      const token = sessionStorage.getItem('token');
+      const token = Cookies.get("token");
       if (!token) {
         console.error('Token not found in session storage');
         return;
@@ -229,7 +230,7 @@ function TableUserUpdate() {
               <TableCell align="right">Cellphone</TableCell>
               <TableCell align="right">CPF</TableCell>
               <TableCell align="right">Status</TableCell>
-              {userData.some((row) => row.status === 'pendente') && (
+              {userData.some((row) => row.status === 'Pendente') && (
                 <TableCell align="right">Actions</TableCell>
               )}
             </TableRow>

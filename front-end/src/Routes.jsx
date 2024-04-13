@@ -4,14 +4,13 @@ import PaginaLogin from "./pages/Login";
 import Dashboard from "./pages/Menu";
 import PaginaRegistration from "./pages/Registration";
 import GridDashboard from "./components/GridDashboard";
-
-
+import Cookies from 'js-cookie';
 
 const useAuthentication = () => {
   const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
-    const token = sessionStorage.getItem("token");
+    const token = Cookies.get("token");
     if (token) {
       setAuthenticated(true);
     } else {
@@ -26,7 +25,7 @@ const useAdmin = () => {
   const [admin, setAdmin] = useState(false);
 
   useEffect(() => {
-    const role = sessionStorage.getItem("role");
+    const role = Cookies.get("role");
     if (role === "admin") {
       setAdmin(true);
     } else {
@@ -40,12 +39,6 @@ const useAdmin = () => {
 export default function AppRoutes() {
   const isAuthenticated = useAuthentication();
   const isAdmin = useAdmin();
-
-  useEffect(() => {
-    document.addEventListener("DOMContentLoaded", function () {
-      sessionStorage.clear();
-    });
-  }, []);
 
   const pathParts = window.location.pathname.split('/');
   const dynamicPath = pathParts[pathParts.length - 1];
