@@ -76,7 +76,8 @@ function GeographicGraph() {
         colorAxis: { colors: ['red', 'green'] },
         zoomLevel: 5,
         magnifyingGlass: { enable: true },
-        dataLabels: true
+        dataLabels: true,
+        backgroundColor: 'transparent',
       }}
     />
   );

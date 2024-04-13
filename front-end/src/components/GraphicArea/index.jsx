@@ -72,6 +72,7 @@ function App() {
     vAxis: { title: "Comments", minValue: 0 },
     chartArea: { width: "50%", height: "70%" },
     colors: ["#11BF4E", "#F25774"],
+    backgroundColor: 'transparent',
   };
 
   if (loading) {

@@ -1,30 +1,60 @@
 import React from 'react';
-import { Box, Paper } from '@mui/material';
+import { Grid, Paper } from '@mui/material';
 import GraphicBarScore from '../GraphicBarScore';
 import GraphicBarDate from '../GraphicBarDate';
 import GraphicBarPercentage from '../GraphicBarPercentage';
 import GraphicArea from '../GraphicArea';
 import GraphicPie from '../GraphicPie';
+import GeographicGraph from '../GeographicGraph';
+import CloudWord from '../CloudWord';
 
 const GridDashboard = () => {
-    return (
-        <Box component="main" sx={{ p: 2, marginTop: '60px' }}>
-            <Box display="grid" gridTemplateColumns={{ xs: '1fr', md: '1fr', lg: 'repeat(2, 1fr)' }} gap={1}>
-                <Box>
-                    <Paper sx={{ height: '765px', width: '675px', marginTop: '5px' }}></Paper>
-                    <Paper sx={{ height: '765px', width: '675px', marginTop: '10px' }}></Paper>
-                </Box>
-                <Box>
-                    <Paper sx={{ height: '300px', width: '675px', marginTop: '5px' }}> <GraphicArea /> </Paper>
-                    <Paper sx={{ height: '300px', width: '675px', marginTop: '10px' }}> <GraphicBarDate /> </Paper>
-                    <Paper sx={{ height: '300px', width: '675px', marginTop: '10px' }}> <GraphicBarPercentage /> </Paper>
-                    <Paper sx={{ height: '300px', width: '675px', marginTop: '10px' }}> <GraphicBarScore /> </Paper>
-                    <Paper sx={{ height: '300px', width: '675px', marginTop: '10px' }}> <GraphicPie /> </Paper>
-                </Box>
-            </Box>
-        </Box>
-    );
+  return (
+    <Grid container spacing={2} sx={{ marginTop: '50px'}}>
+      {/* Primeira coluna */}
+      <Grid item xs={12} sm={6}>
+        <Paper style={{ height: 550 }}>
+          <CloudWord />
+        </Paper>
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Paper style={{ height: 550 }}>
+          <GraphicArea />
+        </Paper>
+      </Grid>
+      {/* Segunda coluna */}
+      <Grid item xs={12} sm={6}>
+        <Paper style={{ height: 350 }}>
+          <GraphicBarScore />
+        </Paper>
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Paper style={{ height: 350 }}>
+          <GraphicBarDate />
+        </Paper>
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Paper style={{ height: 350 }}>
+          <GraphicBarPercentage />
+        </Paper>
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Paper style={{ height: 350 }}>
+          <GraphicPie />
+        </Paper>
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Paper style={{ height: 350 }}>
+          <GraphicBarScore />
+        </Paper>
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Paper style={{ height: 350 }}>
+          <GraphicBarScore />
+        </Paper>
+      </Grid>
+    </Grid>
+  );
 };
 
 export default GridDashboard;
-

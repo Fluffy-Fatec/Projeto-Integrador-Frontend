@@ -61,10 +61,11 @@ function App() {
 
   const options = {
     title: "Sentiment Over Time",
+    backgroundColor: 'transparent',
     pieHole: 0.4,
     slices: {
-      0: { color: '#11BF4E' }, // Green for Positive
-      1: { color: '#F25774' }  // Red for Negative
+      0: { color: '#11BF4E' },
+      1: { color: '#F25774' }
     },
     is3D: false,
   };

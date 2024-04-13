@@ -75,6 +75,7 @@ export function App() {
 
   const options = {
     title: "Comment Count by Week and State",
+    backgroundColor: 'transparent',
     chartArea: { width: "70%", height: "70%" },
     isStacked: false,
     hAxis: {
@@ -92,7 +93,7 @@ export function App() {
     const millisecsInDay = 86400000;
     return Math.ceil((((date - onejan) / millisecsInDay) + onejan.getDay() + 1) / 7);
   };
-  
+
   if (loading) {
     return <div>Loading...</div>;
   }

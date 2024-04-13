@@ -67,6 +67,7 @@ function App() {
 
   const options = {
     title: "Sentiment by State",
+    backgroundColor: 'transparent',
     chartArea: { width: "50%" },
     isStacked: true,
     hAxis: {
@@ -78,7 +79,7 @@ function App() {
     },
     colors: ["#11BF4E", "#F25774"],
   };
-  
+
 
   if (loading) {
     return <div>Loading...</div>;
