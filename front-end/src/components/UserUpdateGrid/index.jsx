@@ -11,6 +11,7 @@ import Checkbox from '@mui/material/Checkbox';
 import DeleteIcon from '@mui/icons-material/Delete';
 import UpdatePassword from "../UpdatePassword";
 import Dialog from '@mui/material/Dialog';
+import Cookies from 'js-cookie'; 
 
 const Item = styled(Paper)(({ theme, darkMode }) => ({
     backgroundColor: darkMode,
@@ -29,7 +30,7 @@ const CustomComponent = ({ darkMode }) => {
     const [token, setToken] = useState('');
 
     useEffect(() => {
-        const tokenFromLocalStorage = sessionStorage.getItem('token');
+        const tokenFromLocalStorage = Cookies.get("token");
         if (tokenFromLocalStorage) {
             setToken(tokenFromLocalStorage);
             fetchData(tokenFromLocalStorage);

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Chart } from "react-google-charts";
 import axios from "axios";
+import Cookies from 'js-cookie'; // Importe a biblioteca js-cookie
 import Typography from '@mui/material/Typography';
 
 function App() {
@@ -52,7 +53,7 @@ function App() {
   };
 
   useEffect(() => {
-    const token = sessionStorage.getItem('token');
+    const token = Cookies.get("token");
     if (token) {
       fetchData(token);
     } else {
@@ -125,7 +126,6 @@ function App() {
         height="95%"
         data={chartData}
         options={options}
-      // style={{ marginBottom: '-20px' }} // Adicione isso para remover o espaço superior
       />
     </>
   );

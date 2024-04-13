@@ -16,6 +16,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Button from '@mui/material/Button';
 import TablePagination from '@mui/material/TablePagination';
+import Cookies from 'js-cookie'; // Importe a biblioteca js-cookie
 
 function Row({ row, onApprove }) {
   const [open, setOpen] = useState(false);
@@ -151,7 +152,7 @@ function TableUserUpdate() {
 
   const fetchData = async () => {
     try {
-      const token = sessionStorage.getItem('token');
+      const token = Cookies.get("token");
       if (!token) {
         console.error('Token not found in session storage');
         return;
@@ -173,7 +174,7 @@ function TableUserUpdate() {
 
   const handleApprove = async (userId, status) => {
     try {
-      const token = sessionStorage.getItem('token');
+      const token = Cookies.get("token");
       if (!token) {
         console.error('Token not found in session storage');
         return;

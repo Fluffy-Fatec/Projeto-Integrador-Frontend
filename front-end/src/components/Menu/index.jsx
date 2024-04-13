@@ -35,6 +35,7 @@ import { ThemeProvider, createTheme, styled, useTheme } from '@mui/material/styl
 import GridDashboard from '../GridDashboard';
 import GridManageAccounts from '../GridManageAccounts';
 import UserUpdateGrid from '../UserUpdateGrid';
+import Cookies from 'js-cookie'; // Importe a biblioteca js-cookie
 
 const drawerWidth = 240;
 
@@ -50,7 +51,7 @@ const useAdmin = () => {
     const [admin, setAdmin] = useState(false);
 
     useEffect(() => {
-        const role = sessionStorage.getItem("role");
+        const role = Cookies.get("role");
         if (role === "admin") {
             setAdmin(true);
         } else {
