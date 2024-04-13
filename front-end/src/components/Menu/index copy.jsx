@@ -6,7 +6,6 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import DocumentationIcon from '@mui/icons-material/Description';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import MenuIcon from '@mui/icons-material/Menu';
-import SettingsIcon from '@mui/icons-material/Settings';
 import StorageIcon from '@mui/icons-material/Storage';
 import TroubleshootIcon from '@mui/icons-material/Troubleshoot';
 import MuiAppBar from '@mui/material/AppBar';
@@ -27,6 +26,10 @@ import { ThemeProvider, createTheme, styled, useTheme } from '@mui/material/styl
 import React from 'react';
 import Logo from "../../assets/pandalyze.png";
 import GridDashboard from '../GridDashboard';
+import Person2Icon from '@mui/icons-material/Person2';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import UserUpdateGrid from '../UserUpdateGrid';
+import GridManageAccounts from '../GridManageAccounts';
 
 const drawerWidth = 240;
 
@@ -43,8 +46,9 @@ const iconMap = {
     'Data Source': StorageIcon,
     'Dashboard': DashboardIcon,
     'Documentation': DocumentationIcon,
+    'My Profile': Person2Icon,
     'Monitoring': TroubleshootIcon,
-    'Settings': SettingsIcon,
+    'User Management': ManageAccountsIcon,
     'Logout': ExitToAppIcon,
 };
 
@@ -103,15 +107,6 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
     }),
 );
 
-const menuItems = [
-    'Data Source',
-    'Dashboard',
-    'Documentation',
-    'Monitoring',
-    'Settings',
-    'Logout',
-];
-
 const themeLight = createTheme({
     palette: {
         mode: 'light',
@@ -156,14 +151,18 @@ const Item = styled(Paper)(({ theme }) => ({
     padding: theme.spacing(1),
     textAlign: 'center',
     color: theme.palette.text.secondary,
-    height: '105px', // Defina a altura desejada aqui
+    height: '105px',
 }));
+
+const menuItems = ['Data Source', 'Dashboard', 'Documentation', 'My Profile', 'Monitoring', 'User Management', 'Logout'];
 
 export default function Menu() {
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
-    const [clickedIndex, setClickedIndex] = React.useState(null);
+    const [clickedIndex, setClickedIndex] = React.useState(1); 
     const [darkMode, setDarkMode] = React.useState(false);
+    const [clickedButtons, setClickedButtons] = React.useState([]);
+
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -174,7 +173,12 @@ export default function Menu() {
     };
 
     const handleItemClick = (index) => {
-        setClickedIndex(index);
+        if (index === clickedIndex) {
+            setOpen(!open);
+        } else {
+            setClickedIndex(index);
+            setOpen(true);
+        }
     };
 
     const handleLogout = () => {
@@ -183,6 +187,12 @@ export default function Menu() {
 
     const toggleDarkMode = () => {
         setDarkMode(!darkMode);
+    };
+
+    const handleButtonClick = (text) => {
+        if (!clickedButtons.includes(text)) {
+            setClickedButtons([...clickedButtons, text]);
+        }
     };
 
     return (
@@ -204,12 +214,19 @@ export default function Menu() {
                             <MenuIcon />
                         </IconButton>
                         <Typography variant="h6" noWrap component="div" style={{ marginRight: '30%', display: 'flex', alignItems: 'center' }}>
-                            {clickedIndex !== null && (
+                            {clickedIndex !== null ? (
                                 <>
                                     <ListItemIcon style={{ color: '#11BF4E' }}>
                                         {React.createElement(iconMap[menuItems[clickedIndex]])}
                                     </ListItemIcon>
                                     {menuItems[clickedIndex]}
+                                </>
+                            ) : (
+                                <>
+                                    <ListItemIcon style={{ color: '#11BF4E' }}>
+                                        {React.createElement(iconMap['Dashboard'])}
+                                    </ListItemIcon>
+                                    {'Dashboard'}
                                 </>
                             )}
                         </Typography>
@@ -238,7 +255,7 @@ export default function Menu() {
                         </>
                     )}
                     <List>
-                        {['Data Source', 'Dashboard', 'Documentation'].map((text, index) => (
+                        {menuItems.slice(0, 4).map((text, index) => (
                             <ListItem key={text} disablePadding>
                                 <ListItemButton
                                     onClick={() => handleItemClick(index)}
@@ -276,20 +293,20 @@ export default function Menu() {
                             <Divider sx={{ ml: 2, mr: 2, mb: 1, color: '#606060' }} />
                         </>
                     )}
-                    {['Monitoring', 'Settings'].map((text, index) => (
+                    {menuItems.slice(4, 6).map((text, index) => (
                         <ListItem key={text} disablePadding>
                             <ListItemButton
-                                onClick={() => handleItemClick(index + 3)}
+                                onClick={() => handleItemClick(index + 4)}
                                 sx={{
                                     height: '40px',
-                                    borderRadius: clickedIndex === index + 3 ? '10px' : '0',
-                                    backgroundColor: clickedIndex === index + 3
+                                    borderRadius: clickedIndex === index + 4 ? '10px' : '0',
+                                    backgroundColor: clickedIndex === index + 4
                                         ? '#EAEAEA' : 'transparent',
                                 }}
                             >
                                 <ListItemIcon
                                     sx={{
-                                        color: clickedIndex === index + 3 ? '#11BF4E' : undefined,
+                                        color: clickedIndex === index + 4 ? '#11BF4E' : undefined,
                                     }}
                                 >
                                     {React.createElement(iconMap[text])}
@@ -298,7 +315,7 @@ export default function Menu() {
                                     primary={text}
                                     sx={{
                                         opacity: open ? 1 : 0,
-                                        color: clickedIndex === index + 3 ? '#11BF4E' : undefined,
+                                        color: clickedIndex === index + 4 ? '#11BF4E' : undefined,
                                     }}
                                 />
                             </ListItemButton>
@@ -306,36 +323,56 @@ export default function Menu() {
                     ))}
                     <Box sx={{ flexGrow: 1 }} />
                     <List>
-                        <ListItem disablePadding>
-                            <ListItemButton
-                                onClick={handleLogout}
-                                sx={{
-                                    height: '40px',
-                                    borderRadius: '10px',
-                                    backgroundColor: clickedIndex === 'logout' ? '#f0f0f0' : 'transparent',
-                                }}
-                            >
-                                <ListItemIcon sx={{ color: clickedIndex === 'logout' ? '#11BF4E' : undefined }}>
-                                    <ExitToAppIcon />
-                                </ListItemIcon>
-                                <ListItemText
-                                    primary="Logout"
+                        {clickedButtons.map((text) => (
+                            <ListItem key={text} disablePadding>
+                                <ListItemButton
+                                    onClick={() => handleItemClick(text)}
                                     sx={{
-                                        opacity: 1,
-                                        color: clickedIndex === 'logout' ? '#11BF4E' : undefined,
+                                        height: '40px',
+                                        borderRadius: clickedIndex === text ? '10px' : '0',
+                                        backgroundColor: clickedIndex === text ? '#EAEAEA' : 'transparent',
                                     }}
-                                />
-                            </ListItemButton>
-                        </ListItem>
+                                >
+                                    <ListItemIcon
+                                        sx={{
+                                            color: clickedIndex === text ? '#11BF4E' : undefined,
+                                        }}
+                                    >
+                                        {React.createElement(iconMap[text])}
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        primary={text}
+                                        sx={{
+                                            opacity: open ? 1 : 0,
+                                            color: clickedIndex === text ? '#11BF4E' : undefined,
+                                        }}
+                                    />
+                                </ListItemButton>
+                            </ListItem>
+                        ))}
                     </List>
+                    <ListItem disablePadding>
+                        <ListItemButton
+                            onClick={handleLogout}
+                            sx={{
+                                height: '40px',
+                                borderRadius: '10px',
+                            }}
+                        >
+                            <ListItemIcon>
+                                <ExitToAppIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Logout" />
+                        </ListItemButton>
+                    </ListItem>
                 </Drawer>
-
-                <Box component="main" sx={{ p: 3 }}>                   
-                    <GridDashboard />
+                <Box component="main" sx={{ p: 2 }}>
+                    {clickedIndex === 1 && <GridDashboard darkMode={darkMode} theme={theme} />}
+                    {clickedIndex === 3 && <UserUpdateGrid darkMode={darkMode} theme={theme} />}
+                    {clickedIndex === 5 && <GridManageAccounts darkMode={darkMode} theme={theme} />}
                 </Box>
-
                 <IconButton
-                    onClick={toggleDarkMode}F
+                    onClick={toggleDarkMode}
                     sx={{
                         position: 'fixed',
                         bottom: '16px',

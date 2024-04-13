@@ -159,9 +159,10 @@ const menuItems = ['Data Source', 'Dashboard', 'Documentation', 'My Profile', 'M
 export default function Menu() {
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
-    const [clickedIndex, setClickedIndex] = React.useState(null);
+    const [clickedIndex, setClickedIndex] = React.useState(1); 
     const [darkMode, setDarkMode] = React.useState(false);
     const [clickedButtons, setClickedButtons] = React.useState([]);
+
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -181,8 +182,10 @@ export default function Menu() {
     };
 
     const handleLogout = () => {
-        console.log('Realizar logout');
+        localStorage.removeItem('accessToken');
+        window.location.href = '/'; 
     };
+    
 
     const toggleDarkMode = () => {
         setDarkMode(!darkMode);
@@ -258,6 +261,8 @@ export default function Menu() {
                             <ListItem key={text} disablePadding>
                                 <ListItemButton
                                     onClick={() => handleItemClick(index)}
+                                    disabled={text === 'Data Source' || text === 'Documentation'} // Desabilita os itens 'Data Source', 'Monitoring' e 'Documentation'
+
                                     sx={{
                                         height: '40px',
                                         borderRadius: clickedIndex === index ? '20px' : '0',
@@ -296,6 +301,8 @@ export default function Menu() {
                         <ListItem key={text} disablePadding>
                             <ListItemButton
                                 onClick={() => handleItemClick(index + 4)}
+                                disabled={ text === 'Monitoring'} // Desabilita os itens 'Data Source', 'Monitoring' e 'Documentation'
+
                                 sx={{
                                     height: '40px',
                                     borderRadius: clickedIndex === index + 4 ? '10px' : '0',
@@ -367,6 +374,7 @@ export default function Menu() {
                 </Drawer>
                 <Box component="main" sx={{ p: 2 }}>
                     {clickedIndex === 1 && <GridDashboard darkMode={darkMode} theme={theme} />}
+
                     {clickedIndex === 3 && <UserUpdateGrid darkMode={darkMode} theme={theme} />}
                     {clickedIndex === 5 && <GridManageAccounts darkMode={darkMode} theme={theme} />}
                 </Box>

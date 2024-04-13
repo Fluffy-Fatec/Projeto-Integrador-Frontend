@@ -15,6 +15,7 @@ import Paper from '@mui/material/Paper';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Button from '@mui/material/Button';
+import TablePagination from '@mui/material/TablePagination';
 
 function Row({ row, onApprove }) {
   const [open, setOpen] = useState(false);
@@ -41,21 +42,27 @@ function Row({ row, onApprove }) {
         <TableCell align="right">
           {row.status === 'pendente' && (
             <React.Fragment>
-              <Button variant="contained" onClick={() => onApprove(row.id, 'aprovado')} sx={{
-                borderRadius: 5,
-                mt: 3,
-                mb: 2,
-                width: { xs: '100%', sm: 'auto' },
-                marginRight: '10px',
-                color: 'white',
-                backgroundColor: '#11BF4E',
-                '&:hover': {
-                  backgroundColor: '#34d165',
-                },
-              }}>
+              <Button
+                variant="contained"
+                onClick={() => onApprove(row.id, 'aprovado')}
+                sx={{
+                  borderRadius: 5,
+                  mt: 3,
+                  mb: 2,
+                  width: { xs: '100%', sm: 'auto' },
+                  marginRight: '10px',
+                  color: 'white',
+                  backgroundColor: '#11BF4E',
+                  '&:hover': {
+                    backgroundColor: '#34d165',
+                  },
+                }}
+              >
                 Approve
               </Button>
-              <Button variant="contained" onClick={() => onApprove(row.id, 'rejeitado')}
+              <Button
+                variant="contained"
+                onClick={() => onApprove(row.id, 'rejeitado')}
                 sx={{
                   borderRadius: 5,
                   mt: 3,
@@ -67,7 +74,8 @@ function Row({ row, onApprove }) {
                   '&:hover': {
                     backgroundColor: '#ff8c9a',
                   },
-                }}>
+                }}
+              >
                 Reject
               </Button>
             </React.Fragment>
@@ -134,11 +142,12 @@ Row.propTypes = {
 
 function TableUserUpdate() {
   const [userData, setUserData] = useState([]);
-  const hasPendingStatus = userData.some(row => row.status === 'pendente');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [page, rowsPerPage]);
 
   const fetchData = async () => {
     try {
@@ -149,8 +158,12 @@ function TableUserUpdate() {
       }
       const response = await axios.get('http://localhost:8080/auth/update/user/list', {
         headers: {
-          Authorization: `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
+        params: {
+          page: page + 1,
+          per_page: rowsPerPage,
+        },
       });
       setUserData(response.data);
     } catch (error) {
@@ -173,41 +186,70 @@ function TableUserUpdate() {
 
   const approveUser = async (userId, status, token) => {
     try {
-      await axios.put('http://localhost:8080/auth/update/user/approve', {
-        approve: status,
-        id: userId
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+      await axios.put(
+        'http://localhost:8080/auth/update/user/approve',
+        {
+          approve: status,
+          id: userId,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
+      );
       fetchData();
     } catch (error) {
       console.error('Error approving user:', error);
     }
   };
 
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
   return (
     <TableContainer component={Paper}>
-      <Table aria-label="collapsible table">
-        <TableHead>
-          <TableRow>
-            <TableCell />
-            <TableCell>Name</TableCell>
-            <TableCell align="right">E-mail</TableCell>
-            <TableCell align="right">Cellphone</TableCell>
-            <TableCell align="right">CPF</TableCell>
-            <TableCell align="right">Status</TableCell>
-            {hasPendingStatus && <TableCell align="right">Actions</TableCell>}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {userData.map((row) => (
-            <Row key={row.id} row={row} onApprove={handleApprove} />
-          ))}
-        </TableBody>
-      </Table>
+      <Typography variant="h6" component="div" sx={{ p: 2 }}>
+        Change Request
+      </Typography>
+      <TableContainer style={{ overflowX: 'auto' }}>
+        <Table aria-label="collapsible table">
+          <TableHead>
+            <TableRow>
+              <TableCell />
+              <TableCell>Name</TableCell>
+              <TableCell align="right">E-mail</TableCell>
+              <TableCell align="right">Cellphone</TableCell>
+              <TableCell align="right">CPF</TableCell>
+              <TableCell align="right">Status</TableCell>
+              {userData.some((row) => row.status === 'pendente') && (
+                <TableCell align="right">Actions</TableCell>
+              )}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {userData.map((row) => (
+              <Row key={row.id} row={row} onApprove={handleApprove} />
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[4]}
+        component="div"
+        count={userData.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
     </TableContainer>
   );
 }

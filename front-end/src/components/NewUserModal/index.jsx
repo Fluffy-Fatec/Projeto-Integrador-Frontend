@@ -9,6 +9,8 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
 import Input from '@mui/material/Input';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
 
 const defaultTheme = createTheme();
 
@@ -78,7 +80,12 @@ export default function SignIn({ token }) {
                     }}
                 >
                     <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-                        <DialogTitle>New User</DialogTitle>
+                        <DialogTitle>
+                            New User
+                            <IconButton aria-label="close" onClick={handleClose} sx={{ position: 'absolute', right: 8, top: 8, color: 'grey' }}>
+                                <CloseIcon />
+                            </IconButton>
+                        </DialogTitle>
                         <DialogContent dividers>
                             <Input
                                 color='success'
@@ -115,22 +122,6 @@ export default function SignIn({ token }) {
                                 disabled={isSubmitting}
                             >
                                 Send
-                            </Button>
-                            <Button
-                                fullWidth
-                                variant="outlined"
-                                onClick={handleClose}
-                                sx={{
-                                    borderRadius: 5,
-                                    mt: 3,
-                                    mb: 2,
-                                    width: { xs: '100%', sm: 'auto' },
-                                    marginRight: '10px',
-                                    color: '#11BF4E',
-                                    borderColor: '#11BF4E',
-                                }}
-                            >
-                                Close
                             </Button>
                         </DialogActions>
                     </Dialog>

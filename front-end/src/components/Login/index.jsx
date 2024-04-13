@@ -1,4 +1,3 @@
-  
 import React, { useState, useEffect } from 'react';
 import Input from '@mui/material/Input';
 import Button from '@mui/material/Button';
@@ -71,13 +70,14 @@ export default function SignIn() {
   useEffect(() => {
     const interval = setInterval(() => {
       const currentText = texts[textIndex];
+      const nextIndex = (textIndex + 1) % texts.length;
       if (typedText === currentText) {
         clearInterval(interval);
         const deleteInterval = setInterval(() => {
           setTypedText((prevText) => {
             const newText = prevText.slice(0, -1);
             if (newText === '') {
-              setTextIndex((prevIndex) => (prevIndex + 1) % texts.length);
+              setTextIndex(nextIndex);
               clearInterval(deleteInterval);
             }
             return newText;
@@ -103,7 +103,7 @@ export default function SignIn() {
             <CardContent>
               <img src={logo} alt="Logo" style={{ width: '50%', marginBottom: '20px', marginLeft: '25%', marginTop: '12px' }} />
               <Typography sx={{ fontSize: '0.9rem', textAlign: 'center', color: '#5F5F5F' }}>
-                Sign in to continue to Panda Analysis
+                Sign in to continue to Pandalyze
               </Typography>
               <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
                 <Input
