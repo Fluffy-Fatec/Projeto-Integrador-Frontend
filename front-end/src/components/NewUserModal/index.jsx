@@ -14,7 +14,7 @@ import CloseIcon from '@mui/icons-material/Close';
 
 const defaultTheme = createTheme();
 
-export default function SignIn({ token }) {
+export default function SignIn({ token, darkMode }) {
     const [open, setOpen] = React.useState(true);
     const [email, setEmail] = React.useState('');
     const [emailError, setEmailError] = React.useState(false);
@@ -68,7 +68,7 @@ export default function SignIn({ token }) {
     };
 
     return (
-        <ThemeProvider theme={defaultTheme}>
+        <ThemeProvider theme={darkMode}>
             <Container component="main" maxWidth="sm">
                 <CssBaseline />
                 <Box
