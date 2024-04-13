@@ -9,7 +9,6 @@ import GeographicGraph from '../GeographicGraph';
 import TableReview from '../TableReview';
 
 
-
 const GridDashboard = () => {
     return (
         <Box component="main" sx={{ p: 2, marginTop: '60px' }}>

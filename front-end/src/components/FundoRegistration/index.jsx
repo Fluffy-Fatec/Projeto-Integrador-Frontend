@@ -1,8 +1,8 @@
 import React from 'react';
 import fundo from "../../assets/fundo-login.jpg";
-import TermoAceite from "../Registration";
+import Registration from "../Registration";
 
-const RegistrationBackground = () => {
+const FundoRegistration = () => {
   const pageStyle = {
     width: '100vw',
     height: '100vh',
@@ -36,9 +36,9 @@ const RegistrationBackground = () => {
   return (
     <div style={pageStyle}>
       <div style={backgroundStyle}></div>
-      <div style={overlayStyle}><TermoAceite /></div>
+      <div style={overlayStyle}><Registration /></div>
     </div>
   );
 };
 
-export default RegistrationBackground;
+export default FundoRegistration;
