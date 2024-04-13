@@ -13,11 +13,7 @@ function App() {
         headers: {
           'Authorization': `Bearer ${token}`
         },
-        params: {
-          limit: 100
-        }
       });
-      console.log('Dados da API:', response.data);
 
       const counts = {
         'Positive': 0,
@@ -60,13 +56,28 @@ function App() {
   }, []);
 
   const options = {
-    title: "Sentiment Over Time",
+    // title: "Sentiment Over Time",
+    // titleTextStyle: {
+    //   bold: true,
+    //   fontName: 'Segoe UI',
+    //   fontSize: 20,
+    //   color: '#5F5F5F'
+    // },
+    // legend: {
+    //   textStyle: {
+    //     fontName: 'Segoe UI',
+    //     fontSize: 14,
+    //     color: '#5F5F5F'
+    //   }
+    // },
+
     pieHole: 0.4,
     slices: {
       0: { color: '#11BF4E' }, // Green for Positive
       1: { color: '#F25774' }  // Red for Negative
     },
     is3D: false,
+    legend: 'none',
   };
 
   if (loading) {

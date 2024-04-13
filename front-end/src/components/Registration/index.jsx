@@ -156,6 +156,7 @@ export default function SignIn() {
                       name="fullName"
                       id="fullName"
                       sx={{ height: '30px', fontSize: '0.8rem' }}
+                      color="success"
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -167,6 +168,7 @@ export default function SignIn() {
                       name="username"
                       id="username"
                       sx={{ height: '30px', fontSize: '0.8rem' }}
+                      color="success"
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -179,6 +181,7 @@ export default function SignIn() {
                       name="email"
                       id="email"
                       sx={{ height: '30px', fontSize: '0.8rem' }}
+                      color="success"
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -193,6 +196,7 @@ export default function SignIn() {
                       id="cellPhone"
                       inputProps={{ maxLength: 15 }}
                       sx={{ height: '30px', fontSize: '0.8rem' }}
+                      color="success"
                     />
                   </Grid>
                   <Grid item xs={12} sm={4}>
@@ -207,6 +211,7 @@ export default function SignIn() {
                       id="cpf"
                       inputProps={{ maxLength: 14 }}
                       sx={{ height: '30px', fontSize: '0.8rem' }}
+                      color="success"
                     />
                   </Grid>
                   <Grid item xs={12} sm={4}>
@@ -229,6 +234,7 @@ export default function SignIn() {
                         </IconButton>
                       }
                       sx={{ height: '30px', fontSize: '0.8rem' }}
+                      color="success"
                     />
                   </Grid>
                   <Grid item xs={12} sm={4}>
@@ -251,15 +257,16 @@ export default function SignIn() {
                         </IconButton>
                       }
                       sx={{ height: '30px', fontSize: '0.8rem' }}
+                      color="success"
                     />
                   </Grid>
                 </Grid>
                 <Box mt={2}>
-                  <Typography sx={{ fontSize: '0.73rem', marginBottom: '2%', color: "#5F5F5F" }}>
+                  {/* <Typography sx={{ fontSize: '0.73rem', marginBottom: '2%', color: "#5F5F5F" }}>
                     By submitting, I agree to the processing of my personal data by Fluffy Tech in accordance with the
                     <a href="#" style={{ color: '#11BF4E' }}> Privacy Policy</a>.
                     I understand that I can change my preferences at any time.
-                  </Typography>
+                  </Typography> */}
                 </Box>
                 <Button
                   type="submit"
