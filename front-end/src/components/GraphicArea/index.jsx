@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Chart } from "react-google-charts";
 import axios from "axios";
+import Typography from '@mui/material/Typography';
 
 function App() {
   const [chartData, setChartData] = useState([]);
@@ -13,14 +14,10 @@ function App() {
         headers: {
           'Authorization': `Bearer ${token}`
         },
-        params: {
-          limit: 100
-        }
       });
 
       const counts = {};
 
-      // Agrupar os comentários por semana
       response.data.forEach(item => {
         const weekNumber = getWeekNumber(new Date(item.reviewCreationDate));
         if (!counts[weekNumber]) {
@@ -34,7 +31,6 @@ function App() {
         }
       });
 
-      // Converter os dados para o formato esperado pelo gráfico
       const chartData = [['Week', 'Positive', 'Negative']];
       Object.keys(counts).forEach(weekNumber => {
         chartData.push([`Week ${weekNumber}`, counts[weekNumber]['Positive'], counts[weekNumber]['Negative']]);
@@ -49,7 +45,6 @@ function App() {
     }
   };
 
-  // Função para obter o número da semana a partir de uma data
   const getWeekNumber = (date) => {
     const oneJan = new Date(date.getFullYear(), 0, 1);
     const millisecsInDay = 86400000;
@@ -68,12 +63,50 @@ function App() {
 
   const options = {
     title: "Sentiment Over Time",
-    hAxis: { title: "Week", titleTextStyle: { color: "#333" } },
-    vAxis: { title: "Comments", minValue: 0 },
-    chartArea: { width: "50%", height: "70%" },
+    titleTextStyle: {
+      bold: true,
+      fontName: 'Segoe UI',
+      fontSize: 20,
+      color: '#5F5F5F'
+    },
+    hAxis: {
+      title: "Week",
+      titleTextStyle: {
+        bold: true,
+        fontName: 'Segoe UI',
+        fontSize: 14,
+        color: '#5F5F5F',
+        italic: false
+      },
+    },
+    vAxis: {
+      title: "Comments",
+      minValue: 0,
+      titleTextStyle: {
+        bold: true,
+        fontName: 'Segoe UI',
+        fontSize: 14,
+        color: '#5F5F5F',
+        italic: false
+      },
+    },
+    chartArea: {
+      width: "65%",
+      height: "55%"
+    },
     colors: ["#11BF4E", "#F25774"],
     backgroundColor: 'transparent',
+    legend: {
+      position: 'bottom', 
+      textStyle: {
+        fontName: 'Segoe UI',
+        fontSize: 14,
+        color: '#5F5F5F',
+        italic: false
+      }
+    }
   };
+
 
   if (loading) {
     return <div>Loading...</div>;
@@ -84,13 +117,17 @@ function App() {
   }
 
   return (
-    <Chart
-      chartType="AreaChart"
-      width="100%"
-      height="100%"
-      data={chartData}
-      options={options}
-    />
+    <>
+      {/* <Typography variant="h1" style={{ fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20, color: '#5F5F5F', marginLeft: '25px', marginTop: '5px'}}>Sentiment Over Time</Typography> */}
+      <Chart
+        chartType="AreaChart"
+        width="100%"
+        height="95%"
+        data={chartData}
+        options={options}
+      // style={{ marginBottom: '-20px' }} // Adicione isso para remover o espaço superior
+      />
+    </>
   );
 }
 

@@ -13,20 +13,14 @@ export function App() {
         headers: {
           'Authorization': `Bearer ${token}`
         },
-        params: {
-          limit: 100
-        }
       });
-      console.log('Dados da API:', response.data);
 
-      // Contar quantos registros existem para cada estado
       const stateCounts = {};
       response.data.forEach(item => {
         const state = item.geolocationState;
         stateCounts[state] = (stateCounts[state] || 0) + 1;
       });
 
-      // Selecionar os cinco estados com maior contagem de registros
       const topStates = Object.keys(stateCounts)
         .sort((a, b) => stateCounts[b] - stateCounts[a])
         .slice(0, 5);
@@ -49,9 +43,19 @@ export function App() {
         }
       });
 
+      const sortedWeeks = Object.keys(groupedData).sort((a, b) => {
+        const [aYear, aWeek] = a.split('-W').map(Number);
+        const [bYear, bWeek] = b.split('-W').map(Number);
+        if (aYear !== bYear) {
+          return aYear - bYear;
+        } else {
+          return aWeek - bWeek;
+        }
+      });
+
       const chartData = [['Week', ...topStates]];
-      Object.entries(groupedData).forEach(([week, stateData]) => {
-        chartData.push([week, ...topStates.map(state => stateData[state])]);
+      sortedWeeks.forEach(week => {
+        chartData.push([week, ...topStates.map(state => groupedData[week][state])]);
       });
 
       setChartData(chartData);
@@ -74,18 +78,58 @@ export function App() {
   }, []);
 
   const options = {
-    title: "Comment Count by Week and State",
+    title: "Sentiment Over Time by State",
     backgroundColor: 'transparent',
-    chartArea: { width: "70%", height: "70%" },
+
+    titleTextStyle: {
+      bold: true,
+      fontName: 'Segoe UI',
+      fontSize: 20,
+      color: '#5F5F5F'
+    },
+    chartArea: {
+      width: "65%",
+      height: "65%"
+    },
     isStacked: false,
     hAxis: {
       title: "Week",
+      legend: {
+        textStyle: {
+          fontName: 'Segoe UI',
+          fontSize: 14,
+          color: '#5F5F5F',
+          italic: false
+        }
+      },
+      titleTextStyle: {
+        bold: true,
+        fontName: 'Segoe UI',
+        fontSize: 14,
+        color: '#5F5F5F',
+        italic: false
+      },
     },
     vAxis: {
       title: "Comment Count",
       minValue: 0,
+      legend: {
+        textStyle: {
+          fontName: 'Segoe UI',
+          fontSize: 14,
+          color: '#5F5F5F',
+          italic: false
+        }
+      },
+      titleTextStyle: {
+        bold: true,
+        fontName: 'Segoe UI',
+        fontSize: 14,
+        color: '#5F5F5F',
+        italic: false
+      },
     },
-    colors: ["#11BF4E", "#F25774", "#FF9900", "#3366CC", "#DC3912"],
+    colors: ["#11BF4E", "#F25774", "#FF7131", "#3C5AB7", "#6D83C9"],
   };
 
   const getWeekNumber = (date) => {

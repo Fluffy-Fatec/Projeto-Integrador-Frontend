@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Chart } from "react-google-charts";
 import axios from "axios";
+import Typography from '@mui/material/Typography';
 
 function App() {
   const [chartData, setChartData] = useState([]);
@@ -13,11 +14,7 @@ function App() {
         headers: {
           'Authorization': `Bearer ${token}`
         },
-        params: {
-          limit: 100
-        }
       });
-      console.log('Dados da API:', response.data);
 
       const scores = {
         1: { positives: 0, negatives: 0 },
@@ -38,9 +35,7 @@ function App() {
         }
       });
 
-      const chartData = [
-        ['Score', 'Positive', 'Negative']
-      ];
+      const chartData = [['Score', 'Positive', 'Negative']];
 
       for (let score = 5; score >= 1; score--) {
         chartData.push([score.toString(), scores[score].positives, scores[score].negatives]);
@@ -66,16 +61,55 @@ function App() {
   }, []);
 
   const options = {
-    title: "Sentiment by State",
+    title: "Review Score by Sentiment",
     backgroundColor: 'transparent',
-    chartArea: { width: "50%" },
+    titleTextStyle: {
+      bold: true,
+      fontName: 'Segoe UI',
+      fontSize: 20,
+      color: '#5F5F5F'
+    },
+    chartArea: {
+      width: "65%",
+      height: "50%"
+    },
     isStacked: true,
     hAxis: {
       title: "Comment Count",
       minValue: 0,
+      legend: {
+        textStyle: {
+          fontName: 'Segoe UI',
+          fontSize: 14,
+          color: '#5F5F5F',
+          italic: false
+        }
+      },
+      titleTextStyle: {
+        bold: true,
+        fontName: 'Segoe UI',
+        fontSize: 14,
+        color: '#5F5F5F',
+        italic: false
+      },
     },
     vAxis: {
       title: "Score",
+      legend: {
+        textStyle: {
+          fontName: 'Segoe UI',
+          fontSize: 14,
+          color: '#5F5F5F',
+          italic: false
+        }
+      },
+      titleTextStyle: {
+        bold: true,
+        fontName: 'Segoe UI',
+        fontSize: 14,
+        color: '#5F5F5F',
+        italic: false
+      },
     },
     colors: ["#11BF4E", "#F25774"],
   };
@@ -91,12 +125,12 @@ function App() {
 
   return (
     <Chart
-      chartType="BarChart"
-      width="100%"
-      height="100%"
-      data={chartData}
-      options={options}
-    />
+        chartType="BarChart"
+        width="100%"
+        height="100%"
+        data={chartData}
+        options={options}
+      />
   );
 }
 

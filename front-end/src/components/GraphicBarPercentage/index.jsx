@@ -13,11 +13,7 @@ function App() {
         headers: {
           'Authorization': `Bearer ${token}`
         },
-        params: {
-          limit: 100
-        }
       });
-      console.log('Dados da API:', response.data);
 
       const stateData = {};
 
@@ -74,20 +70,65 @@ function App() {
 
   const options = {
     title: "Sentiment by State",
-    chartArea: { width: "70%", height: "70%" },
     backgroundColor: 'transparent',
+
+    titleTextStyle: {
+      bold: true,
+      fontName: 'Segoe UI',
+      fontSize: 20,
+      color: '#5F5F5F'
+    },
+    chartArea: {
+      width: "65%",
+      height: "65%"
+    },
     isStacked: true,
     hAxis: {
       title: "Percentage",
       minValue: 0,
       maxValue: 100,
+      legend: {
+        textStyle: {
+          fontName: 'Segoe UI',
+          fontSize: 14,
+          color: '#5F5F5F',
+          italic: false // Remover o itálico
+        }
+      },
+      titleTextStyle: {
+        bold: true,
+        fontName: 'Segoe UI',
+        fontSize: 14,
+        color: '#5F5F5F',
+        italic: false // Remover o itálico
+      }
     },
     vAxis: {
       title: "State",
+      textStyle: {
+        fontName: 'Segoe UI',
+        fontSize: 10,
+        color: '#5F5F5F',
+        italic: false // Remover o itálico
+      },
+      legend: {
+        textStyle: {
+          fontName: 'Segoe UI',
+          fontSize: 10,
+          color: '#5F5F5F',
+          italic: false // Remover o itálico
+        }
+      },
+      titleTextStyle: {
+        bold: true,
+        fontName: 'Segoe UI',
+        fontSize: 14,
+        color: '#5F5F5F',
+        italic: false // Remover o itálico
+      }
     },
     colors: ["#11BF4E", "#F25774"],
   };
-
 
   if (loading) {
     return <div>Loading...</div>;
