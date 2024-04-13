@@ -12,17 +12,13 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import UpdatePassword from "../UpdatePassword";
 import Dialog from '@mui/material/Dialog';
 
-const Item = styled(Paper)(({ theme }) => ({
-    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#ffffff',
-    ...theme.typography.body2,
-    padding: theme.spacing(1),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
+const Item = styled(Paper)(({ theme, darkMode }) => ({
+    backgroundColor: darkMode,
     overflow: 'auto',
     overflowY: 'auto',
 }));
 
-const CustomComponent = () => {
+const CustomComponent = ({ darkMode }) => {
     const [fullName, setFullName] = useState('');
     const [userName, setUserName] = useState('');
     const [email, setEmail] = useState('');
@@ -125,7 +121,7 @@ const CustomComponent = () => {
         </Button>
     </Grid>
     */}
-                    <Item sx={{ height: 'calc(50vh - 64px)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    <Item sx={{ height: 'calc(50vh - 64px)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }} darkMode={darkMode}>
                         <Grid container spacing={2} sx={{ padding: "15px" }}>
                             <Grid item xs={12}>
                                 <Typography variant="subtitle1" sx={{ marginBottom: 1, textAlign: 'left', fontWeight: 'bold', fontSize: '1.2rem' }}>
@@ -222,8 +218,7 @@ const CustomComponent = () => {
                                 Update Password
                             </Button>
                             <Dialog open={openModal} onClose={handleCloseModal}>
-                                <UpdatePassword token={token} />
-                                <UpdatePassword token={token} />
+                                <UpdatePassword token={token} darkMode={darkMode} />
                             </Dialog>
                             <Button
                                 type="submit"
@@ -248,7 +243,7 @@ const CustomComponent = () => {
                     </Item>
                 </Grid>
                 <Grid item xs={12} sx={{ marginLeft: '25px', marginRight: '25px' }}>
-                    <Item sx={{ height: 'auto' }}>
+                    <Item sx={{ height: 'auto' }} darkMode={darkMode}>
                         <Grid container spacing={2}>
                             <Grid item xs={12}>
                                 <Grid item xs={12}>

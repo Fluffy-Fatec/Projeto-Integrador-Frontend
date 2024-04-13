@@ -95,6 +95,7 @@ function App() {
       height: "55%"
     },
     colors: ["#11BF4E", "#F25774"],
+    backgroundColor: 'transparent',
     legend: {
       position: 'bottom', 
       textStyle: {

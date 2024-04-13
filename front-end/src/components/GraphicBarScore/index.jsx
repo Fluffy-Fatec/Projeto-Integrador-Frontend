@@ -62,6 +62,7 @@ function App() {
 
   const options = {
     title: "Review Score by Sentiment",
+    backgroundColor: 'transparent',
     titleTextStyle: {
       bold: true,
       fontName: 'Segoe UI',

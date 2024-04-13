@@ -2,7 +2,7 @@ import * as React from 'react';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
 import Grid from '@mui/material/Grid';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -15,9 +15,7 @@ import Input from '@mui/material/Input';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
-const defaultTheme = createTheme();
-
-export default function SignIn({ token }) {
+export default function SignIn({ token, darkMode }) {
     const [isChecked, setIsChecked] = React.useState(false);
     const [open, setOpen] = React.useState(true);
     const [newPassword, setNewPassword] = React.useState('');
@@ -106,7 +104,7 @@ export default function SignIn({ token }) {
     };
 
     return (
-        <ThemeProvider theme={defaultTheme}>
+        <ThemeProvider theme={darkMode}>
             <Container component="main" maxWidth="sm">
                 <CssBaseline />
                 <Box

@@ -79,6 +79,8 @@ export function App() {
 
   const options = {
     title: "Sentiment Over Time by State",
+    backgroundColor: 'transparent',
+
     titleTextStyle: {
       bold: true,
       fontName: 'Segoe UI',
@@ -135,7 +137,7 @@ export function App() {
     const millisecsInDay = 86400000;
     return Math.ceil((((date - onejan) / millisecsInDay) + onejan.getDay() + 1) / 7);
   };
-  
+
   if (loading) {
     return <div>Loading...</div>;
   }

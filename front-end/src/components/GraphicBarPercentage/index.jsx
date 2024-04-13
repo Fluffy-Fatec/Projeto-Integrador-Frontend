@@ -70,6 +70,8 @@ function App() {
 
   const options = {
     title: "Sentiment by State",
+    backgroundColor: 'transparent',
+
     titleTextStyle: {
       bold: true,
       fontName: 'Segoe UI',
@@ -127,7 +129,7 @@ function App() {
     },
     colors: ["#11BF4E", "#F25774"],
   };
-  
+
   if (loading) {
     return <div>Loading...</div>;
   }

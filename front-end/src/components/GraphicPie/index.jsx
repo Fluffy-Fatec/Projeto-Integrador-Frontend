@@ -56,6 +56,7 @@ function App() {
   }, []);
 
   const options = {
+    backgroundColor: 'transparent',
     // title: "Sentiment Over Time",
     // titleTextStyle: {
     //   bold: true,
@@ -70,11 +71,10 @@ function App() {
     //     color: '#5F5F5F'
     //   }
     // },
-
     pieHole: 0.4,
     slices: {
-      0: { color: '#11BF4E' }, // Green for Positive
-      1: { color: '#F25774' }  // Red for Negative
+      0: { color: '#11BF4E' },
+      1: { color: '#F25774' }
     },
     is3D: false,
     legend: 'none',
