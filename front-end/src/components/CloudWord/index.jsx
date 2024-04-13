@@ -5,6 +5,7 @@ import { useSpring, animated } from "react-spring";
 import { Select, MenuItem } from "@mui/material";
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
+import Cookies from 'js-cookie'; 
 
 const WorldGraphics = () => {
     const [data, setData] = useState(null);
@@ -17,7 +18,7 @@ const WorldGraphics = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const token = sessionStorage.getItem("token");
+                const token = Cookies.get("token");
                 if (!token) {
                     setError("Token de autenticação não encontrado.");
                     setLoading(false);
