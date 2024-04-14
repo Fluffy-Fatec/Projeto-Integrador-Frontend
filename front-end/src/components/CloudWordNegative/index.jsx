@@ -67,57 +67,50 @@ const WorldGraphics = ({ token }) => {
 
     return (
         <>
-        <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 22 }}>Cloud Negative Word</Typography> 
-        <div>
+            <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 22 }}>Cloud Negative Word</Typography>
             <div>
-                <Select
-                    color="success"
-                    value={filter}
-                    onChange={handleFilterChange}
-                    displayEmpty
-                    style={{ width: "115px", height: "25px" }}
-                >
-                    <MenuItem value="1" startIcon={<ThumbUpIcon />}>Positive</MenuItem>
-                    <MenuItem value="0" startIcon={<ThumbDownIcon />}>Negative</MenuItem>
-                </Select>
+
+                {loading && <p>Carregando...</p>}
+                {error && <p>{error}</p>}
+                {data && (
+                    <div style={{ width: "370px", height: "45px", marginLeft: "20px" }}>
+                        <TagCloud
+                            minSize={12}
+                            maxSize={35}
+                            tags={data
+                                .slice(0, 25)
+                                .map((item) => ({ value: item.word, count: Number(item.count) }))
+                            }
+                            onMouseEnter={(word) => handleMouseEnter(word)}
+                            onMouseLeave={() => handleMouseLeave()}
+                            onClick={(word) => handleWordClick(word)}
+                            renderer={(tag, size, color) => (
+                                <animated.span
+                                    key={tag.value}
+                                    style={{
+                                        cursor: "pointer",
+                                        fontSize: `${size}px`,
+                                        margin: "3px",
+                                        padding: "3px",
+                                        display: "inline-block",
+                                        color: highlightedWord === tag.value ? "red" : color,
+                                        transform: wordTransitionProps.scale.interpolate(scale => `scale(${scale})`),
+                                    }}
+                                >
+                                    {tag.value}
+                                </animated.span>
+                            )}
+                        />
+
+                    </div>
+                )}
+                {selectedWord && (
+                    <div>
+                        <p>Você clicou na palavra: {selectedWord}</p>
+                        <Button variant="text" onClick={() => setSelectedWord(null)}>Voltar</Button>
+                    </div>
+                )}
             </div>
-            {loading && <p>Carregando...</p>}
-            {error && <p>{error}</p>}
-            {data && (
-                <div style={{ width: "500px", height: "300px" }}>
-                    <TagCloud
-                        minSize={12}
-                        maxSize={35}
-                        tags={data.map((item) => ({ value: item.word, count: Number(item.count) }))}
-                        onMouseEnter={(word) => handleMouseEnter(word)}
-                        onMouseLeave={() => handleMouseLeave()}
-                        onClick={(word) => handleWordClick(word)}
-                        renderer={(tag, size, color) => (
-                            <animated.span
-                                key={tag.value}
-                                style={{
-                                    cursor: "pointer",
-                                    fontSize: `${size}px`,
-                                    margin: "3px",
-                                    padding: "3px",
-                                    display: "inline-block",
-                                    color: highlightedWord === tag.value ? "red" : color,
-                                    transform: wordTransitionProps.scale.interpolate(scale => `scale(${scale})`),
-                                }}
-                            >
-                                {tag.value}
-                            </animated.span>
-                        )}
-                    />
-                </div>
-            )}
-            {selectedWord && (
-                <div>
-                    <p>Você clicou na palavra: {selectedWord}</p>
-                    <Button variant="text" onClick={() => setSelectedWord(null)}>Voltar</Button>
-                </div>
-            )}
-        </div>
         </>
     );
 };

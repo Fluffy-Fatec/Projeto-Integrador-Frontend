@@ -15,63 +15,63 @@ import CloudWordNegative from '../CloudWordNegative';
 const GridDashboard = ({ darkMode, theme, token }) => {
   return (
     <Grid container spacing={3} sx={{ marginTop: '50px' }}>
-    {/* Primeira Linha */}
-    <Grid item xs={12} sm={4}>
-      <Paper style={{ height: 550 }}>
-        <GeographicGraph  darkMode={darkMode} token={token} />
-      </Paper>
-    </Grid>
+      {/* Primeira Linha */}
+      <Grid item xs={12} sm={4}>
+        <Paper style={{ height: 550 }}>
+          <GeographicGraph darkMode={darkMode} token={token} />
+        </Paper>
+      </Grid>
 
-    <Grid item xs={12} sm={4}>
-      <Paper style={{ height: 550 }}>
-        <TableReview  darkMode={darkMode} token={token} />
-      </Paper>
-    </Grid>
+      <Grid item xs={12} sm={4}>
+        <Paper style={{ height: 550 }}>
+          <TableReview darkMode={darkMode} token={token} />
+        </Paper>
+      </Grid>
 
-    <Grid item xs={12} sm={4}>
-      <Paper style={{ height: 550 }}>
-        <GraphicBarPercentage  darkMode={darkMode} token={token} />
-      </Paper>
-    </Grid>
+      <Grid item xs={12} sm={4}>
+        <Paper style={{ height: 550 }}>
+          <GraphicBarPercentage darkMode={darkMode} token={token} />
+        </Paper>
+      </Grid>
 
-    {/* Segunda Linha */}
-    <Grid item xs={12} sm={4}>
-      <Paper style={{ height: 350 }}>
-        <GraphicBarDate darkMode={darkMode} token={token}  />
-      </Paper>
-    </Grid>
+      {/* Segunda Linha */}
+      <Grid item xs={12} sm={4}>
+        <Paper style={{ height: 350 }}>
+          <GraphicBarDate darkMode={darkMode} token={token} />
+        </Paper>
+      </Grid>
 
-    <Grid item xs={12} sm={4}>
-      <Paper style={{ height: 350 }}>
-        <GraphicBarScore  darkMode={darkMode} token={token}  />
-      </Paper>
-    </Grid>
+      <Grid item xs={12} sm={4}>
+        <Paper style={{ height: 350 }}>
+          <GraphicBarScore darkMode={darkMode} token={token} />
+        </Paper>
+      </Grid>
 
-    <Grid item xs={12} sm={4}>
-      <Paper style={{ height: 350 }}>
-        <GraphicArea  darkMode={darkMode} token={token}  />
-      </Paper>
-    </Grid>
+      <Grid item xs={12} sm={4}>
+        <Paper style={{ height: 350 }}>
+          <GraphicArea darkMode={darkMode} token={token} />
+        </Paper>
+      </Grid>
 
-    {/* Terceira Linha */}
-    <Grid item xs={12} sm={4}>
-      <Paper style={{ height: 350 }}>
-        <GraphicPie  darkMode={darkMode} token={token}  />
-      </Paper>
-    </Grid>
+      {/* Terceira Linha */}
+      <Grid item xs={12} sm={4}>
+        <Paper style={{ height: 350 }}>
+          <GraphicPie darkMode={darkMode} token={token} />
+        </Paper>
+      </Grid>
 
-    <Grid item xs={12} sm={4}>
-      <Paper style={{ height: 350 }}>
-        <CloudWordPositive />
-      </Paper>
-    </Grid>
+      <Grid item xs={12} sm={4}>
+        <Paper style={{ height: 350 }}>
+          <CloudWordPositive darkMode={darkMode} token={token} />
+        </Paper>
+      </Grid>
 
-    <Grid item xs={12} sm={4}>
-      <Paper style={{ height: 350 }}>
-      <CloudWordNegative />
-      </Paper>
+      <Grid item xs={12} sm={4}>
+        <Paper style={{ height: 350 }}>
+          <CloudWordNegative darkMode={darkMode} token={token} />
+        </Paper>
+      </Grid>
     </Grid>
-  </Grid>
   );
 
 };
