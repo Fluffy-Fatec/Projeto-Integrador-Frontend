@@ -14,6 +14,7 @@ import IconButton from '@mui/material/IconButton';
 import Input from '@mui/material/Input';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import CloseIcon from '@mui/icons-material/Close';
 
 export default function SignIn({ token, darkMode }) {
     const [isChecked, setIsChecked] = React.useState(false);
@@ -115,9 +116,27 @@ export default function SignIn({ token, darkMode }) {
                         alignItems: 'center',
                     }}
                 >
-                    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-                        <DialogTitle>Update Password</DialogTitle>
-                        <DialogContent dividers>
+                    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth PaperProps={{
+                        style: {
+                            overflow: 'hidden',
+                        },
+                    }}>
+                        <DialogTitle>Update Password
+                            <IconButton
+                                edge="end"
+                                color="inherit"
+                                onClick={handleClose}
+                                aria-label="close"
+                                sx={{
+                                    position: 'absolute',
+                                    right: 8,
+                                    top: 8,
+                                }}
+                            >
+                                <CloseIcon style={{ marginRight: '10px' }} />
+                            </IconButton>
+                        </DialogTitle>
+                        <DialogContent dividers style={{ overflow: 'hidden' }}>
                             <Grid container spacing={4}>
                                 <Grid item xs={6}>
                                     <Input
@@ -132,7 +151,7 @@ export default function SignIn({ token, darkMode }) {
                                         endAdornment={
                                             <InputAdornment position="end">
                                                 <IconButton onClick={() => togglePasswordVisibility('newPassword')}>
-                                                    {showNewPassword ? <VisibilityOff /> : <Visibility />}
+                                                    {showNewPassword ? <Visibility /> : <VisibilityOff />}
                                                 </IconButton>
                                             </InputAdornment>
                                         }
@@ -151,7 +170,7 @@ export default function SignIn({ token, darkMode }) {
                                         endAdornment={
                                             <InputAdornment position="end">
                                                 <IconButton onClick={() => togglePasswordVisibility('confirmNewPassword')}>
-                                                    {showConfirmNewPassword ? <VisibilityOff /> : <Visibility />}
+                                                    {showConfirmNewPassword ? <Visibility /> : <VisibilityOff />}
                                                 </IconButton>
                                             </InputAdornment>
                                         }
@@ -178,25 +197,6 @@ export default function SignIn({ token, darkMode }) {
                                 }}
                             >
                                 Update
-                            </Button>
-                            <Button
-                                fullWidth
-                                color="success"
-                                variant="contained"
-                                onClick={handleClose}
-                                sx={{
-                                    borderRadius: 5,
-                                    mt: 3,
-                                    mb: 2,
-                                    width: { xs: '100%', sm: 'auto' },
-                                    marginRight: '10px'
-                                }}
-                                style={{
-                                    backgroundColor: '#11BF4E',
-                                    color: 'white',
-                                }}
-                            >
-                                Close
                             </Button>
                         </DialogActions>
                     </Dialog>
