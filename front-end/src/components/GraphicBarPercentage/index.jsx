@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { Chart } from "react-google-charts";
+import { Typography } from "@mui/material";
 import axios from "axios";
-import Cookies from 'js-cookie'; // Importe a biblioteca js-cookie
+import React, { useEffect, useState } from "react";
+import { Chart } from "react-google-charts";
 
 function App({token}) {
   const [chartData, setChartData] = useState([]);
@@ -69,17 +69,12 @@ function App({token}) {
   }, []);
 
   const options = {
-    title: "Sentiment by State",
+    
     backgroundColor: 'transparent',
 
-    titleTextStyle: {
-      bold: true,
-      fontName: 'Segoe UI',
-      fontSize: 20,
-      color: '#5F5F5F'
-    },
+   
     chartArea: {
-      width: "65%",
+      width: "60%",
       height: "65%"
     },
     isStacked: true,
@@ -87,44 +82,41 @@ function App({token}) {
       title: "Percentage",
       minValue: 0,
       maxValue: 100,
-      legend: {
-        textStyle: {
-          fontName: 'Segoe UI',
-          fontSize: 14,
-          color: '#5F5F5F',
-          italic: false // Remover o itálico
-        }
-      },
+      
       titleTextStyle: {
         bold: true,
         fontName: 'Segoe UI',
         fontSize: 14,
-        color: '#5F5F5F',
-        italic: false // Remover o itálico
+        color: '#808080',
+        italic: false
+      },
+      textStyle: {
+        fontName: 'Segoe UI',
+        fontSize: 12,
+        color: '#808080'
       }
     },
     vAxis: {
       title: "State",
-      textStyle: {
-        fontName: 'Segoe UI',
-        fontSize: 10,
-        color: '#5F5F5F',
-        italic: false // Remover o itálico
-      },
-      legend: {
-        textStyle: {
-          fontName: 'Segoe UI',
-          fontSize: 10,
-          color: '#5F5F5F',
-          italic: false // Remover o itálico
-        }
-      },
+     
       titleTextStyle: {
         bold: true,
         fontName: 'Segoe UI',
         fontSize: 14,
-        color: '#5F5F5F',
-        italic: false // Remover o itálico
+        color: '#808080',
+        italic: false
+      },
+      textStyle: {
+        fontName: 'Segoe UI',
+        fontSize: 12,
+        color: '#808080'
+      }
+    },
+    legend: {
+      textStyle: {
+        fontName: 'Segoe UI',
+        fontSize: 12, 
+        color: '#808080', 
       }
     },
     colors: ["#11BF4E", "#F25774"],
@@ -139,13 +131,17 @@ function App({token}) {
   }
 
   return (
-    <Chart
-      chartType="BarChart"
-      width="100%"
-      height="100%"
-      data={chartData}
-      options={options}
-    />
+    <>
+      <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 22 }}>Sentiment by State</Typography>
+      <Chart
+        chartType="BarChart"
+        width="100%"
+        height="100%"
+        style={{ marginTop: '-75px' }}
+        data={chartData}
+        options={options}
+      />
+    </>
   );
 }
 

@@ -5,6 +5,8 @@ import { useSpring, animated } from "react-spring";
 import { Select, MenuItem, Button } from "@mui/material";
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
+import { Typography } from "@mui/material";
+
 
 const WorldGraphics = ({ token }) => {
     const [data, setData] = useState(null);
@@ -64,6 +66,8 @@ const WorldGraphics = ({ token }) => {
     };
 
     return (
+        <>
+        <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 22 }}>Cloud Negative Word</Typography> 
         <div>
             <div>
                 <Select
@@ -114,6 +118,7 @@ const WorldGraphics = ({ token }) => {
                 </div>
             )}
         </div>
+        </>
     );
 };
 

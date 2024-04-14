@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+
+import React, { useState, useEffect } from 'react';	
+import Typography from '@mui/material/Typography';
+import axios from 'axios';	
+
 import { Chart } from 'react-google-charts';
-import Cookies from 'js-cookie'; // Importe a biblioteca js-cookie
 
 export function App({token}) {
   const [chartData, setChartData] = useState([]);
@@ -78,58 +80,54 @@ export function App({token}) {
   }, []);
 
   const options = {
-    title: "Sentiment Over Time by State",
-    backgroundColor: 'transparent',
 
-    titleTextStyle: {
-      bold: true,
-      fontName: 'Segoe UI',
-      fontSize: 20,
-      color: '#5F5F5F'
-    },
     chartArea: {
       width: "65%",
-      height: "65%"
+      height: "55%"
     },
     isStacked: false,
     hAxis: {
       title: "Week",
-      legend: {
-        textStyle: {
-          fontName: 'Segoe UI',
-          fontSize: 14,
-          color: '#5F5F5F',
-          italic: false
-        }
-      },
+     
       titleTextStyle: {
         bold: true,
         fontName: 'Segoe UI',
         fontSize: 14,
-        color: '#5F5F5F',
+        color: '#808080',
         italic: false
       },
+      textStyle: {
+        fontName: 'Segoe UI',
+        fontSize: 12,
+        color: '#808080'
+      }
     },
     vAxis: {
       title: "Comment Count",
       minValue: 0,
-      legend: {
-        textStyle: {
-          fontName: 'Segoe UI',
-          fontSize: 14,
-          color: '#5F5F5F',
-          italic: false
-        }
-      },
+     
       titleTextStyle: {
         bold: true,
         fontName: 'Segoe UI',
         fontSize: 14,
-        color: '#5F5F5F',
-        italic: false
+        color: '#808080',
+        italic: false,
+        textStyle: {
+          fontName: 'Segoe UI',
+          fontSize: 12,
+          color: '#808080'
+        },
       },
     },
-    colors: ["#11BF4E", "#F25774", "#FF7131", "#3C5AB7", "#6D83C9"],
+    legend: {
+      textStyle: {
+        fontName: 'Segoe UI',
+        fontSize: 12,
+        color: '#808080',
+      }
+    },
+    backgroundColor: 'transparent',
+    colors: ["#3C5AB7", "#F25774", "#11BF4E", "#FF7131", "#6D83C9"],
   };
 
   const getWeekNumber = (date) => {
@@ -147,13 +145,17 @@ export function App({token}) {
   }
 
   return (
-    <Chart
-      chartType="ColumnChart"
-      width="100%"
-      height="100%"
-      data={chartData}
-      options={options}
-    />
+    <>
+      <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 22 }}>Sentiment Over Time by State</Typography>
+      <Chart
+        chartType="ColumnChart"
+        width="100%"
+        height="100%"
+        style={{ marginTop: '-75px' }}
+        data={chartData}
+        options={options}
+      />
+    </>
   );
 }
 

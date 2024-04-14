@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Cookies from 'js-cookie'; 
 import { Chart } from 'react-google-charts';
+import { Typography } from "@mui/material";
 
 function GeographicGraph({token}) {
   const [data, setData] = useState([]);
@@ -58,10 +58,13 @@ function GeographicGraph({token}) {
   };
 
   return (
+    <>
+    <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 22 }}>Sentiment Map</Typography>
     <Chart
       chartType="GeoChart"
       width="100%"
       height="100%"
+      style={{ marginTop: '-80px' }}
       data={data}
       chartEvents={[
         {
@@ -79,7 +82,8 @@ function GeographicGraph({token}) {
         dataLabels: true,
         backgroundColor: 'transparent',
       }}
-    />
+      />
+      </>
   );
 }
 

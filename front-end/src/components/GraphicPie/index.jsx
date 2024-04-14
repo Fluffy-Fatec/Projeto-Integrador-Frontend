@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { Chart } from "react-google-charts";
+import Typography from '@mui/material/Typography';
 import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { Chart } from "react-google-charts";
 import Cookies from 'js-cookie'; // Importe a biblioteca js-cookie
+
 
 function App({token}) {
   const [chartData, setChartData] = useState([]);
@@ -57,28 +59,26 @@ function App({token}) {
 
   const options = {
     backgroundColor: 'transparent',
-    // title: "Sentiment Over Time",
-    // titleTextStyle: {
-    //   bold: true,
-    //   fontName: 'Segoe UI',
-    //   fontSize: 20,
-    //   color: '#5F5F5F'
-    // },
-    // legend: {
-    //   textStyle: {
-    //     fontName: 'Segoe UI',
-    //     fontSize: 14,
-    //     color: '#5F5F5F'
-    //   }
-    // },
+  
     pieHole: 0.4,
     slices: {
       0: { color: '#11BF4E' },
       1: { color: '#F25774' }
     },
     is3D: false,
-    legend: 'none',
-  };
+    chartArea: {
+      width: "65%",
+      height: "55%"
+    },
+    legend: {
+      position: 'bottom',
+      textStyle: {
+        fontName: 'Segoe UI',
+        fontSize: 12,
+        color: '#808080',
+      }
+    },
+  }
 
   if (loading) {
     return <div>Loading...</div>;
@@ -89,13 +89,17 @@ function App({token}) {
   }
 
   return (
-    <Chart
-      chartType="PieChart"
-      width="100%"
-      height="100%"
-      data={chartData}
-      options={options}
-    />
+    <>
+      <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 22 }}>Sentiment Over Time</Typography>
+      <Chart
+        chartType="PieChart"
+        width="100%"
+        height="100%"
+        style={{ marginTop: '-75px' }}
+        data={chartData}
+        options={options}
+      />
+    </>
   );
 }
 

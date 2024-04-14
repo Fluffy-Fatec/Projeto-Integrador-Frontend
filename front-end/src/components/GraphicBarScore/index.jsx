@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { Chart } from "react-google-charts";
+import Typography from '@mui/material/Typography';
 import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { Chart } from "react-google-charts";
 
 function App({ token }) {
   const [chartData, setChartData] = useState([]);
@@ -61,55 +62,52 @@ function App({ token }) {
   }, [token]);
 
   const options = {
-    title: "Review Score by Sentiment",
     backgroundColor: 'transparent',
-    titleTextStyle: {
-      bold: true,
-      fontName: 'Segoe UI',
-      fontSize: 20,
-      color: '#5F5F5F'
-    },
     chartArea: {
-      width: "65%",
-      height: "50%"
+      width: "60%",
+      height: "55%"
     },
+
     isStacked: true,
     hAxis: {
       title: "Comment Count",
       minValue: 0,
-      legend: {
-        textStyle: {
-          fontName: 'Segoe UI',
-          fontSize: 14,
-          color: '#5F5F5F',
-          italic: false
-        }
-      },
+    
       titleTextStyle: {
         bold: true,
         fontName: 'Segoe UI',
         fontSize: 14,
-        color: '#5F5F5F',
+        color: '#808080',
         italic: false
+      },
+      textStyle: {
+        fontName: 'Segoe UI',
+        fontSize: 12,
+        color: '#808080'
       },
     },
     vAxis: {
       title: "Score",
-      legend: {
-        textStyle: {
-          fontName: 'Segoe UI',
-          fontSize: 14,
-          color: '#5F5F5F',
-          italic: false
-        }
-      },
+      
       titleTextStyle: {
         bold: true,
         fontName: 'Segoe UI',
         fontSize: 14,
-        color: '#5F5F5F',
+        color: '#808080',
         italic: false
       },
+      textStyle: {
+        fontName: 'Segoe UI',
+        fontSize: 12,
+        color: '#808080'
+      },
+    },
+    legend: {
+      textStyle: {
+        fontName: 'Segoe UI',
+        fontSize: 12,
+        color: '#808080',
+      }
     },
     colors: ["#11BF4E", "#F25774"],
   };
@@ -124,13 +122,17 @@ function App({ token }) {
   }
 
   return (
-    <Chart
+    <>
+      <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 22 }}>Review Score by Sentiment</Typography>
+      <Chart
         chartType="BarChart"
         width="100%"
         height="100%"
+        style={{ marginTop: '-75px' }}
         data={chartData}
         options={options}
       />
+    </>
   );
 }
 
