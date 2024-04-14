@@ -34,7 +34,7 @@ const CustomComponent = ({ darkMode, token }) => {
 
     const fetchData = async (token) => {
         try {
-            const response = await axios.get('http://localhost:8080/auth/list/user/logged', {
+            const response = await axios.get('http://localhost:8080/auth/user/logged', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -106,11 +106,20 @@ const CustomComponent = ({ darkMode, token }) => {
     };
 
     return (
-        <Box sx={{ flexGrow: 1, marginTop: '64px' }}>
-            <Grid container spacing={2}>
-                <Grid item xs={12} sx={{ marginLeft: '25px', marginRight: '25px' }}>
-                    <Item sx={{ height: 'calc(50vh - 64px)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }} darkMode={darkMode}>
-                        <Grid container spacing={2} sx={{ padding: "15px" }}>
+        <Box sx={{ height: 'auto', marginTop: '64px', minHeight: 'auto' }}>
+           <Grid container spacing={2} direction="column" justifyContent="center" alignItems="center">
+           <Grid item xs={12} sm={8} md={6} lg={4}>
+                    {/* 
+    <Grid container justifyContent="flex-end" sx={{ marginBottom: '-13px' }}>
+        <Button variant="text" startIcon={<DeleteIcon />} sx={{ color: '#FF5151', fontWeight: 'bold', textTransform: 'none', textAlign: 'right', marginRight: '30px' }}>
+            <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                Delete account
+            </Typography>
+        </Button>
+    </Grid>
+    */}
+                    <Item sx={{ height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                        <Grid container spacing={2} sx={{ padding: "15px"}}>
                             <Grid item xs={12}>
                                 <Typography variant="subtitle1" sx={{ marginBottom: 1, textAlign: 'left', fontWeight: 'bold', fontSize: '1.2rem' }}>
                                     Personal Information
@@ -127,7 +136,8 @@ const CustomComponent = ({ darkMode, token }) => {
                                     placeholder="Full Name"
                                     name="fullName"
                                     id="fullName"
-                                    sx={{ height: '30px' }}
+                                    color='success'
+                                    sx={{ height: '30px', fontSize: '14px' }}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -140,7 +150,8 @@ const CustomComponent = ({ darkMode, token }) => {
                                     placeholder="User Name"
                                     name="userName"
                                     id="userName"
-                                    sx={{ height: '30px' }}
+                                    color='success'
+                                    sx={{ height: '30px', fontSize: '14px' }}
                                 />
                             </Grid>
                             <Grid item xs={12}>
@@ -154,7 +165,8 @@ const CustomComponent = ({ darkMode, token }) => {
                                     placeholder="E-mail"
                                     name="email"
                                     id="email"
-                                    sx={{ height: '30px' }}
+                                    color='success'
+                                    sx={{ height: '30px', fontSize: '14px' }}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -167,8 +179,9 @@ const CustomComponent = ({ darkMode, token }) => {
                                     placeholder="CPF"
                                     name="cpf"
                                     id="cpf"
+                                    color='success'
                                     inputProps={{ maxLength: 14 }}
-                                    sx={{ height: '30px', fontSize: '0.8rem' }}
+                                    sx={{ height: '30px', fontSize: '14px' }}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -181,8 +194,9 @@ const CustomComponent = ({ darkMode, token }) => {
                                     placeholder="Cell Phone"
                                     name="cellPhone"
                                     id="cellPhone"
+                                    color='success'
                                     inputProps={{ maxLength: 15 }}
-                                    sx={{ height: '30px', fontSize: '0.8rem' }}
+                                    sx={{ height: '30px', fontSize: '14px' }}
                                 />
                             </Grid>
                         </Grid>
@@ -206,7 +220,7 @@ const CustomComponent = ({ darkMode, token }) => {
                                 Update Password
                             </Button>
                             <Dialog open={openModal} onClose={handleCloseModal}>
-                                <UpdatePassword token={token} darkMode={darkMode} />
+                                 <UpdatePassword token={token} darkMode={darkMode} />
                             </Dialog>
                             <Button
                                 type="submit"
@@ -230,8 +244,8 @@ const CustomComponent = ({ darkMode, token }) => {
                         </Grid>
                     </Item>
                 </Grid>
-                <Grid item xs={12} sx={{ marginLeft: '25px', marginRight: '25px' }}>
-                    <Item sx={{ height: 'auto' }} darkMode={darkMode}>
+                {/* <Grid item xs={12} sx={{ marginLeft: '25px', marginRight: '25px' }}>
+                    <Item sx={{ height: 'auto' }}>
                         <Grid container spacing={2}>
                             <Grid item xs={12}>
                                 <Grid item xs={12}>
@@ -239,7 +253,7 @@ const CustomComponent = ({ darkMode, token }) => {
                                         Privacy Policy
                                     </Typography>
                                 </Grid>
-                            </Grid>
+                             </Grid>
                             <Grid item xs={12} sx={{ textAlign: 'right', marginTop: '-12px', marginRight: '15px' }}>
                                 <Typography variant="subtitle1" sx={{ marginBottom: 1, textAlign: 'left', margin: '15px' }}>
                                     <Checkbox
@@ -275,7 +289,7 @@ const CustomComponent = ({ darkMode, token }) => {
                             </Grid>
                         </Grid>
                     </Item>
-                </Grid>
+                </Grid>*/}
             </Grid>
         </Box>
     );

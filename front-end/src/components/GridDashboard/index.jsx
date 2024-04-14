@@ -6,7 +6,7 @@ import GraphicBarDate from '../GraphicBarDate';
 import GraphicBarPercentage from '../GraphicBarPercentage';
 import GraphicBarScore from '../GraphicBarScore';
 import GraphicPie from '../GraphicPie';
-import TableReview from '../TableReview';
+import TableReview from '../Tablereview';
 import CloudWordPositive from '../CloudWordPositive';
 import CloudWordNegative from '../CloudWordNegative';
 
