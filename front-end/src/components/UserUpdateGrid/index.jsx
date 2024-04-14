@@ -34,7 +34,7 @@ const CustomComponent = ({ darkMode, token }) => {
 
     const fetchData = async (token) => {
         try {
-            const response = await axios.get('http://localhost:8080/auth/list/user/logged', {
+            const response = await axios.get('http://localhost:8080/auth/user/logged', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -58,6 +58,7 @@ const CustomComponent = ({ darkMode, token }) => {
                 'http://localhost:8080/auth/update/user',
                 {
                     username: userName,
+                    email: email,
                     name: fullName,
                     celphone: cellPhone,
                     cpf: cpf
@@ -244,18 +245,20 @@ const CustomComponent = ({ darkMode, token }) => {
                                 <Typography variant="subtitle1" sx={{ marginBottom: 1, textAlign: 'left', margin: '15px' }}>
                                     <Checkbox
                                         checked={isChecked}
+                                        disabled
                                         onChange={handleCheckboxChange}
                                         size="small"
                                         color="success"
                                     />
                                     By submitting, I agree to the processing of my personal data by Fluffy Tech in accordance with the
-                                    <a href="URL_DO_SEU_PRIVACY_POLICY" style={{ color: '#11BF4E', textDecoration: 'none', marginLeft: '5px', fontWeight: 'bold' }}>
+                                    <a  style={{ color: '#11BF4E', textDecoration: 'none', marginLeft: '5px', fontWeight: 'bold' }}>
                                         Privacy Policy
                                     </a>.
                                     I understand that I can change my preferences at any time.
                                 </Typography>
                                 <Button
                                     type="submit"
+                                    disabled
                                     fullWidth
                                     variant="outlined"
                                     sx={{
