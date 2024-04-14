@@ -69,10 +69,7 @@ function App({token}) {
   }, []);
 
   const options = {
-    
     backgroundColor: 'transparent',
-
-   
     chartArea: {
       width: "60%",
       height: "65%"
@@ -98,7 +95,6 @@ function App({token}) {
     },
     vAxis: {
       title: "State",
-     
       titleTextStyle: {
         bold: true,
         fontName: 'Segoe UI',
@@ -113,6 +109,7 @@ function App({token}) {
       }
     },
     legend: {
+      position: 'bottom',
       textStyle: {
         fontName: 'Segoe UI',
         fontSize: 12, 
@@ -132,7 +129,7 @@ function App({token}) {
 
   return (
     <>
-      <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 22 }}>Sentiment by State</Typography>
+      <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20 }}>Sentiment by State</Typography>
       <Chart
         chartType="BarChart"
         width="100%"

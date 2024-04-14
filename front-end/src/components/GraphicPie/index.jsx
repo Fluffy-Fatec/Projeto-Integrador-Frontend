@@ -90,7 +90,7 @@ function App({token}) {
 
   return (
     <>
-      <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 22 }}>Sentiment Over Time</Typography>
+      <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20 }}>Sentiment Over Time</Typography>
       <Chart
         chartType="PieChart"
         width="100%"

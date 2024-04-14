@@ -67,7 +67,7 @@ const WorldGraphics = ({ token }) => {
 
     return (
         <>
-            <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 22 }}>Cloud Positive Word</Typography>
+            <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20 }}>Cloud Positive Word</Typography>
             <div>
                 {loading && <p>Carregando...</p>}
                 {error && <p>{error}</p>}

@@ -59,7 +59,7 @@ function GeographicGraph({token}) {
 
   return (
     <>
-    <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 22 }}>Sentiment Map</Typography>
+    <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20 }}>Sentiment Map</Typography>
     <Chart
       chartType="GeoChart"
       width="100%"

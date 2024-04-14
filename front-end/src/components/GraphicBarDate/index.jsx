@@ -88,7 +88,6 @@ export function App({token}) {
     isStacked: false,
     hAxis: {
       title: "Week",
-     
       titleTextStyle: {
         bold: true,
         fontName: 'Segoe UI',
@@ -105,7 +104,6 @@ export function App({token}) {
     vAxis: {
       title: "Comment Count",
       minValue: 0,
-     
       titleTextStyle: {
         bold: true,
         fontName: 'Segoe UI',
@@ -120,6 +118,7 @@ export function App({token}) {
       },
     },
     legend: {
+      position: 'bottom',
       textStyle: {
         fontName: 'Segoe UI',
         fontSize: 12,
@@ -146,7 +145,7 @@ export function App({token}) {
 
   return (
     <>
-      <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 22 }}>Sentiment Over Time by State</Typography>
+      <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20 }}>Sentiment Over Time by State</Typography>
       <Chart
         chartType="ColumnChart"
         width="100%"

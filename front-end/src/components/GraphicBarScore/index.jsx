@@ -103,6 +103,7 @@ function App({ token }) {
       },
     },
     legend: {
+      position: 'bottom',
       textStyle: {
         fontName: 'Segoe UI',
         fontSize: 12,
@@ -123,7 +124,7 @@ function App({ token }) {
 
   return (
     <>
-      <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 22 }}>Review Score by Sentiment</Typography>
+      <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20 }}>Review Score by Sentiment</Typography>
       <Chart
         chartType="BarChart"
         width="100%"
