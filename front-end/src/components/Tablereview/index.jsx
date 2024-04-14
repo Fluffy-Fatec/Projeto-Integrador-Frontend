@@ -8,8 +8,11 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import TablePagination from '@mui/material/TablePagination';
+import { useTheme } from '@mui/material/styles';
+import { Typography } from "@mui/material";
 
 function EnhancedTable({ token }) {
+  const theme = useTheme(); // Obtém o tema atual do Material-UI
   const [rows, setRows] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -46,41 +49,41 @@ function EnhancedTable({ token }) {
 
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0); 
+    setPage(0);
   };
 
   return (
-    <div>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Message</TableCell>
-              <TableCell align="right">Score</TableCell>
-              <TableCell align="right">Sentiment</TableCell>
+    <TableContainer component={Paper}>
+      <Table>
+      <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 22 }}>Sentiment Table</Typography>
+        <TableHead>
+          <TableRow>
+            <TableCell style={{ color: theme.palette.mode === 'dark' ? '#fff' : 'inherit' }}>Message</TableCell>
+            <TableCell align="right" style={{ color: theme.palette.mode === 'dark' ? '#fff' : 'inherit' }}>Score</TableCell>
+            <TableCell align="right" style={{ color: theme.palette.mode === 'dark' ? '#fff' : 'inherit' }}>Sentiment</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
+            <TableRow key={index}>
+              <TableCell style={{ color: theme.palette.mode === 'dark' ? '#fff' : 'inherit' }}>{row.message}</TableCell>
+              <TableCell align="right" style={{ color: theme.palette.mode === 'dark' ? '#fff' : 'inherit' }}>{row.score}</TableCell>
+              <TableCell align="right" style={{ color: theme.palette.mode === 'dark' ? '#fff' : 'inherit' }}>{row.sentiment}</TableCell>
             </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
-              <TableRow key={index}>
-                <TableCell>{row.message}</TableCell>
-                <TableCell align="right">{row.score}</TableCell>
-                <TableCell align="right">{row.sentiment}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[20, 40, 60, 100]} 
-        component="div"
-        count={rows.length} 
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
-    </div>
+          ))}
+        </TableBody>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 15]}
+          component="div"
+          count={rows.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          style={{ color: theme.palette.mode === 'dark' ? '#fff' : 'inherit' }}
+        />
+      </Table>
+    </TableContainer>
   );
 }
 
