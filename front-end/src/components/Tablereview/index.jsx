@@ -12,7 +12,7 @@ import { useTheme } from '@mui/material/styles';
 import { Typography } from "@mui/material";
 
 function EnhancedTable({ token }) {
-  const theme = useTheme(); // Obtém o tema atual do Material-UI
+  const theme = useTheme();
   const [rows, setRows] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -53,37 +53,50 @@ function EnhancedTable({ token }) {
   };
 
   return (
-    <TableContainer component={Paper}>
-      <Table>
-      <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 22 }}>Sentiment Table</Typography>
-        <TableHead>
-          <TableRow>
-            <TableCell style={{ color: theme.palette.mode === 'dark' ? '#fff' : 'inherit' }}>Message</TableCell>
-            <TableCell align="right" style={{ color: theme.palette.mode === 'dark' ? '#fff' : 'inherit' }}>Score</TableCell>
-            <TableCell align="right" style={{ color: theme.palette.mode === 'dark' ? '#fff' : 'inherit' }}>Sentiment</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
-            <TableRow key={index}>
-              <TableCell style={{ color: theme.palette.mode === 'dark' ? '#fff' : 'inherit' }}>{row.message}</TableCell>
-              <TableCell align="right" style={{ color: theme.palette.mode === 'dark' ? '#fff' : 'inherit' }}>{row.score}</TableCell>
-              <TableCell align="right" style={{ color: theme.palette.mode === 'dark' ? '#fff' : 'inherit' }}>{row.sentiment}</TableCell>
+    <Paper style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      {/* Container for Header */}
+      <div style={{ padding: '20px', borderBottom: `1px solid ${theme.palette.divider}` }}>
+        <Typography variant="h5" style={{ fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20}}>
+          Sentiment Table
+        </Typography>
+      </div>
+
+      {/* Table Container */}
+      <TableContainer style={{ flex: 1 }}>
+        <Table stickyHeader>
+          {/* Table Head (Header Row) */}
+          <TableHead>
+            <TableRow>
+              <TableCell style={{ backgroundColor: theme.palette.mode === 'dark' ? '#424242' : '#f5f5f5', color: theme.palette.mode === 'dark' ? '#fff' : 'inherit', position: 'sticky', top: 0, zIndex: 1 }}>Message</TableCell>
+              <TableCell align="right" style={{ backgroundColor: theme.palette.mode === 'dark' ? '#424242' : '#f5f5f5', color: theme.palette.mode === 'dark' ? '#fff' : 'inherit', position: 'sticky', top: 0, zIndex: 1 }}>Score</TableCell>
+              <TableCell align="right" style={{ backgroundColor: theme.palette.mode === 'dark' ? '#424242' : '#f5f5f5', color: theme.palette.mode === 'dark' ? '#fff' : 'inherit', position: 'sticky', top: 0, zIndex: 1 }}>Sentiment</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 15]}
-          component="div"
-          count={rows.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          style={{ color: theme.palette.mode === 'dark' ? '#fff' : 'inherit' }}
-        />
-      </Table>
-    </TableContainer>
+          </TableHead>
+
+          {/* Table Body */}
+          <TableBody>
+            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
+              <TableRow key={index}>
+                <TableCell>{row.message}</TableCell>
+                <TableCell align="right">{row.score}</TableCell>
+                <TableCell align="right">{row.sentiment}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      {/* Pagination */}
+      <TablePagination
+        component="div"
+        count={rows.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        style={{ borderTop: `1px solid ${theme.palette.divider}`, marginTop: 'auto' }}
+      />
+    </Paper>
   );
 }
 

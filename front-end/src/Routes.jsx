@@ -52,7 +52,7 @@ export default function AppRoutes() {
         <Route
           path="/dashboard"
           element={
-            isAuthenticated && isAdmin ? (
+            isAuthenticated ? (
               <Dashboard />
             ) : isAuthenticated ? (
               <Navigate to="/" />

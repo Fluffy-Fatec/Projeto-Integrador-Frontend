@@ -128,7 +128,8 @@ const CustomComponent = ({ darkMode, token }) => {
                                     placeholder="Full Name"
                                     name="fullName"
                                     id="fullName"
-                                    sx={{ height: '30px' }}
+                                    color='success'
+                                    sx={{ height: '30px', fontSize: '14px' }}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -141,7 +142,8 @@ const CustomComponent = ({ darkMode, token }) => {
                                     placeholder="User Name"
                                     name="userName"
                                     id="userName"
-                                    sx={{ height: '30px' }}
+                                    color='success'
+                                    sx={{ height: '30px', fontSize: '14px' }}
                                 />
                             </Grid>
                             <Grid item xs={12}>
@@ -155,7 +157,8 @@ const CustomComponent = ({ darkMode, token }) => {
                                     placeholder="E-mail"
                                     name="email"
                                     id="email"
-                                    sx={{ height: '30px' }}
+                                    color='success'
+                                    sx={{ height: '30px', fontSize: '14px' }}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -169,7 +172,8 @@ const CustomComponent = ({ darkMode, token }) => {
                                     name="cpf"
                                     id="cpf"
                                     inputProps={{ maxLength: 14 }}
-                                    sx={{ height: '30px', fontSize: '0.8rem' }}
+                                    color='success'
+                                    sx={{ height: '30px', fontSize: '14px' }}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -183,7 +187,8 @@ const CustomComponent = ({ darkMode, token }) => {
                                     name="cellPhone"
                                     id="cellPhone"
                                     inputProps={{ maxLength: 15 }}
-                                    sx={{ height: '30px', fontSize: '0.8rem' }}
+                                    color='success'
+                                    sx={{ height: '30px', fontSize: '14px' }}
                                 />
                             </Grid>
                         </Grid>
