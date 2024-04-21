@@ -25,7 +25,8 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import React, { useState, useEffect } from 'react';
 import Logo from "../../assets/pandalyze.png";
-//about
+import Button from '@mui/material/Button';
+// About
 import EmailIcon from '@mui/icons-material/Email';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import InfoIcon from '@mui/icons-material/Info';
@@ -36,6 +37,8 @@ import GridDashboard from '../GridDashboard';
 import GridManageAccounts from '../GridManageAccounts';
 import UserUpdateGrid from '../UserUpdateGrid';
 import Cookies from 'js-cookie';
+import Badge from '@mui/material/Badge';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 
 const drawerWidth = 240;
 
@@ -118,6 +121,8 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
         flexShrink: 0,
         whiteSpace: 'nowrap',
         boxSizing: 'border-box',
+        overflowX: 'auto',
+        '-webkit-overflow-scrolling': 'touch',
         ...(open && {
             ...openedMixin(theme),
             '& .MuiDrawer-paper': openedMixin(theme),
@@ -224,6 +229,40 @@ function AboutModal({ open, onClose, darkMode }) {
     );
 }
 
+function NotificationMenu({ open, onClose, notifications }) {
+    return (
+        <Modal
+            open={open}
+            onClose={onClose}
+            aria-labelledby="notification-menu-title"
+            aria-describedby="notification-menu-description"
+        >
+            <Box sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: '300px',
+                bgcolor: 'background.paper',
+                boxShadow: 24,
+                p: 4,
+                borderRadius: '10px',
+            }}>
+                <Typography id="notification-menu-title" variant="h6" component="h2" gutterBottom>
+                    Notifications
+                </Typography>
+                <List>
+                    {notifications.map(notification => (
+                        <ListItem key={notification.id}>
+                            <ListItemText primary={notification.message} secondary={notification.timestamp} />
+                        </ListItem>
+                    ))}
+                </List>
+            </Box>
+        </Modal>
+    );
+}
+
 export default function Menu() {
     const theme = useTheme();
     const [open, setOpen] = useState(false);
@@ -231,8 +270,10 @@ export default function Menu() {
     const [darkMode, setDarkMode] = useState(false);
     const [clickedButtons, setClickedButtons] = useState([]);
     const [openAboutModal, setOpenAboutModal] = useState(false);
+    const [openNotifications, setOpenNotifications] = useState(false);
     const isAdmin = useAdmin();
     const token = Cookies.get("token");
+    const notifications = []; // Fill notifications array with your data
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -270,6 +311,10 @@ export default function Menu() {
         setOpenAboutModal(false);
     };
 
+    const toggleNotifications = () => {
+        setOpenNotifications(!openNotifications);
+    };
+
     return (
         <ThemeProvider theme={darkMode ? themeDark : themeLight}>
             <Box sx={{ display: 'flex' }}>
@@ -288,7 +333,7 @@ export default function Menu() {
                         >
                             <MenuIcon />
                         </IconButton>
-                        <Typography variant="h6" noWrap component="div" style={{ marginRight: '30%', display: 'flex', alignItems: 'center' }}>
+                        <Typography variant="h6" noWrap component="div" style={{ marginRight: 'auto', display: 'flex', alignItems: 'center' }}>
                             {clickedIndex !== null ? (
                                 <>
                                     <ListItemIcon style={{ color: '#11BF4E' }}>
@@ -305,9 +350,22 @@ export default function Menu() {
                                 </>
                             )}
                         </Typography>
+                        <Box sx={{ marginLeft: 'auto' }}> {/* Adicionando espaçamento entre os elementos */}
+                            <IconButton
+                                onClick={toggleNotifications}
+                                size="large"
+                                aria-label="show notifications"
+                                color="inherit"
+                            >
+                                <Badge badgeContent={notifications.length} color="error">
+                                    <NotificationsIcon />
+                                </Badge>
+                            </IconButton>
+                        </Box>
                     </Toolbar>
                     <Divider sx={{ borderBlockWidth: 1 }} />
                 </AppBar>
+
                 <Drawer variant="permanent" PaperProps={{ sx: { borderRadius: '20px' } }} open={open}>
                     <DrawerHeader sx={{
                         backgroundImage: `url(${Logo})`,
@@ -478,6 +536,7 @@ export default function Menu() {
                 </IconButton>
             </Box>
             <AboutModal open={openAboutModal} onClose={handleCloseAboutModal} />
+            <NotificationMenu open={openNotifications} onClose={toggleNotifications} notifications={notifications} />
         </ThemeProvider>
     );
 }
