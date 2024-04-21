@@ -39,6 +39,34 @@ const useAdmin = () => {
 export default function AppRoutes() {
   const isAuthenticated = useAuthentication();
   const isAdmin = useAdmin();
+  const [inactiveTimer, setInactiveTimer] = useState(null);
+  const resetInactiveTimer = () => {
+    if (inactiveTimer) {
+      clearTimeout(inactiveTimer);
+    }
+    const timer = setTimeout(() => {
+      localStorage.removeItem('accessToken');
+        window.location.href = '/';
+    }, 60000); 
+  
+    setInactiveTimer(timer);
+  };
+
+  useEffect(() => {
+    const handleUserActivity = () => {
+      resetInactiveTimer();
+    };
+
+    window.addEventListener("mousemove", handleUserActivity);
+    window.addEventListener("keypress", handleUserActivity);
+
+    resetInactiveTimer();
+
+    return () => {
+      window.removeEventListener("mousemove", handleUserActivity);
+      window.removeEventListener("keypress", handleUserActivity);
+    };
+  }, []);
 
   const pathParts = window.location.pathname.split('/');
   const dynamicPath = pathParts[pathParts.length - 1];
@@ -47,7 +75,6 @@ export default function AppRoutes() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<PaginaLogin />} />
-        <Route path="/grid" element={<GridDashboard />} />
         <Route path={`/auth/register/${dynamicPath}`} element={<PaginaRegistration />} />
         <Route
           path="/dashboard"
