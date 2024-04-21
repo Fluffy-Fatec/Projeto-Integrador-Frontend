@@ -3,7 +3,6 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import PaginaLogin from "./pages/Login";
 import Dashboard from "./pages/Menu";
 import PaginaRegistration from "./pages/Registration";
-import GridDashboard from "./components/GridDashboard";
 import Cookies from 'js-cookie';
 
 const useAuthentication = () => {
@@ -46,11 +45,21 @@ export default function AppRoutes() {
     }
     const timer = setTimeout(() => {
       localStorage.removeItem('accessToken');
-        window.location.href = '/';
+      localStorage.setItem('inactiveRedirect', 'true');
+      window.location.href = '/';
     }, 60000); 
   
     setInactiveTimer(timer);
   };
+
+  useEffect(() => {
+    const redirectFlag = localStorage.getItem('inactiveRedirect');
+    if (redirectFlag === 'true') {
+      alert('Oops! It looks like you\'ve been inactive for a while. For security purposes, you\'ve been redirected to the login screen.');
+      localStorage.removeItem('inactiveRedirect');
+    }
+  }, []);
+
 
   useEffect(() => {
     const handleUserActivity = () => {
