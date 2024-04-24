@@ -2,21 +2,19 @@ import Typography from '@mui/material/Typography';
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
-import Cookies from 'js-cookie'; // Importe a biblioteca js-cookie
 
-
-function App({token}) {
+function App({ token, startDate, endDate }) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchData = async (token) => {
+  const fetchData = async (token, startDate, endDate) => {
     try {
-      const response = await axios.get('http://localhost:8080/graphics/list', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-      });
+      const formattedStartDate = new Date(startDate).toISOString().slice(0, -5) + 'Z';
+      const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
+
+      const url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}&sentimentoPredito=1`;
+      const response = await axios.get(url);
 
       const counts = {
         'Positive': 0,
@@ -50,16 +48,16 @@ function App({token}) {
 
   useEffect(() => {
     if (token) {
-      fetchData(token);
+      fetchData(token, startDate, endDate); // Ajuste para passar startDate e endDate
     } else {
       setError('Token de autenticação não encontrado.');
       setLoading(false);
     }
-  }, []);
+  }, [token, startDate, endDate]); // Adicionando token, startDate e endDate como dependências
 
   const options = {
     backgroundColor: 'transparent',
-  
+
     pieHole: 0.4,
     slices: {
       0: { color: '#11BF4E' },

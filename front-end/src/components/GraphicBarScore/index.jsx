@@ -3,7 +3,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
 
-function App({ token }) {
+function App({ token, startDate, endDate }) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -18,11 +18,11 @@ function App({ token }) {
           return;
         }
 
-        const response = await axios.get('http://localhost:8080/graphics/list', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
-        });
+        const formattedStartDate = new Date(startDate).toISOString().slice(0, -5) + 'Z';
+        const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
+
+        const url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}&sentimentoPredito=1`;
+        const response = await axios.get(url);
 
         const scores = {
           1: { positives: 0, negatives: 0 },
@@ -72,7 +72,7 @@ function App({ token }) {
     hAxis: {
       title: "Comment Count",
       minValue: 0,
-    
+
       titleTextStyle: {
         bold: true,
         fontName: 'Segoe UI',
@@ -88,7 +88,7 @@ function App({ token }) {
     },
     vAxis: {
       title: "Score",
-      
+
       titleTextStyle: {
         bold: true,
         fontName: 'Segoe UI',

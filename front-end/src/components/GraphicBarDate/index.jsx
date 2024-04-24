@@ -1,23 +1,22 @@
-
-import React, { useState, useEffect } from 'react';	
+import React, { useState, useEffect } from 'react';
 import Typography from '@mui/material/Typography';
-import axios from 'axios';	
+import axios from 'axios';
 
 import { Chart } from 'react-google-charts';
 
-export function App({token}) {
+export function App({ token, startDate, endDate }) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchData = async (token) => {
+  const fetchData = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/graphics/list', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-      });
-
+      const formattedStartDate = new Date(startDate).toISOString().slice(0, -5) + 'Z';
+      const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
+      console.log(endDate)
+      const url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}&sentimentoPredito=1`;
+      const response = await axios.get(url);
+      console.log(startDate)
       const stateCounts = {};
       response.data.forEach(item => {
         const state = item.geolocationState;
@@ -71,16 +70,15 @@ export function App({token}) {
   };
 
   useEffect(() => {
-    if (token) {
-      fetchData(token);
+    if (token && startDate && endDate) {
+      fetchData();
     } else {
-      setError('Token de autenticação não encontrado.');
+      setError('Parâmetros de data ou token faltando.');
       setLoading(false);
     }
-  }, []);
+  }, [token, startDate, endDate]);
 
   const options = {
-
     chartArea: {
       width: "65%",
       height: "55%"

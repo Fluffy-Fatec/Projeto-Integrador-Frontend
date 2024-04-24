@@ -11,25 +11,24 @@ import TablePagination from '@mui/material/TablePagination';
 import { useTheme } from '@mui/material/styles';
 import { Typography } from "@mui/material";
 
-function EnhancedTable({ token }) {
+function EnhancedTable({ token, startDate, endDate }) {
   const theme = useTheme();
   const [rows, setRows] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   useEffect(() => {
-    if (token) {
-      fetchData(token);
+    if (token && startDate && endDate) {
+      fetchData(token, startDate, endDate);
     }
-  }, [token]);
-
-  const fetchData = async (token) => {
+  }, [token, startDate, endDate]);
+  const fetchData = async (token, startDate, endDate) => {
     try {
-      const response = await axios.get('http://localhost:8080/graphics/list', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const formattedStartDate = new Date(startDate).toISOString().slice(0, -5) + 'Z';
+      const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
+
+      const url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}&sentimentoPredito=1`;
+      const response = await axios.get(url);
 
       const formattedRows = response.data.map(item => ({
         message: item.reviewCommentMessage,

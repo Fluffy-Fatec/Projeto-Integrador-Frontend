@@ -3,18 +3,18 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
 
-function App({token}) {
+function App({ token, endDate, startDate }) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const fetchData = async (token) => {
     try {
-      const response = await axios.get('http://localhost:8080/graphics/list', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-      });
+      const formattedStartDate = new Date(startDate).toISOString().slice(0, -5) + 'Z';
+      const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
+
+      const url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}&sentimentoPredito=0`;
+      const response = await axios.get(url);
 
       const stateData = {};
 
@@ -79,7 +79,7 @@ function App({token}) {
       title: "Percentage",
       minValue: 0,
       maxValue: 100,
-      
+
       titleTextStyle: {
         bold: true,
         fontName: 'Segoe UI',
@@ -112,8 +112,8 @@ function App({token}) {
       position: 'bottom',
       textStyle: {
         fontName: 'Segoe UI',
-        fontSize: 12, 
-        color: '#808080', 
+        fontSize: 12,
+        color: '#808080',
       }
     },
     colors: ["#11BF4E", "#F25774"],
