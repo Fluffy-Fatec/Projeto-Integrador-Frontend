@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import dayjs from 'dayjs';
-import { Divider, Grid, Paper, IconButton } from '@mui/material';
+import { Divider, Grid, Paper, IconButton, Select, FormControl } from '@mui/material';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -15,45 +15,72 @@ import GraphicPie from '../GraphicPie';
 import TableReview from '../Tablereview';
 import CloudWordPositive from '../CloudWordPositive';
 import CloudWordNegative from '../CloudWordNegative';
-import Typography from '@mui/material/Typography';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 
 const GridDashboard = ({ darkMode, token }) => {
   const [value, setValue] = useState(dayjs('2022-04-17'));
+  const [selectedSent, setSelectedSent] = useState('');
+
+  const handleSentChange = (event) => {
+    setSelectedSent(event.target.value);
+  };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-     <DemoContainer components={['DateField', 'DateField']} sx={{ marginTop: '50px' }}>
-  <DateField
-    size=''
-    color='success'
-    defaultValue={dayjs('2022-04-17')}
-    format="LL"
-    InputProps={{
-      endAdornment: (
-        <IconButton>
-          <CalendarTodayIcon />
-        </IconButton>
-      ),
-    }}
-    sx={{ border: 'none', width:'5px' }}
-  />
+      <DemoContainer components={['DateField', 'DateField']} sx={{ marginTop: '50px' }}>
+        <DateField
+          size=''
+          color='success'
+          defaultValue={dayjs('2022-04-17')}
+          format="LL"
+          InputProps={{
+            endAdornment: (
+              <IconButton>
+                <CalendarTodayIcon />
+              </IconButton>
+            ),
+          }}
+          sx={{ border: 'none', width: '5px' }}
+        />
 
-  <DateField
-    defaultValue={dayjs('2022-04-24')}
-    format="LL"
-    color='success'
-    InputProps={{
-      endAdornment: (
-        <IconButton>
-          <CalendarTodayIcon />
-        </IconButton>
-      ),
-    }}
-    sx={{ border: 'none', width:'5px'  }}
-  />
-</DemoContainer>
+        <DateField
+          defaultValue={dayjs('2022-04-24')}
+          format="LL"
+          color='success'
+          InputProps={{
+            endAdornment: (
+              <IconButton>
+                <CalendarTodayIcon />
+              </IconButton>
+            ),
+          }}
+          sx={{ border: 'none', width: '5px' }}
+        />
+        <Grid item xs={12} sm={4}>
+          <FormControl variant="filled" fullWidth>
+            <Select
+              native
+              value={selectedSent}
+              onChange={handleSentChange}
+              variant="outlined"
+              color='success'
+              fullWidth
+              inputProps={{
+                name: 'Sentiment',
+                id: 'Sentiment',
+                style: { paddingLeft: '40px', paddingRight: '30px' } 
+              }}
+            >
+              <option aria-label="None" value="">Sentiment</option>
+              <option value="Positive">Positive</option>
+              <option value="Negative">Negative</option>
+              <option value="Neutral">Neutral</option>
+            </Select>
+            <FavoriteIcon style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
+          </FormControl>
+        </Grid>
 
-
+      </DemoContainer>
       <Divider sx={{ marginTop: '5px' }} />
 
       <Grid container spacing={3} sx={{ marginTop: '5px' }}>
@@ -108,7 +135,7 @@ const GridDashboard = ({ darkMode, token }) => {
           </Paper>
         </Grid>
       </Grid>
-    </LocalizationProvider>
+    </LocalizationProvider >
   );
 };
 
