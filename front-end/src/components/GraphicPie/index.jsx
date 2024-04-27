@@ -48,12 +48,12 @@ function App({ token, startDate, endDate }) {
 
   useEffect(() => {
     if (token) {
-      fetchData(token, startDate, endDate); // Ajuste para passar startDate e endDate
+      fetchData(token, startDate, endDate);
     } else {
       setError('Token de autenticação não encontrado.');
       setLoading(false);
     }
-  }, [token, startDate, endDate]); // Adicionando token, startDate e endDate como dependências
+  }, [token, startDate, endDate]);
 
   const options = {
     backgroundColor: 'transparent',

@@ -39,6 +39,7 @@ export default function AppRoutes() {
   const isAuthenticated = useAuthentication();
   const isAdmin = useAdmin();
   const [inactiveTimer, setInactiveTimer] = useState(null);
+
   const resetInactiveTimer = () => {
     if (inactiveTimer) {
       clearTimeout(inactiveTimer);
@@ -47,8 +48,8 @@ export default function AppRoutes() {
       localStorage.removeItem('accessToken');
       localStorage.setItem('inactiveRedirect', 'true');
       window.location.href = '/';
-    }, 60000); 
-  
+    }, 360000);
+
     setInactiveTimer(timer);
   };
 
@@ -59,7 +60,6 @@ export default function AppRoutes() {
       localStorage.removeItem('inactiveRedirect');
     }
   }, []);
-
 
   useEffect(() => {
     const handleUserActivity = () => {
@@ -90,8 +90,6 @@ export default function AppRoutes() {
           element={
             isAuthenticated ? (
               <Dashboard />
-            ) : isAuthenticated ? (
-              <Navigate to="/" />
             ) : (
               <Navigate to="/" />
             )
