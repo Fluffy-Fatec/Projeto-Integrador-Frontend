@@ -13,10 +13,8 @@ export function App({ token, startDate, endDate }) {
     try {
       const formattedStartDate = new Date(startDate).toISOString().slice(0, -5) + 'Z';
       const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
-      console.log(endDate)
       const url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}&sentimentoPredito=1`;
       const response = await axios.get(url);
-      console.log(startDate)
       const stateCounts = {};
       response.data.forEach(item => {
         const state = item.geolocationState;
