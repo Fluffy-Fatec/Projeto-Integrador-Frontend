@@ -1,12 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { Button, Typography } from "@mui/material";
 import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { animated, useSpring } from "react-spring";
 import { TagCloud } from "react-tagcloud";
-import { useSpring, animated } from "react-spring";
-import { Select, MenuItem, Button } from "@mui/material";
-import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-import ThumbDownIcon from '@mui/icons-material/ThumbDown';
-import { Typography } from "@mui/material";
-
 
 const WorldGraphics = ({ token }) => {
     const [data, setData] = useState(null);

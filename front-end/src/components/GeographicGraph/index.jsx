@@ -1,27 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Chart } from 'react-google-charts';
 import { Typography } from "@mui/material";
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { Chart } from 'react-google-charts';
 
-function GeographicGraph({token}) {
+function GeographicGraph({ token, startDate, endDate }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
+
       try {
         if (!token) {
           setError('Token de autenticação não encontrado.');
           setLoading(false);
           return;
         }
+        const formattedStartDate = new Date(startDate).toISOString().slice(0, -5) + 'Z';
+        const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
 
-        const response = await axios.get('http://localhost:8080/graphics/list', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        const url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}&sentimentoPredito=1`;
+        const response = await axios.get(url);
 
         const filteredData = response.data.filter(item => {
           const lat = parseFloat(item.geolocationLat);
@@ -39,15 +40,16 @@ function GeographicGraph({token}) {
 
         chartData.unshift(["Latitude", "Longitude", "Sentimento"]);
         setData(chartData);
-        setLoading(false);
+        setError(null);
       } catch (error) {
         setError('Erro ao carregar os dados.');
+      } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [token, startDate, endDate])
 
   const handleChartSelect = ({ chartWrapper }) => {
     const chart = chartWrapper.getChart();
@@ -59,31 +61,35 @@ function GeographicGraph({token}) {
 
   return (
     <>
-    <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20 }}>Sentiment Map</Typography>
-    <Chart
-      chartType="GeoChart"
-      width="100%"
-      height="100%"
-      style={{ marginTop: '-80px' }}
-      data={data}
-      chartEvents={[
-        {
-          eventName: 'select',
-          callback: handleChartSelect
-        }
-      ]}
-      options={{
-        sizeAxis: { minValue: 0, maxValue: 100 },
-        region: '005',
-        displayMode: 'markers',
-        colorAxis: { colors: ['red', 'green'] },
-        zoomLevel: 5,
-        magnifyingGlass: { enable: true },
-        dataLabels: true,
-        backgroundColor: 'transparent',
-      }}
-      />
-      </>
+      <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20 }}>Sentiment Map</Typography>
+      {loading && <Typography>Loading...</Typography>}
+      {error && <Typography>Error: {error}</Typography>}
+      {!loading && !error && (
+        <Chart
+          chartType="GeoChart"
+          width="100%"
+          height="100%"
+          style={{ marginTop: '-80px' }}
+          data={data}
+          chartEvents={[
+            {
+              eventName: 'select',
+              callback: handleChartSelect
+            }
+          ]}
+          options={{
+            sizeAxis: { minValue: 0, maxValue: 100 },
+            region: '005',
+            displayMode: 'markers',
+            colorAxis: { colors: ['red', 'green'] },
+            zoomLevel: 5,
+            magnifyingGlass: { enable: true },
+            dataLabels: true,
+            backgroundColor: 'transparent',
+          }}
+        />
+      )}
+    </>
   );
 }
 

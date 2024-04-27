@@ -3,18 +3,18 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
 
-function App({ token }) {
+function App({ token, endDate, startDate }) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchData = async (token) => {
+  const fetchData = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/graphics/list', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-      });
+      const formattedStartDate = new Date(startDate).toISOString().slice(0, -5) + 'Z';
+      const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
+
+      const url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}&sentimentoPredito=1`;
+      const response = await axios.get(url);
 
       const counts = {};
 
@@ -52,16 +52,15 @@ function App({ token }) {
   };
 
   useEffect(() => {
-    if (token) {
-      fetchData(token);
+    if (token && startDate && endDate) {
+      fetchData();
     } else {
-      setError('Token de autenticação não encontrado.');
+      setError('Token de autenticação, startDate ou endDate não encontrados.');
       setLoading(false);
     }
-  }, [token]);
+  }, [token, startDate, endDate]);
 
   const options = {
-   
     hAxis: {
       title: "Time",
       titleTextStyle: {
@@ -86,7 +85,7 @@ function App({ token }) {
         fontSize: 14,
         color: '#808080',
         italic: false
-      },      
+      },
       textStyle: {
         fontName: 'Segoe UI',
         fontSize: 12,
@@ -100,7 +99,7 @@ function App({ token }) {
     colors: ["#11BF4E", "#F25774"],
     backgroundColor: 'transparent',
     legend: {
-      position: 'bottom', 
+      position: 'bottom',
       textStyle: {
         fontName: 'Segoe UI',
         fontSize: 12,
@@ -108,7 +107,6 @@ function App({ token }) {
       }
     }
   };
-
 
   if (loading) {
     return <div>Loading...</div>;

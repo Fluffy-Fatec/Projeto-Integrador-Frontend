@@ -23,22 +23,21 @@ import Modal from '@mui/material/Modal';
 import Paper from '@mui/material/Paper';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Logo from "../../assets/pandalyze.png";
-import Button from '@mui/material/Button';
 // About
 import EmailIcon from '@mui/icons-material/Email';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import InfoIcon from '@mui/icons-material/Info';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 import Person2Icon from '@mui/icons-material/Person2';
+import Badge from '@mui/material/Badge';
 import { ThemeProvider, createTheme, styled, useTheme } from '@mui/material/styles';
+import Cookies from 'js-cookie';
 import GridDashboard from '../GridDashboard';
 import GridManageAccounts from '../GridManageAccounts';
 import UserUpdateGrid from '../UserUpdateGrid';
-import Cookies from 'js-cookie';
-import Badge from '@mui/material/Badge';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 
 const drawerWidth = 240;
 
