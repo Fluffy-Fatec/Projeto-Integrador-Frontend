@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Chart } from 'react-google-charts';
 import { Typography } from "@mui/material";
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { Chart } from 'react-google-charts';
 
 function GeographicGraph({ token, startDate, endDate }) {
   const [data, setData] = useState([]);
@@ -10,6 +10,8 @@ function GeographicGraph({ token, startDate, endDate }) {
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
+
       try {
         if (!token) {
           setError('Token de autenticação não encontrado.');
@@ -38,15 +40,16 @@ function GeographicGraph({ token, startDate, endDate }) {
 
         chartData.unshift(["Latitude", "Longitude", "Sentimento"]);
         setData(chartData);
-        setLoading(false);
+        setError(null);
       } catch (error) {
         setError('Erro ao carregar os dados.');
+      } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [token, startDate, endDate])
 
   const handleChartSelect = ({ chartWrapper }) => {
     const chart = chartWrapper.getChart();
@@ -59,29 +62,33 @@ function GeographicGraph({ token, startDate, endDate }) {
   return (
     <>
       <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20 }}>Sentiment Map</Typography>
-      <Chart
-        chartType="GeoChart"
-        width="100%"
-        height="100%"
-        style={{ marginTop: '-80px' }}
-        data={data}
-        chartEvents={[
-          {
-            eventName: 'select',
-            callback: handleChartSelect
-          }
-        ]}
-        options={{
-          sizeAxis: { minValue: 0, maxValue: 100 },
-          region: '005',
-          displayMode: 'markers',
-          colorAxis: { colors: ['red', 'green'] },
-          zoomLevel: 5,
-          magnifyingGlass: { enable: true },
-          dataLabels: true,
-          backgroundColor: 'transparent',
-        }}
-      />
+      {loading && <Typography>Loading...</Typography>}
+      {error && <Typography>Error: {error}</Typography>}
+      {!loading && !error && (
+        <Chart
+          chartType="GeoChart"
+          width="100%"
+          height="100%"
+          style={{ marginTop: '-80px' }}
+          data={data}
+          chartEvents={[
+            {
+              eventName: 'select',
+              callback: handleChartSelect
+            }
+          ]}
+          options={{
+            sizeAxis: { minValue: 0, maxValue: 100 },
+            region: '005',
+            displayMode: 'markers',
+            colorAxis: { colors: ['red', 'green'] },
+            zoomLevel: 5,
+            magnifyingGlass: { enable: true },
+            dataLabels: true,
+            backgroundColor: 'transparent',
+          }}
+        />
+      )}
     </>
   );
 }

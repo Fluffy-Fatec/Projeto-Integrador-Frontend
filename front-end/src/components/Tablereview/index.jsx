@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { Typography } from "@mui/material";
+import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
 import TablePagination from '@mui/material/TablePagination';
+import TableRow from '@mui/material/TableRow';
 import { useTheme } from '@mui/material/styles';
-import { Typography } from "@mui/material";
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 
 function EnhancedTable({ token, startDate, endDate }) {
   const theme = useTheme();
@@ -55,7 +55,7 @@ function EnhancedTable({ token, startDate, endDate }) {
     <Paper style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* Container for Header */}
       <div style={{ padding: '20px', borderBottom: `1px solid ${theme.palette.divider}` }}>
-        <Typography variant="h5" style={{ fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20}}>
+        <Typography variant="h5" style={{ fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20 }}>
           Sentiment Table
         </Typography>
       </div>

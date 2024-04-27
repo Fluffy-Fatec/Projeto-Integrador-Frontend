@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import { CircularProgress, Divider, Grid, Paper, TextField } from '@mui/material';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import axios from 'axios';
 import dayjs from 'dayjs';
-import { CircularProgress, Divider, Grid, Paper, TextField } from '@mui/material';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import GeographicGraph from '../GeographicGraph'; // Importe o componente GeographicGraph
-import TableReview from '../Tablereview';
-import CloudWordPositive from '../CloudWordPositive';
+import React, { useEffect, useState } from 'react';
 import CloudWordNegative from '../CloudWordNegative';
-import GraphicBarPercentage from '../GraphicBarPercentage';
-import GraphicBarDate from '../GraphicBarDate';
-import GraphicBarScore from '../GraphicBarScore';
+import CloudWordPositive from '../CloudWordPositive';
+import GeographicGraph from '../GeographicGraph';
 import GraphicArea from '../GraphicArea';
+import GraphicBarDate from '../GraphicBarDate';
+import GraphicBarPercentage from '../GraphicBarPercentage';
+import GraphicBarScore from '../GraphicBarScore';
 import GraphicPie from '../GraphicPie';
+import TableReview from '../Tablereview';
 
 const GridDashboard = ({ darkMode, token }) => {
   const [startDate, setStartDate] = useState(dayjs().year(2018).startOf('year').toISOString());
@@ -35,7 +35,6 @@ const GridDashboard = ({ darkMode, token }) => {
         const url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}&sentimentoPredito=1`;
         const response = await axios.get(url);
 
-        const counts = {};
         console.log('Data from server:', response.data);
         setDataFromApi(response.data);
       } catch (error) {
@@ -49,12 +48,20 @@ const GridDashboard = ({ darkMode, token }) => {
     fetchData();
   }, [startDate, endDate]);
 
+
   const handleStartInputChange = (event) => {
     const inputValue = event.target.value;
     const formattedStartDate = dayjs(inputValue).toISOString();
-    setStartInput(inputValue);
-    setStartDate(formattedStartDate);
+
+    if (dayjs(inputValue).isAfter(dayjs(endInput))) {
+      alert("The start date cannot be after the end date.");
+      setStartInput(dayjs(startDate).format('YYYY-MM-DD'));
+    } else {
+      setStartInput(inputValue);
+      setStartDate(formattedStartDate);
+    }
   };
+
 
   const handleEndInputChange = (event) => {
     const inputValue = event.target.value;
@@ -107,37 +114,37 @@ const GridDashboard = ({ darkMode, token }) => {
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 550 }}>
-              <GraphicBarPercentage token={token} startDate={startDate} endDate={endDate} />
+              <GraphicBarPercentage token={token} startDate={startDate} endDate={endDate} data={dataFromApi} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 350 }}>
-              <GraphicBarDate token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} />
+              <GraphicBarDate token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 350 }}>
-              <GraphicBarScore token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} />
+              <GraphicBarScore token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 350 }}>
-              <GraphicArea darkMode={darkMode} token={token} startDate={startDate} endDate={endDate} />
+              <GraphicArea darkMode={darkMode} token={token} startDate={startDate} endDate={endDate} data={dataFromApi} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 350 }}>
-              <GraphicPie token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} />
+              <GraphicPie token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 350 }}>
-              <CloudWordPositive token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} />
+              <CloudWordPositive token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 350 }}>
-              <CloudWordNegative token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} />
+              <CloudWordNegative token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} />
             </Paper>
           </Grid>
         </Grid>

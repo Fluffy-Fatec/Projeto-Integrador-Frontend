@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
+import Dialog from '@mui/material/Dialog';
 import Grid from '@mui/material/Grid';
 import Input from '@mui/material/Input';
-import { styled } from '@mui/material/styles';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
-import Checkbox from '@mui/material/Checkbox';
+import Typography from '@mui/material/Typography';
+import { styled } from '@mui/material/styles';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import UpdatePassword from "../UpdatePassword";
-import Dialog from '@mui/material/Dialog';
 
 const Item = styled(Paper)(({ theme, darkMode }) => ({
     backgroundColor: darkMode,
@@ -58,7 +58,7 @@ const CustomComponent = ({ darkMode, token }) => {
                 'http://localhost:8080/auth/update/user',
                 {
                     username: userName,
-                    email :email,
+                    email: email,
                     name: fullName,
                     celphone: cellPhone,
                     cpf: cpf
@@ -76,7 +76,7 @@ const CustomComponent = ({ darkMode, token }) => {
             alert('Error updating user. Please try again.');
         }
     };
-    
+
 
     const handleCheckboxChange = (event) => {
         setIsChecked(event.target.checked);
@@ -256,7 +256,7 @@ const CustomComponent = ({ darkMode, token }) => {
                                         color="success"
                                     />
                                     By submitting, I agree to the processing of my personal data by Fluffy Tech in accordance with the
-                                    <a  style={{ color: '#11BF4E', textDecoration: 'none', marginLeft: '5px', fontWeight: 'bold' }}>
+                                    <a style={{ color: '#11BF4E', textDecoration: 'none', marginLeft: '5px', fontWeight: 'bold' }}>
                                         Privacy Policy
                                     </a>.
                                     I understand that I can change my preferences at any time.
