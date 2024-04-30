@@ -3,10 +3,11 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Chart } from 'react-google-charts';
 
-function GeographicGraph({ token, startDate, endDate }) {
+function GeographicGraph({ token, startDate, endDate, selectedSent }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [colorAxisColors, setColorAxisColors] = useState(['red', 'green']); // Cores padrão
 
   useEffect(() => {
     const fetchData = async () => {
@@ -21,7 +22,15 @@ function GeographicGraph({ token, startDate, endDate }) {
         const formattedStartDate = new Date(startDate).toISOString().slice(0, -5) + 'Z';
         const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
 
-        const url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}&sentimentoPredito=1`;
+        let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
+        
+        // Adiciona o parâmetro de sentimento se um sentimento foi selecionado
+        if (selectedSent !== '') {
+          url += `&sentimentoPredito=${selectedSent}`;
+        }
+
+        console.log("selectedSent:", selectedSent); // Adiciona este console.log para verificar o valor de selectedSent
+
         const response = await axios.get(url);
 
         const filteredData = response.data.filter(item => {
@@ -30,17 +39,24 @@ function GeographicGraph({ token, startDate, endDate }) {
           return lat >= -56.0 && lat <= 12.0 && lng >= -81.0 && lng <= -34.0;
         });
 
-        const chartData = filteredData.map(item => {
-          return [
-            parseFloat(item.geolocationLat),
-            parseFloat(item.geolocationLng),
-            parseInt(item.sentimentoPredito)
-          ];
-        });
+        const chartData = filteredData.map(item => [
+          parseFloat(item.geolocationLat),
+          parseFloat(item.geolocationLng),
+          parseInt(item.sentimentoPredito)
+        ]);
 
         chartData.unshift(["Latitude", "Longitude", "Sentimento"]);
         setData(chartData);
         setError(null);
+
+        // Converte selectedSent para um número antes da comparação
+        const selectedSentNumber = parseInt(selectedSent);
+        if (selectedSentNumber === 0) {
+          setColorAxisColors(['red', 'green']);
+        } else {
+          // Se não for 0, use as cores padrão (vermelho para verde)
+          setColorAxisColors(['red', 'yellow', 'green']);
+        }
       } catch (error) {
         setError('Erro ao carregar os dados.');
       } finally {
@@ -49,7 +65,7 @@ function GeographicGraph({ token, startDate, endDate }) {
     };
 
     fetchData();
-  }, [token, startDate, endDate])
+  }, [token, startDate, endDate, selectedSent]);
 
   const handleChartSelect = ({ chartWrapper }) => {
     const chart = chartWrapper.getChart();
@@ -80,7 +96,7 @@ function GeographicGraph({ token, startDate, endDate }) {
             sizeAxis: { minValue: 0, maxValue: 100 },
             region: '005',
             displayMode: 'markers',
-            colorAxis: { colors: ['red', 'green'] },
+            colorAxis: { colors: colorAxisColors }, // Usa as cores dinâmicas
             zoomLevel: 5,
             magnifyingGlass: { enable: true },
             dataLabels: true,

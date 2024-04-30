@@ -3,7 +3,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
 
-function App({ token, startDate, endDate }) {
+function App({ token, startDate, endDate, selectedSent}) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -13,7 +13,13 @@ function App({ token, startDate, endDate }) {
       const formattedStartDate = new Date(startDate).toISOString().slice(0, -5) + 'Z';
       const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
 
-      const url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}&sentimentoPredito=1`;
+      let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
+      
+      // Adiciona o parâmetro de sentimento se um sentimento foi selecionado
+      if (selectedSent !== '') {
+        url += `&sentimentoPredito=${selectedSent}`;
+      }
+
       const response = await axios.get(url);
 
       const counts = {
@@ -47,13 +53,13 @@ function App({ token, startDate, endDate }) {
   };
 
   useEffect(() => {
-    if (token) {
+    if (token && startDate && endDate) {
       fetchData(token, startDate, endDate);
     } else {
-      setError('Token de autenticação não encontrado.');
+      setError('Token de autenticação, startDate ou endDate não encontrados.');
       setLoading(false);
     }
-  }, [token, startDate, endDate]);
+  }, [token, startDate, endDate, selectedSent]);
 
   const options = {
     backgroundColor: 'transparent',
@@ -76,7 +82,7 @@ function App({ token, startDate, endDate }) {
         color: '#808080',
       }
     },
-  }
+  };
 
   if (loading) {
     return <div>Loading...</div>;
