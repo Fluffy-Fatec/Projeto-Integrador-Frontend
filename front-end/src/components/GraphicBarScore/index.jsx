@@ -3,11 +3,10 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
 
-function App({ token, startDate, endDate }) {
+function App({ token, startDate, endDate, selectedSent }) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  console.log(" 1" + token)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -21,7 +20,13 @@ function App({ token, startDate, endDate }) {
         const formattedStartDate = new Date(startDate).toISOString().slice(0, -5) + 'Z';
         const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
 
-        const url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}&sentimentoPredito=1`;
+        let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
+
+     
+      if (selectedSent !== '') {
+        url += `&sentimentoPredito=${selectedSent}`;
+      }
+
         const response = await axios.get(url);
 
         const scores = {
@@ -59,7 +64,7 @@ function App({ token, startDate, endDate }) {
     };
 
     fetchData();
-  }, [token]);
+  }, [token, startDate, endDate, selectedSent]);
 
   const options = {
     backgroundColor: 'transparent',

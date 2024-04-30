@@ -11,7 +11,7 @@ import { useTheme } from '@mui/material/styles';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 
-function EnhancedTable({ token, startDate, endDate }) {
+function EnhancedTable({ token, startDate, endDate, selectedSent }) {
   const theme = useTheme();
   const [rows, setRows] = useState([]);
   const [page, setPage] = useState(0);
@@ -21,13 +21,20 @@ function EnhancedTable({ token, startDate, endDate }) {
     if (token && startDate && endDate) {
       fetchData(token, startDate, endDate);
     }
-  }, [token, startDate, endDate]);
+  }, [token, startDate, endDate, selectedSent]);
+  
   const fetchData = async (token, startDate, endDate) => {
     try {
       const formattedStartDate = new Date(startDate).toISOString().slice(0, -5) + 'Z';
       const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
 
-      const url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}&sentimentoPredito=1`;
+      let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
+      
+      // Adiciona o parâmetro de sentimento se um sentimento foi selecionado
+      if (selectedSent !== '') {
+        url += `&sentimentoPredito=${selectedSent}`;
+      }
+
       const response = await axios.get(url);
 
       const formattedRows = response.data.map(item => ({
