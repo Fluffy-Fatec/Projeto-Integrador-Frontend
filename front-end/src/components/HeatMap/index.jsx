@@ -1,55 +1,57 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
+import { Typography } from "@mui/material";
 
-const MapComponent = () => {
-  const [heatMapData, setHeatMapData] = useState([]);
-
+const GoogleMap = () => {
   useEffect(() => {
-    fetch('http://localhost:8080/graphics/list')
-      .then(response => response.json())
-      .then(data => {
-        const newData = data.map(item => ({
-          location: new google.maps.LatLng(parseFloat(item.geolocationLat), parseFloat(item.geolocationLng)),
-          weight: parseFloat(item.reviewScore)
-        }));
-        setHeatMapData(newData);
-      })
-      .catch(error => {
-        console.error('Error fetching data:', error);
-      });
-
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBT-XPf587QgEzoVCHPBFgLwM0_vfPRS34&libraries=visualization&callback=initMap&loading=async`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBT-XPf587QgEzoVCHPBFgLwM0_vfPRS34&libraries=visualization&callback=initMap`;
     script.async = true;
-    window.initMap = initMap; // Definir a função globalmente
     document.body.appendChild(script);
 
-    // Limpeza do script quando o componente é desmontado
     return () => {
       document.body.removeChild(script);
     };
   }, []);
 
-  const initMap = () => {
-    // Altere as coordenadas para o centro do Brasil
-    const centerOfBrazil = new google.maps.LatLng(-14.235004, -51.92528);
-
-    const map = new google.maps.Map(document.getElementById('map'), {
-      center: centerOfBrazil,
-      zoom: 4, // Ajuste o zoom conforme necessário
+  // A função initMap deve estar definida no escopo global para ser chamada pelo script da API
+  window.initMap = () => {
+    const map = new window.google.maps.Map(document.getElementById('map'), {
+      center: { lat: -14.235004, lng: -51.92528 },
+      zoom: 4,
       mapTypeId: 'satellite'
     });
 
-    const heatmap = new google.maps.visualization.HeatmapLayer({
-      data: heatMapData
+    const heatmapData = [
+      new window.google.maps.LatLng(37.782, -122.447),
+      new window.google.maps.LatLng(37.782, -122.445),
+      new window.google.maps.LatLng(37.782, -122.443),
+      new window.google.maps.LatLng(37.782, -122.441),
+      new window.google.maps.LatLng(37.782, -122.439),
+      new window.google.maps.LatLng(37.782, -122.437),
+      new window.google.maps.LatLng(37.782, -122.435),
+      new window.google.maps.LatLng(37.785, -122.447),
+      new window.google.maps.LatLng(37.785, -122.445),
+      new window.google.maps.LatLng(37.785, -122.443),
+      new window.google.maps.LatLng(37.785, -122.441),
+      new window.google.maps.LatLng(37.785, -122.439),
+      new window.google.maps.LatLng(37.785, -122.437),
+      new window.google.maps.LatLng(37.785, -122.435)
+    ];
+
+    const heatmap = new window.google.maps.visualization.HeatmapLayer({
+      data: heatmapData
     });
     heatmap.setMap(map);
   };
 
   return (
-    <div id="map" style={{ width: '100%', height: '550px' }}>
-      {/* Você pode adicionar qualquer conteúdo aqui que deseja renderizar abaixo do mapa */}
+    <>
+    <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20 }}>Sentiment Map</Typography>
+    <div id="map" style={{ width: '100%', height: '88%' }}>
+      {/* O mapa será renderizado dentro deste elemento */}
     </div>
+    </>
   );
 };
 
-export default MapComponent;
+export default GoogleMap;

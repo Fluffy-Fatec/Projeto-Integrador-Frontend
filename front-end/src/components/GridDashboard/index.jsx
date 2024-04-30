@@ -9,6 +9,7 @@ import GraphicPie from '../GraphicPie';
 import TableReview from '../Tablereview';
 import CloudWordPositive from '../CloudWordPositive';
 import CloudWordNegative from '../CloudWordNegative';
+import HeatMap from '../HeatMap';
 
 
 
@@ -18,7 +19,8 @@ const GridDashboard = ({ darkMode, theme, token }) => {
       {/* Primeira Linha */}
       <Grid item xs={12} sm={4}>
         <Paper style={{ height: 550 }}>
-          <GeographicGraph darkMode={darkMode} token={token} />
+          <HeatMap darkMode={darkMode} token={token} />
+          {/* <GeographicGraph darkMode={darkMode} token={token} /> */}
         </Paper>
       </Grid>
 
