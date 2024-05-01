@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import PaginaLogin from "./pages/Login";
+import Privacy from "./pages/Privacy";
 import Dashboard from "./pages/Menu";
 import PaginaRegistration from "./pages/Registration";
 import Cookies from 'js-cookie';
@@ -84,6 +85,7 @@ export default function AppRoutes() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<PaginaLogin />} />
+        <Route path="/privacy" element={<Privacy />} />
         <Route path={`/auth/register/${dynamicPath}`} element={<PaginaRegistration />} />
         <Route
           path="/dashboard"

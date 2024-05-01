@@ -55,16 +55,30 @@ export default function SignIn() {
       });
 
       const token = response.data.token;
-      Cookies.set('token', token); // Armazena o token como cookie
+      Cookies.set('token', token);
 
       const role = response.data.role;
-      Cookies.set('role', role); // Armazena a função de administrador como cookie
+      Cookies.set('role', role);
 
       navigate('/dashboard');
-    } catch (error) {
-      console.error('Login error:', error);
 
-      alert('Error logging in. Please check your credentials and try again.');
+    } catch (error) {
+      localStorage.setItem('username', username);
+      console.error('Login error:', error.response.data.message);
+      if (error.response && error.response.data) {
+        if (error.response.data.message === "No Accepted") {
+          navigate('/privacy');
+          localStorage.setItem('loginErrorUsername', username);
+          alert("You did not accept the terms of acceptance, so you do not have permission to access the platform.");
+        } else if (error.response.data.message === "First time term") {
+          alert("This is your first time logging in. Please accept the terms of service.");
+          navigate('/privacy');
+        } else {
+          alert('Error logging in. Please check your credentials and try again.');
+        }
+      } else {
+        alert('Error logging in. Please check your credentials and try again.');
+      }
     }
   };
 
@@ -88,7 +102,6 @@ export default function SignIn() {
         setTypedText((prevText) => currentText.substring(0, prevText.length + 1));
       }
     }, 300);
-
     return () => clearInterval(interval);
   }, [textIndex, typedText, texts]);
 
