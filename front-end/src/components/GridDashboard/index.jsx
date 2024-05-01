@@ -26,7 +26,8 @@ const GridDashboard = ({ darkMode, theme, token }) => {
 
       <Grid item xs={12} sm={4}>
         <Paper style={{ height: 550 }}>
-          <TableReview darkMode={darkMode} token={token} />
+        <GeographicGraph darkMode={darkMode} token={token} />
+          {/* <TableReview darkMode={darkMode} token={token} /> */}
         </Paper>
       </Grid>
 
