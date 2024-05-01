@@ -4,13 +4,13 @@ import React, { useEffect, useState } from "react";
 import { animated, useSpring } from "react-spring";
 import { TagCloud } from "react-tagcloud";
 
-const WorldGraphics = ({ token }) => {
+const WorldGraphics = ({ token, selectedSent }) => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [highlightedWord, setHighlightedWord] = useState(null);
     const [selectedWord, setSelectedWord] = useState(null);
-    const [filter, setFilter] = useState("1");
+    const [filter, setFilter] = useState(selectedSent || "1");
 
     useEffect(() => {
         const fetchData = async () => {
@@ -37,7 +37,7 @@ const WorldGraphics = ({ token }) => {
         };
 
         fetchData();
-    }, [token, filter]);
+    }, [token, filter, selectedSent]);
 
     const wordTransitionProps = useSpring({
         scale: highlightedWord ? 1.2 : 1,
@@ -58,12 +58,12 @@ const WorldGraphics = ({ token }) => {
 
     const handleFilterChange = (event) => {
         setSelectedWord(null);
-        setFilter(event.target.value);
+        // setFilter(event.target.value);
     };
 
     return (
         <>
-            <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20 }}>Cloud Negative Word</Typography>
+            <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20 }}>Cloud Sentiment Word</Typography>
             <div>
 
                 {loading && <p>Carregando...</p>}

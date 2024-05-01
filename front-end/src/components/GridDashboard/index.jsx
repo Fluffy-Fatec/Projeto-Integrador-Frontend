@@ -6,7 +6,6 @@ import axios from 'axios';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import CloudWordNegative from '../CloudWordNegative';
-import CloudWordPositive from '../CloudWordPositive';
 import GeographicGraph from '../GeographicGraph';
 import GraphicArea from '../GraphicArea';
 import GraphicBarDate from '../GraphicBarDate';
@@ -171,12 +170,11 @@ const GridDashboard = ({ darkMode, token }) => {
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 350 }}>
-              <CloudWordPositive token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} />
+            <CloudWordNegative token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent}/>
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 350 }}>
-              <CloudWordNegative token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} />
             </Paper>
           </Grid>
         </Grid>
