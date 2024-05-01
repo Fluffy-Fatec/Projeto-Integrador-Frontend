@@ -23,6 +23,7 @@ import Modal from '@mui/material/Modal';
 import Paper from '@mui/material/Paper';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
+import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import Logo from "../../assets/pandalyze.png";
 // About
@@ -236,24 +237,26 @@ function NotificationMenu({ open, onClose, notifications }) {
             aria-labelledby="notification-menu-title"
             aria-describedby="notification-menu-description"
         >
-            <Box sx={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: '300px',
-                bgcolor: 'background.paper',
-                boxShadow: 24,
-                p: 4,
-                borderRadius: '10px',
-            }}>
-                <Typography id="notification-menu-title" variant="h6" component="h2" gutterBottom>
+            <Box
+                sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    maxWidth: '90%',
+                    width: 'auto',
+                    bgcolor: 'background.paper',
+                    p: 4,
+                    borderRadius: '10px',
+                }}
+            >
+                <Typography variant="h6" component="h2" gutterBottom>
                     Notifications
                 </Typography>
                 <List>
-                    {notifications.map(notification => (
-                        <ListItem key={notification.id}>
-                            <ListItemText primary={notification.message} secondary={notification.timestamp} />
+                    {notifications.map((notification, index) => (
+                        <ListItem key={index}>
+                            <ListItemText primary={notification.mensagem} />
                         </ListItem>
                     ))}
                 </List>
@@ -272,7 +275,29 @@ export default function Menu() {
     const [openNotifications, setOpenNotifications] = useState(false);
     const isAdmin = useAdmin();
     const token = Cookies.get("token");
-    const notifications = []; // Fill notifications array with your data
+    const [notifications, setNotifications] = useState([]);
+
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            try {
+                const response = await axios.get('http://localhost:8080/auth/field/notification', {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+                if (response && response.data && Array.isArray(response.data)) {
+                    setNotifications(response.data);
+                    console.log(response.data);
+                } else {
+                    console.error('Dados de notificação vazios ou em formato inválido:', response);
+                }
+            } catch (error) {
+                console.error('Erro ao buscar notificações:', error);
+            }
+        };
+        fetchNotifications();
+    }, [token]);
+
 
     const handleDrawerOpen = () => {
         setOpen(true);
