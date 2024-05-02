@@ -1,5 +1,11 @@
-import { Grid, Paper } from '@mui/material';
-import React from 'react';
+import { CircularProgress, Divider, FormControl, Grid, Paper, Select, TextField } from '@mui/material';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import axios from 'axios';
+import dayjs from 'dayjs';
+import React, { useEffect, useState } from 'react';
+import CloudWordNegative from '../CloudWordNegative';
 import GeographicGraph from '../GeographicGraph';
 import GraphicArea from '../GraphicArea';
 import GraphicBarDate from '../GraphicBarDate';
@@ -7,76 +13,174 @@ import GraphicBarPercentage from '../GraphicBarPercentage';
 import GraphicBarScore from '../GraphicBarScore';
 import GraphicPie from '../GraphicPie';
 import TableReview from '../Tablereview';
-import CloudWordPositive from '../CloudWordPositive';
-import CloudWordNegative from '../CloudWordNegative';
 import HeatMap from '../HeatMap';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 
+const GridDashboard = ({ darkMode, token }) => {
+  const [startDate, setStartDate] = useState(dayjs().year(2018).startOf('year').toISOString());
+  const [endDate, setEndDate] = useState(dayjs().year(2018).endOf('year').toISOString());
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [dataFromApi, setDataFromApi] = useState(null);
+  const [startInput, setStartInput] = useState('2018-08-01');
+  const [endInput, setEndInput] = useState('2018-09-01');
+  const [selectedSent, setSelectedSent] = useState('');
 
+  const handleSentChange = (event) => {
+    setSelectedSent(event.target.value);
+    console.log(selectedSent)
+  };
 
-const GridDashboard = ({ darkMode, theme, token }) => {
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+
+      try {
+        const formattedStartDate = new Date(startDate).toISOString().slice(0, -5) + 'Z';
+        const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
+
+        let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
+        // Se um sentimento foi selecionado, adiciona-o à URL
+        if (selectedSent) {
+          url += `&sentimentoPredito=${selectedSent}`;
+        }
+        const response = await axios.get(url);
+        setDataFromApi(response.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [startDate, endDate, selectedSent]);
+
+  const handleStartInputChange = (event) => {
+    const inputValue = event.target.value;
+    const formattedStartDate = dayjs(inputValue).toISOString();
+
+    if (dayjs(inputValue).isAfter(dayjs(endInput))) {
+      alert("The start date cannot be after the end date.");
+      setStartInput(dayjs(startDate).format('YYYY-MM-DD'));
+    } else {
+      setStartInput(inputValue);
+      setStartDate(formattedStartDate);
+    }
+  };
+
+  const handleEndInputChange = (event) => {
+    const inputValue = event.target.value;
+    const formattedEndDate = dayjs(inputValue).endOf('day').toISOString();
+    setEndInput(inputValue);
+    setEndDate(formattedEndDate);
+  };
+
   return (
-    <Grid container spacing={3} sx={{ marginTop: '50px' }}>
-      {/* Primeira Linha */}
-      <Grid item xs={12} sm={4}>
-        <Paper style={{ height: 550 }}>
-          <HeatMap darkMode={darkMode} token={token} />
-          {/* <GeographicGraph darkMode={darkMode} token={token} /> */}
-        </Paper>
-      </Grid>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <DemoContainer components={['DateField', 'DateField']} sx={{ marginTop: '50px' }}>
+        <TextField
+          id="start-date"
+          label="Start Date"
+          type="date"
+          value={startInput}
+          onChange={handleStartInputChange}
+          InputLabelProps={{
+            shrink: true,
+          }}
+        />
+        <TextField
+          id="end-date"
+          label="End Date"
+          type="date"
+          value={endInput}
+          onChange={handleEndInputChange}
+          InputLabelProps={{
+            shrink: true,
+          }}
+        />
 
-      <Grid item xs={12} sm={4}>
-        <Paper style={{ height: 550 }}>
-        <GeographicGraph darkMode={darkMode} token={token} />
-          {/* <TableReview darkMode={darkMode} token={token} /> */}
-        </Paper>
-      </Grid>
+        <FormControl variant="filled" fullWidth>
+          <Select
+            native
+            value={selectedSent}
+            onChange={handleSentChange}
+            variant="outlined"
+            color='success'
+            fullWidth
+            inputProps={{
+              name: 'Sentiment',
+              id: 'Sentiment',
+              style: { paddingLeft: '40px', paddingRight: '30px' }
+            }}
+            sx={{ width: '150px' }}
+          >
+            <option aria-label="" value="">Sentiment</option>
+            <option value="1">Positive</option>
+            <option value="0">Negative</option>
+            <option value="2">Neutral</option>
+          </Select>
+          <FavoriteIcon style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
+        </FormControl>
+      </DemoContainer>
 
-      <Grid item xs={12} sm={4}>
-        <Paper style={{ height: 550 }}>
-          <GraphicBarPercentage darkMode={darkMode} token={token} />
-        </Paper>
-      </Grid>
+      <Divider sx={{ marginTop: '5px' }} />
 
-      {/* Segunda Linha */}
-      <Grid item xs={12} sm={4}>
-        <Paper style={{ height: 350 }}>
-          <GraphicBarDate darkMode={darkMode} token={token} />
-        </Paper>
-      </Grid>
+      {loading && <CircularProgress />}
+      {error && <p>Error: {error}</p>}
 
-      <Grid item xs={12} sm={4}>
-        <Paper style={{ height: 350 }}>
-          <GraphicBarScore darkMode={darkMode} token={token} />
-        </Paper>
-      </Grid>
-
-      <Grid item xs={12} sm={4}>
-        <Paper style={{ height: 350 }}>
-          <GraphicArea darkMode={darkMode} token={token} />
-        </Paper>
-      </Grid>
-
-      {/* Terceira Linha */}
-      <Grid item xs={12} sm={4}>
-        <Paper style={{ height: 350 }}>
-          <GraphicPie darkMode={darkMode} token={token} />
-        </Paper>
-      </Grid>
-
-      <Grid item xs={12} sm={4}>
-        <Paper style={{ height: 350 }}>
-          <CloudWordPositive darkMode={darkMode} token={token} />
-        </Paper>
-      </Grid>
-
-      <Grid item xs={12} sm={4}>
-        <Paper style={{ height: 350 }}>
-          <CloudWordNegative darkMode={darkMode} token={token} />
-        </Paper>
-      </Grid>
-    </Grid>
+      {!loading && !error && (
+        <Grid container spacing={3} sx={{ marginTop: '5px' }}>
+          <Grid item xs={12} sm={4}>
+            <Paper style={{ height: 550 }}>
+              <GeographicGraph token={token} startDate={startDate} endDate={endDate} selectedSent={selectedSent} />
+            </Paper>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <Paper style={{ height: 550 }}>
+              <TableReview token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} selectedSent={selectedSent} />
+            </Paper>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <Paper style={{ height: 550 }}>
+              <HeatMap token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} selectedSent={selectedSent} />
+            </Paper>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <Paper style={{ height: 350 }}>
+              <GraphicBarDate token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} />
+            </Paper>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <Paper style={{ height: 350 }}>
+              <GraphicBarScore token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} />
+            </Paper>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <Paper style={{ height: 350 }}>
+              <GraphicArea darkMode={darkMode} token={token} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} />
+            </Paper>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <Paper style={{ height: 350 }}>
+              <GraphicPie token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} />
+            </Paper>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <Paper style={{ height: 350 }}>
+              <CloudWordNegative token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} />
+            </Paper>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <Paper style={{ height: 350 }}>
+              <GraphicBarPercentage token={token} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} />
+            </Paper>
+          </Grid>
+        </Grid>
+      )}
+    </LocalizationProvider>
   );
-
 };
 
 export default GridDashboard;

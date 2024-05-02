@@ -2,20 +2,25 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Typography } from "@mui/material";
 
-const GoogleMap = ({ token }) => {
+const GoogleMap = ({ token, startDate, endDate, selectedSent }) => {
+
   const [heatmapData, setHeatmapData] = useState([]);
 
   useEffect(() => {
     const fetchData = async (token) => {
-      try {
-        const response = await axios.get('http://localhost:8080/graphics/list', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-        });
 
+      try {
+        const formattedStartDate = new Date(startDate).toISOString().slice(0, -5) + 'Z';
+        const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
+        let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
+
+        if (selectedSent !== '') {
+          url += `&sentimentoPredito=${selectedSent}`;
+        }
+
+        const response = await axios.get(url);
         const data = response.data;
+
         const newHeatmapData = data.map(item => ({
           lat: parseFloat(item.geolocationLat).toFixed(3),
           lng: parseFloat(item.geolocationLng).toFixed(3)
@@ -27,10 +32,10 @@ const GoogleMap = ({ token }) => {
       }
     };
 
-    if (token) {
-      fetchData(token);
+    if (token && startDate && endDate) {
+      fetchData(token, startDate, endDate);
     }
-  }, [token]);
+  }, [token, startDate, endDate, selectedSent]);
 
   useEffect(() => {
     const script = document.createElement('script');
@@ -61,7 +66,7 @@ const GoogleMap = ({ token }) => {
 
   return (
     <>
-      <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20 }}>Sentiment Map</Typography>
+      <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20 }}>Review Heatmap</Typography>
       <div id="map" style={{ width: '100%', height: '88%' }}>
         {/* O mapa será renderizado dentro deste elemento */}
       </div>

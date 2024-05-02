@@ -2,21 +2,25 @@ import Typography from '@mui/material/Typography';
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
-import Cookies from 'js-cookie'; // Importe a biblioteca js-cookie
 
-
-function App({token}) {
+function App({ token, startDate, endDate, selectedSent}) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchData = async (token) => {
+  const fetchData = async (token, startDate, endDate) => {
     try {
-      const response = await axios.get('http://localhost:8080/graphics/list', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-      });
+      const formattedStartDate = new Date(startDate).toISOString().slice(0, -5) + 'Z';
+      const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
+
+      let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
+      
+      // Adiciona o parâmetro de sentimento se um sentimento foi selecionado
+      if (selectedSent !== '') {
+        url += `&sentimentoPredito=${selectedSent}`;
+      }
+
+      const response = await axios.get(url);
 
       const counts = {
         'Positive': 0,
@@ -49,17 +53,17 @@ function App({token}) {
   };
 
   useEffect(() => {
-    if (token) {
-      fetchData(token);
+    if (token && startDate && endDate) {
+      fetchData(token, startDate, endDate);
     } else {
-      setError('Token de autenticação não encontrado.');
+      setError('Token de autenticação, startDate ou endDate não encontrados.');
       setLoading(false);
     }
-  }, []);
+  }, [token, startDate, endDate, selectedSent]);
 
   const options = {
     backgroundColor: 'transparent',
-  
+
     pieHole: 0.4,
     slices: {
       0: { color: '#11BF4E' },
@@ -78,7 +82,7 @@ function App({token}) {
         color: '#808080',
       }
     },
-  }
+  };
 
   if (loading) {
     return <div>Loading...</div>;

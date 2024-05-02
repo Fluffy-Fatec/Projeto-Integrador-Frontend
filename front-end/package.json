@@ -16,7 +16,11 @@
     "@mui/icons-material": "^5.15.13",
     "@mui/material": "^5.15.14",
     "@mui/styled-engine-sc": "^6.0.0-alpha.17",
+<<<<<<< HEAD
     "@mui/x-date-pickers": "^7.2.0",
+=======
+    "@mui/x-date-pickers": "^7.3.1",
+>>>>>>> e57b168e91aec8ce1d9536471458fc5934abecdb
     "@react-google-maps/api": "^2.19.3",
     "@stitches/react": "^1.2.8",
     "axios": "^1.6.8",

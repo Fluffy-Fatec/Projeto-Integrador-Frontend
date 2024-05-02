@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import Input from '@mui/material/Input';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import Link from '@mui/material/Link';
-import Box from '@mui/material/Box';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import logo from "../../assets/login.png";
+import Container from '@mui/material/Container';
+import CssBaseline from '@mui/material/CssBaseline';
+import IconButton from '@mui/material/IconButton';
+import Input from '@mui/material/Input';
+import Link from '@mui/material/Link';
+import Typography from '@mui/material/Typography';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import logo from "../../assets/login.png";
 
 const defaultTheme = createTheme();
 
@@ -55,16 +55,30 @@ export default function SignIn() {
       });
 
       const token = response.data.token;
-      Cookies.set('token', token); // Armazena o token como cookie
+      Cookies.set('token', token);
 
       const role = response.data.role;
-      Cookies.set('role', role); // Armazena a função de administrador como cookie
+      Cookies.set('role', role);
 
       navigate('/dashboard');
-    } catch (error) {
-      console.error('Login error:', error);
 
-      alert('Error logging in. Please check your credentials and try again.');
+    } catch (error) {
+      localStorage.setItem('username', username);
+      console.error('Login error:', error.response.data.message);
+      if (error.response && error.response.data) {
+        if (error.response.data.message === "No Accepted") {
+          navigate('/privacy');
+          localStorage.setItem('loginErrorUsername', username);
+          alert("You did not accept the terms of acceptance, so you do not have permission to access the platform.");
+        } else if (error.response.data.message === "First time term") {
+          alert("This is your first time logging in. Please accept the terms of service.");
+          navigate('/privacy');
+        } else {
+          alert('Error logging in. Please check your credentials and try again.');
+        }
+      } else {
+        alert('Error logging in. Please check your credentials and try again.');
+      }
     }
   };
 
@@ -88,7 +102,6 @@ export default function SignIn() {
         setTypedText((prevText) => currentText.substring(0, prevText.length + 1));
       }
     }, 300);
-
     return () => clearInterval(interval);
   }, [textIndex, typedText, texts]);
 

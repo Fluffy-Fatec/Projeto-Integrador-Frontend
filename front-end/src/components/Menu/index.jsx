@@ -23,20 +23,24 @@ import Modal from '@mui/material/Modal';
 import Paper from '@mui/material/Paper';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import Logo from "../../assets/pandalyze.png";
-//about
+// About
 import EmailIcon from '@mui/icons-material/Email';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import InfoIcon from '@mui/icons-material/Info';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 import Person2Icon from '@mui/icons-material/Person2';
+import Badge from '@mui/material/Badge';
 import { ThemeProvider, createTheme, styled, useTheme } from '@mui/material/styles';
+import Cookies from 'js-cookie';
 import GridDashboard from '../GridDashboard';
 import GridManageAccounts from '../GridManageAccounts';
 import UserUpdateGrid from '../UserUpdateGrid';
-import Cookies from 'js-cookie';
-
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 const drawerWidth = 240;
 
 const openedMixin = (theme) => ({
@@ -118,6 +122,8 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
         flexShrink: 0,
         whiteSpace: 'nowrap',
         boxSizing: 'border-box',
+        overflowX: 'auto',
+        '-webkit-overflow-scrolling': 'touch',
         ...(open && {
             ...openedMixin(theme),
             '& .MuiDrawer-paper': openedMixin(theme),
@@ -217,12 +223,75 @@ function AboutModal({ open, onClose, darkMode }) {
                             <EmailIcon sx={{ marginRight: '5px', color: '#db4a39' }} />
                         </a>
                     </div>
-
                 </Typography>
             </Box>
         </Modal>
     );
 }
+function NotificationMenu({ open, onClose, notifications, markNotificationsAsRead }) {
+
+    const handleClose = () => {
+        markNotificationsAsRead();
+        onClose();
+    };
+
+    return (
+        <>
+            <Modal
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="notification-menu-title"
+                aria-describedby="notification-menu-description"
+            >
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        maxWidth: '90%',
+                        width: 'auto',
+                        minWidth: '800px',
+                        bgcolor: 'background.paper',
+                        p: 4,
+                        borderRadius: '10px',
+                    }}
+                >
+                    <Typography variant="h6" component="h2" gutterBottom>
+                        Notifications
+                    </Typography>
+                    {notifications.length === 0 ? (
+                        <Typography variant="body1" gutterBottom>
+                            There are no notifications
+                        </Typography>
+                    ) : (
+                        <List>
+                            {notifications.map((notification, index) => (
+                                <div key={index}>
+                                    <ListItem>
+                                        <ListItemText primary={notification.mensagem} />
+                                        <div style={{ width: 24 }} />
+                                        {notification.flag_notificacao === "1" ? (
+                                            <ListItemIcon>
+                                                <VisibilityIcon />
+                                            </ListItemIcon>
+                                        ) : (
+                                            <ListItemIcon>
+                                                <VisibilityOffIcon />
+                                            </ListItemIcon>
+                                        )}
+                                    </ListItem>
+                                    <Divider />
+                                </div>
+                            ))}
+                        </List>
+                    )}
+                </Box>
+            </Modal>
+        </>
+    );
+}
+
 
 export default function Menu() {
     const theme = useTheme();
@@ -231,8 +300,54 @@ export default function Menu() {
     const [darkMode, setDarkMode] = useState(false);
     const [clickedButtons, setClickedButtons] = useState([]);
     const [openAboutModal, setOpenAboutModal] = useState(false);
+    const [openNotifications, setOpenNotifications] = useState(false);
     const isAdmin = useAdmin();
     const token = Cookies.get("token");
+    const [notifications, setNotifications] = useState([]);
+
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            try {
+                const response = await axios.get('http://localhost:8080/auth/field/notification', {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+                if (response && response.data && Array.isArray(response.data)) {
+                    setNotifications(response.data);
+                } else {
+                    console.error('Empty or invalid format notification data:', response);
+                }
+            } catch (error) {
+                console.error('Error fetching notifications:', error);
+            }
+        };
+
+        fetchNotifications();
+    }, [token]);
+
+    const markNotificationsAsRead = async () => {
+        try {
+            const updatedNotifications = [];
+
+            for (const notification of notifications) {
+                if (notification.flag_notificacao === "0") {
+                    await axios.put(`http://localhost:8080/auth/notification/update/${notification.id}`, {}, {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    });
+                    notification.flag_notificacao = "1";
+                    updatedNotifications.push(notification);
+                } else {
+                    updatedNotifications.push(notification);
+                }
+            }
+            setNotifications(updatedNotifications);
+        } catch (error) {
+            console.error('Error marking notifications as read:', error);
+        }
+    };
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -270,6 +385,10 @@ export default function Menu() {
         setOpenAboutModal(false);
     };
 
+    const toggleNotifications = () => {
+        setOpenNotifications(!openNotifications);
+    };
+
     return (
         <ThemeProvider theme={darkMode ? themeDark : themeLight}>
             <Box sx={{ display: 'flex' }}>
@@ -288,7 +407,7 @@ export default function Menu() {
                         >
                             <MenuIcon />
                         </IconButton>
-                        <Typography variant="h6" noWrap component="div" style={{ marginRight: '30%', display: 'flex', alignItems: 'center' }}>
+                        <Typography variant="h6" noWrap component="div" style={{ marginRight: 'auto', display: 'flex', alignItems: 'center' }}>
                             {clickedIndex !== null ? (
                                 <>
                                     <ListItemIcon style={{ color: '#11BF4E' }}>
@@ -305,6 +424,18 @@ export default function Menu() {
                                 </>
                             )}
                         </Typography>
+                        <Box sx={{ marginLeft: 'auto' }}> {/* Adicionando espaçamento entre os elementos */}
+                            <IconButton
+                                onClick={toggleNotifications}
+                                size="large"
+                                aria-label="show notifications"
+                                color="inherit"
+                            >
+                                <Badge badgeContent={notifications.filter(notification => notification.flag_notificacao === "0").length} color="error">
+                                    <NotificationsIcon />
+                                </Badge>
+                            </IconButton>
+                        </Box>
                     </Toolbar>
                     <Divider sx={{ borderBlockWidth: 1 }} />
                 </AppBar>
@@ -463,7 +594,6 @@ export default function Menu() {
                     {clickedIndex === 3 && <UserUpdateGrid darkMode={darkMode} token={token} theme={theme} />}
                     {isAdmin && clickedIndex === 5 && <GridManageAccounts token={token} darkMode={darkMode} theme={theme} />}
                 </Box>
-
                 <IconButton
                     onClick={toggleDarkMode}
                     sx={{
@@ -478,6 +608,12 @@ export default function Menu() {
                 </IconButton>
             </Box>
             <AboutModal open={openAboutModal} onClose={handleCloseAboutModal} />
+            <NotificationMenu
+                open={openNotifications}
+                onClose={() => setOpenNotifications(false)}
+                notifications={notifications}
+                markNotificationsAsRead={markNotificationsAsRead}
+            />
         </ThemeProvider>
     );
 }
