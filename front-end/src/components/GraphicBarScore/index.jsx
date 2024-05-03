@@ -3,7 +3,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
 
-function App({ token, startDate, endDate, selectedSent }) {
+function App({ token, startDate, endDate, selectedSent, selectedState }) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,10 +22,14 @@ function App({ token, startDate, endDate, selectedSent }) {
 
         let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
 
-     
-      if (selectedSent !== '') {
-        url += `&sentimentoPredito=${selectedSent}`;
-      }
+
+        if (selectedSent !== '') {
+          url += `&sentimentoPredito=${selectedSent}`;
+        }
+
+        if (selectedState !== '') {
+          url += `&state=${selectedState}`;
+        }
 
         const response = await axios.get(url);
 
@@ -69,7 +73,7 @@ function App({ token, startDate, endDate, selectedSent }) {
     };
 
     fetchData();
-  }, [token, startDate, endDate, selectedSent]);
+  }, [token, startDate, endDate, selectedSent, selectedState]);
 
   const options = {
     backgroundColor: 'transparent',

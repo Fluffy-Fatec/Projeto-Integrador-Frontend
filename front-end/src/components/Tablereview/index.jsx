@@ -11,7 +11,7 @@ import { useTheme } from '@mui/material/styles';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 
-function EnhancedTable({ token, startDate, endDate, selectedSent }) {
+function EnhancedTable({ token, startDate, endDate, selectedSent, selectedState }) {
   const theme = useTheme();
   const [rows, setRows] = useState([]);
   const [page, setPage] = useState(0);
@@ -33,6 +33,10 @@ function EnhancedTable({ token, startDate, endDate, selectedSent }) {
       // Adiciona o parâmetro de sentimento se um sentimento foi selecionado
       if (selectedSent !== '') {
         url += `&sentimentoPredito=${selectedSent}`;
+      }
+
+      if (selectedState !== '') {
+        url += `&state=${selectedState}`;
       }
 
       const response = await axios.get(url);

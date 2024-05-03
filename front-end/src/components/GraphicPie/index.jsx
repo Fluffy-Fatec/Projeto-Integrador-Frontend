@@ -3,7 +3,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
 
-function App({ token, startDate, endDate}) {
+function App({ token, startDate, endDate, selectedState}) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -15,6 +15,9 @@ function App({ token, startDate, endDate}) {
 
       let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
       
+      if (selectedState !== '') {
+        url += `&state=${selectedState}`;
+      }
      
       const response = await axios.get(url);
 
@@ -59,7 +62,7 @@ function App({ token, startDate, endDate}) {
       setError('Token de autenticação, startDate ou endDate não encontrados.');
       setLoading(false);
     }
-  }, [token, startDate, endDate]);
+  }, [token, startDate, endDate, selectedState]);
 
   const options = {
     backgroundColor: 'transparent',
