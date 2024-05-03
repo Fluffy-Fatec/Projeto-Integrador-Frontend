@@ -3,7 +3,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Chart } from 'react-google-charts';
 
-function GeographicGraph({ token, startDate, endDate, selectedSent }) {
+function GeographicGraph({ token, startDate, endDate, selectedSent, selectedState }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -26,6 +26,10 @@ function GeographicGraph({ token, startDate, endDate, selectedSent }) {
         
         if (selectedSent !== '') {
           url += `&sentimentoPredito=${selectedSent}`;
+        }
+
+        if (selectedState !== '') {
+          url += `&state=${selectedState}`;
         }
 
         const response = await axios.get(url);
@@ -69,7 +73,7 @@ function GeographicGraph({ token, startDate, endDate, selectedSent }) {
     };
 
     fetchData();
-  }, [token, startDate, endDate, selectedSent]);
+  }, [token, startDate, endDate, selectedSent, selectedState]);
 
   const handleChartSelect = ({ chartWrapper }) => {
     const chart = chartWrapper.getChart();

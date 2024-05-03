@@ -2,20 +2,24 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Typography } from "@mui/material";
 
-const GoogleMap = ({ token, startDate, endDate, selectedSent }) => {
+const GoogleMap = ({ token, startDate, endDate, selectedSent, selectedState }) => {
 
   const [heatmapData, setHeatmapData] = useState([]);
 
   useEffect(() => {
     const fetchData = async (token) => {
 
-      try {
+      try {  
         const formattedStartDate = new Date(startDate).toISOString().slice(0, -5) + 'Z';
         const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
         let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
 
         if (selectedSent !== '') {
           url += `&sentimentoPredito=${selectedSent}`;
+        }
+
+        if (selectedState !== '') {
+          url += `&state=${selectedState}`;
         }
 
         const response = await axios.get(url);
@@ -29,13 +33,13 @@ const GoogleMap = ({ token, startDate, endDate, selectedSent }) => {
 
       } catch (error) {
         console.error('Erro ao buscar dados da API:', error);
-      }
+      } 
     };
 
     if (token && startDate && endDate) {
       fetchData(token, startDate, endDate);
     }
-  }, [token, startDate, endDate, selectedSent]);
+  }, [token, startDate, endDate, selectedSent, selectedState]);
 
   useEffect(() => {
     const script = document.createElement('script');

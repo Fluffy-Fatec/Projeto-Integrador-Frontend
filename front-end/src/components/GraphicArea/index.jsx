@@ -3,7 +3,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
 
-function App({ token, endDate, startDate, selectedSent }) {
+function App({ token, endDate, startDate, selectedSent, selectedState }) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -17,6 +17,10 @@ function App({ token, endDate, startDate, selectedSent }) {
       
       if (selectedSent !== '') {
         url += `&sentimentoPredito=${selectedSent}`;
+      }
+
+      if (selectedState !== '') {
+        url += `&state=${selectedState}`;
       }
       
       const response = await axios.get(url);
@@ -65,7 +69,7 @@ function App({ token, endDate, startDate, selectedSent }) {
       setError('Token de autenticação, startDate ou endDate não encontrados.');
       setLoading(false);
     }
-  }, [token, startDate, endDate, selectedSent]);
+  }, [token, startDate, endDate, selectedSent, selectedState]);
 
   const options = {
     hAxis: {
