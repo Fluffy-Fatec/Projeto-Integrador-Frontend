@@ -30,11 +30,12 @@ function App({ token, startDate, endDate, selectedSent }) {
         const response = await axios.get(url);
 
         const scores = {
-          1: { positives: 0, negatives: 0 },
-          2: { positives: 0, negatives: 0 },
-          3: { positives: 0, negatives: 0 },
-          4: { positives: 0, negatives: 0 },
-          5: { positives: 0, negatives: 0 }
+          0: { positives: 0, negatives: 0, neutrals: 0 },
+          1: { positives: 0, negatives: 0, neutrals: 0 },
+          2: { positives: 0, negatives: 0, neutrals: 0 },
+          3: { positives: 0, negatives: 0, neutrals: 0 },
+          4: { positives: 0, negatives: 0, neutrals: 0 },
+          5: { positives: 0, negatives: 0, neutrals: 0 }
         };
 
         response.data.forEach(item => {
@@ -45,13 +46,17 @@ function App({ token, startDate, endDate, selectedSent }) {
             scores[score].positives++;
           } else if (sentimentoPredito === '0') {
             scores[score].negatives++;
+          } else if (sentimentoPredito === '2') {
+            scores[score].neutrals++;
           }
         });
 
-        const chartData = [['Score', 'Positive', 'Negative']];
+        const chartData = [
+          ['Score', 'Positive', 'Negative', 'Neutral']
+        ];
 
-        for (let score = 5; score >= 1; score--) {
-          chartData.push([score.toString(), scores[score].positives, scores[score].negatives]);
+        for (let score = 5; score >= 0; score--) {
+          chartData.push([score.toString(), scores[score].positives, scores[score].negatives, scores[score].neutrals]);
         }
 
         setChartData(chartData);
@@ -115,7 +120,7 @@ function App({ token, startDate, endDate, selectedSent }) {
         color: '#808080',
       }
     },
-    colors: ["#11BF4E", "#F25774"],
+    colors: ["#11BF4E", "#F25774", "#FFD700"], // Green, Red, Yellow
   };
 
 

@@ -15,7 +15,6 @@ function App({ token, endDate, startDate, selectedSent }) {
 
       let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
       
-      // Adiciona o parâmetro de sentimento se um sentimento foi selecionado
       if (selectedSent !== '') {
         url += `&sentimentoPredito=${selectedSent}`;
       }
@@ -27,19 +26,21 @@ function App({ token, endDate, startDate, selectedSent }) {
       response.data.forEach(item => {
         const weekNumber = getWeekNumber(new Date(item.reviewCreationDate));
         if (!counts[weekNumber]) {
-          counts[weekNumber] = { 'Positive': 0, 'Negative': 0 };
+          counts[weekNumber] = { 'Positive': 0, 'Negative': 0, 'Neutral': 0 };
         }
 
         if (item.sentimentoPredito === '1') {
           counts[weekNumber]['Positive']++;
         } else if (item.sentimentoPredito === '0') {
           counts[weekNumber]['Negative']++;
+        } else if (item.sentimentoPredito === '2') {
+          counts[weekNumber]['Neutral']++;
         }
       });
 
-      const chartData = [['Week', 'Positive', 'Negative']];
+      const chartData = [['Week', 'Positive', 'Negative', 'Neutral']];
       Object.keys(counts).forEach(weekNumber => {
-        chartData.push([`Week ${weekNumber}`, counts[weekNumber]['Positive'], counts[weekNumber]['Negative']]);
+        chartData.push([`Week ${weekNumber}`, counts[weekNumber]['Positive'], counts[weekNumber]['Negative'], counts[weekNumber]['Neutral']]);
       });
 
       setChartData(chartData);
@@ -102,7 +103,7 @@ function App({ token, endDate, startDate, selectedSent }) {
       width: "65%",
       height: "55%"
     },
-    colors: ["#11BF4E", "#F25774"],
+    colors: ["#11BF4E", "#F25774", "#FFD700"], // Green, Red, Yellow
     backgroundColor: 'transparent',
     legend: {
       position: 'bottom',
