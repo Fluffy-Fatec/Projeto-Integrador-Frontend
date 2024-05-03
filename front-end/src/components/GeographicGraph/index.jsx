@@ -24,12 +24,9 @@ function GeographicGraph({ token, startDate, endDate, selectedSent }) {
 
         let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
         
-        // Adiciona o parâmetro de sentimento se um sentimento foi selecionado
         if (selectedSent !== '') {
           url += `&sentimentoPredito=${selectedSent}`;
         }
-
-        console.log("selectedSent:", selectedSent); // Adiciona este console.log para verificar o valor de selectedSent
 
         const response = await axios.get(url);
 
@@ -49,14 +46,21 @@ function GeographicGraph({ token, startDate, endDate, selectedSent }) {
         setData(chartData);
         setError(null);
 
-        // Converte selectedSent para um número antes da comparação
-        const selectedSentNumber = parseInt(selectedSent);
-        if (selectedSentNumber === 0) {
-          setColorAxisColors(['red', 'green']);
-        } else {
-          // Se não for 0, use as cores padrão (vermelho para verde)
-          setColorAxisColors(['red', 'yellow', 'green']);
+        let colorAxisColors = [];
+        switch (selectedSent) {
+          case '0':
+            colorAxisColors = ['red'];
+            break;
+          case '1':
+            colorAxisColors = ['green'];
+            break;
+          case '2':
+            colorAxisColors = ['yellow'];
+            break;
+          default:
+            colorAxisColors = ['red', 'green'];
         }
+        setColorAxisColors(colorAxisColors);
       } catch (error) {
         setError('Erro ao carregar os dados.');
       } finally {
@@ -96,7 +100,7 @@ function GeographicGraph({ token, startDate, endDate, selectedSent }) {
             sizeAxis: { minValue: 0, maxValue: 100 },
             region: '005',
             displayMode: 'markers',
-            colorAxis: { colors: colorAxisColors }, // Usa as cores dinâmicas
+            colorAxis: { colors: colorAxisColors }, 
             zoomLevel: 5,
             magnifyingGlass: { enable: true },
             dataLabels: true,

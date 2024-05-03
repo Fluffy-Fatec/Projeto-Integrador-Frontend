@@ -3,7 +3,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
 
-function App({ token, startDate, endDate, selectedSent}) {
+function App({ token, startDate, endDate}) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -15,16 +15,13 @@ function App({ token, startDate, endDate, selectedSent}) {
 
       let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
       
-      // Adiciona o parâmetro de sentimento se um sentimento foi selecionado
-      if (selectedSent !== '') {
-        url += `&sentimentoPredito=${selectedSent}`;
-      }
-
+     
       const response = await axios.get(url);
 
       const counts = {
         'Positive': 0,
-        'Negative': 0
+        'Negative': 0,
+        'Neutral': 0
       };
 
       response.data.forEach(item => {
@@ -34,13 +31,16 @@ function App({ token, startDate, endDate, selectedSent}) {
           counts['Positive']++;
         } else if (sentimentoPredito === '0') {
           counts['Negative']++;
+        } else if (sentimentoPredito === '2') {
+          counts['Neutral']++;
         }
       });
 
       const chartData = [
         ['Sentiment', 'Count'],
         ['Positive', counts['Positive']],
-        ['Negative', counts['Negative']]
+        ['Negative', counts['Negative']],
+        ['Neutral', counts['Neutral']]
       ];
 
       setChartData(chartData);
@@ -59,16 +59,17 @@ function App({ token, startDate, endDate, selectedSent}) {
       setError('Token de autenticação, startDate ou endDate não encontrados.');
       setLoading(false);
     }
-  }, [token, startDate, endDate, selectedSent]);
+  }, [token, startDate, endDate]);
 
   const options = {
     backgroundColor: 'transparent',
 
     pieHole: 0.4,
-    slices: {
-      0: { color: '#11BF4E' },
-      1: { color: '#F25774' }
-    },
+    slices: [
+      { color: '#11BF4E' }, // Positive
+      { color: '#F25774' }, // Negative
+      { color: '#FFD700' }  // Neutral
+    ],
     is3D: false,
     chartArea: {
       width: "65%",
