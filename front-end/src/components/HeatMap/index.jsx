@@ -3,11 +3,13 @@ import axios from 'axios';
 import { Typography } from "@mui/material";
 
 const GoogleMap = ({ token, startDate, endDate, selectedSent }) => {
+
   const [heatmapData, setHeatmapData] = useState([]);
 
   useEffect(() => {
     const fetchData = async (token) => {
-      try { 
+
+      try {
         const formattedStartDate = new Date(startDate).toISOString().slice(0, -5) + 'Z';
         const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
         let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
