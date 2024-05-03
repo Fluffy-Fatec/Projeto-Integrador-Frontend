@@ -15,6 +15,7 @@ import GraphicPie from '../GraphicPie';
 import TableReview from '../Tablereview';
 import HeatMap from '../HeatMap';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import FmdGoodIcon from '@mui/icons-material/FmdGood';
 
 const GridDashboard = ({ darkMode, token }) => {
   const [startDate, setStartDate] = useState(dayjs().year(2018).startOf('year').toISOString());
@@ -25,10 +26,16 @@ const GridDashboard = ({ darkMode, token }) => {
   const [startInput, setStartInput] = useState('2018-08-01');
   const [endInput, setEndInput] = useState('2018-09-01');
   const [selectedSent, setSelectedSent] = useState('');
+  const [selectedState, setSelectedState] = useState('');
 
   const handleSentChange = (event) => {
     setSelectedSent(event.target.value);
     console.log(selectedSent)
+  };
+
+  const handleStateChange = (event) => {
+    setSelectedState(event.target.value);
+    console.log(selectedState)
   };
 
   useEffect(() => {
@@ -44,6 +51,9 @@ const GridDashboard = ({ darkMode, token }) => {
         if (selectedSent) {
           url += `&sentimentoPredito=${selectedSent}`;
         }
+        if (selectedState) {
+          url += `&state=${selectedState}`;
+        }
         const response = await axios.get(url);
         setDataFromApi(response.data);
       } catch (error) {
@@ -55,7 +65,7 @@ const GridDashboard = ({ darkMode, token }) => {
     };
 
     fetchData();
-  }, [startDate, endDate, selectedSent]);
+  }, [startDate, endDate, selectedSent, selectedState]);
 
   const handleStartInputChange = (event) => {
     const inputValue = event.target.value;
@@ -123,6 +133,42 @@ const GridDashboard = ({ darkMode, token }) => {
           </Select>
           <FavoriteIcon style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
         </FormControl>
+
+        <FormControl variant="filled" fullWidth>
+          <Select
+            native
+            value={selectedState}
+            onChange={handleStateChange}
+            variant="outlined"
+            color='success'
+            fullWidth
+            inputProps={{
+              name: 'State',
+              id: 'State',
+              style: { paddingLeft: '40px', paddingRight: '30px' }
+            }}
+            sx={{ width: '150px' }}
+          >
+            <option aria-label="" value="">State</option>
+            <option value="BA">BA</option>
+            <option value="CE">CE</option>
+            <option value="DF">DF</option>
+            <option value="ES">ES</option>
+            <option value="GO">GO</option>
+            <option value="MA">MA</option>
+            <option value="MG">MG</option>
+            <option value="MT">MT</option>
+            <option value="PB">PB</option>
+            <option value="PE">PE</option>
+            <option value="PR">PR</option>
+            <option value="RJ">RJ</option>
+            <option value="RN">RN</option>
+            <option value="RS">RS</option>
+            <option value="SC">SC</option>
+            <option value="SP">SP</option>
+          </Select>
+          <FmdGoodIcon style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
+        </FormControl>
       </DemoContainer>
 
       <Divider sx={{ marginTop: '5px' }} />
@@ -134,17 +180,17 @@ const GridDashboard = ({ darkMode, token }) => {
         <Grid container spacing={3} sx={{ marginTop: '5px' }}>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 550 }}>
-              <GeographicGraph token={token} startDate={startDate} endDate={endDate} selectedSent={selectedSent} />
+              <GeographicGraph token={token} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 550 }}>
-              <TableReview token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} selectedSent={selectedSent} />
+              <TableReview token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 550 }}>
-              <HeatMap token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} selectedSent={selectedSent} />
+              <HeatMap token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
