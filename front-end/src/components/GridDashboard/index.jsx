@@ -124,9 +124,10 @@ const GridDashboard = ({ darkMode, token }) => {
               id: 'Sentiment',
               style: { paddingLeft: '40px', paddingRight: '30px' }
             }}
-            sx={{ width: '150px' }}
+            sx={{ width: '175px' }}
           >
-            <option aria-label="" value="">Sentiment</option>
+
+           <option aria-label="" value=""> All Sentiment</option>
             <option value="1">Positive</option>
             <option value="0">Negative</option>
             <option value="2">Neutral</option>
@@ -190,7 +191,7 @@ const GridDashboard = ({ darkMode, token }) => {
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 550 }}>
-              <HeatMap token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} />
+              <HeatMap token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} data={dataFromApi} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
@@ -210,7 +211,7 @@ const GridDashboard = ({ darkMode, token }) => {
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 350 }}>
-              <GraphicPie token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} />
+              <GraphicPie token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi}  />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>

@@ -3,7 +3,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
 
-function App({ token, endDate, startDate, selectedSent }) {
+function App({ token, endDate, startDate }) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -15,10 +15,6 @@ function App({ token, endDate, startDate, selectedSent }) {
 
       let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
 
-      if (selectedSent !== '') {
-        url += `&sentimentoPredito=${selectedSent}`;
-      }
-      
       const response = await axios.get(url);
 
       const stateData = {};
@@ -31,6 +27,7 @@ function App({ token, endDate, startDate, selectedSent }) {
           stateData[state] = {
             positives: 0,
             negatives: 0,
+            neutrals: 0,
             total: 0
           };
         }
@@ -39,20 +36,23 @@ function App({ token, endDate, startDate, selectedSent }) {
           stateData[state].positives++;
         } else if (sentiment === '0') {
           stateData[state].negatives++;
+        } else if (sentiment === '2') {
+          stateData[state].neutrals++;
         }
 
         stateData[state].total++;
       });
 
       const chartData = [
-        ['State', 'Positive', 'Negative']
+        ['State', 'Positive', 'Negative', 'Neutral']
       ];
 
       for (const state in stateData) {
-        const { positives, negatives, total } = stateData[state];
+        const { positives, negatives, neutrals, total } = stateData[state];
         const positivePercentage = (positives / total) * 100;
         const negativePercentage = (negatives / total) * 100;
-        chartData.push([state, positivePercentage, negativePercentage]);
+        const neutralPercentage = (neutrals / total) * 100;
+        chartData.push([state, positivePercentage, negativePercentage, neutralPercentage]);
       }
 
       setChartData(chartData);
@@ -71,7 +71,7 @@ function App({ token, endDate, startDate, selectedSent }) {
       setError('Token de autenticação, startDate ou endDate não encontrados.');
       setLoading(false);
     }
-  }, [token, startDate, endDate, selectedSent]);
+  }, [token, startDate, endDate]);
 
   const options = {
     backgroundColor: 'transparent',
@@ -121,7 +121,7 @@ function App({ token, endDate, startDate, selectedSent }) {
         color: '#808080',
       }
     },
-    colors: ["#11BF4E", "#F25774"],
+    colors: ["#11BF4E", "#F25774", "#FFD700"], // Green, Red, Yellow
   };
 
   if (loading) {
