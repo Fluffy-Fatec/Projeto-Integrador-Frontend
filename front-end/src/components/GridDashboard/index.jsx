@@ -13,6 +13,7 @@ import GraphicBarPercentage from '../GraphicBarPercentage';
 import GraphicBarScore from '../GraphicBarScore';
 import GraphicPie from '../GraphicPie';
 import TableReview from '../Tablereview';
+import HeatMap from '../HeatMap';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 
 const GridDashboard = ({ darkMode, token }) => {
@@ -116,6 +117,7 @@ const GridDashboard = ({ darkMode, token }) => {
             }}
             sx={{ width: '175px' }}
           >
+
            <option aria-label="" value=""> All Sentiment</option>
             <option value="1">Positive</option>
             <option value="0">Negative</option>
@@ -155,7 +157,7 @@ const GridDashboard = ({ darkMode, token }) => {
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 350 }}>
-              <GraphicBarScore token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent}/>
+              <GraphicBarScore token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
@@ -170,11 +172,12 @@ const GridDashboard = ({ darkMode, token }) => {
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 350 }}>
-            <CloudWordNegative token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent}/>
+              <CloudWordNegative token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 350 }}>
+              <GraphicBarPercentage token={token} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} />
             </Paper>
           </Grid>
         </Grid>
