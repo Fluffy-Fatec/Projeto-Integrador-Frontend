@@ -3,7 +3,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Chart } from 'react-google-charts';
 
-function GeographicGraph({ token, startDate, endDate, selectedSent, selectedState, selectedDataSource }) {
+function GeographicGraph({ token, startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource}) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -32,10 +32,15 @@ function GeographicGraph({ token, startDate, endDate, selectedSent, selectedStat
           url += `&state=${selectedState}`;
         }
 
+        if (selectedCountry !== '') {
+          url += `&country=${selectedCountry}`;
+        }
+
         if (selectedDataSource !== '') {
           url += `&datasource=${selectedDataSource}`;
         }
         
+
 
         const response = await axios.get(url);
 
@@ -78,7 +83,7 @@ function GeographicGraph({ token, startDate, endDate, selectedSent, selectedStat
     };
 
     fetchData();
-  }, [token, startDate, endDate, selectedSent, selectedState]);
+  }, [token, startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource]);
 
   const handleChartSelect = ({ chartWrapper }) => {
     const chart = chartWrapper.getChart();

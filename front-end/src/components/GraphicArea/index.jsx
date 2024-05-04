@@ -3,7 +3,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
 
-function App({ token, endDate, startDate, selectedSent, selectedState, selectedDataSource }) {
+function App({ token, endDate, startDate, selectedSent, selectedState, selectedCountry, selectedDataSource }) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -23,9 +23,14 @@ function App({ token, endDate, startDate, selectedSent, selectedState, selectedD
         url += `&state=${selectedState}`;
       }
 
+      if (selectedCountry !== '') {
+        url += `&country=${selectedCountry}`;
+      }
+
       if (selectedDataSource !== '') {
         url += `&datasource=${selectedDataSource}`;
       }
+      
       
       const response = await axios.get(url);
 
@@ -73,7 +78,8 @@ function App({ token, endDate, startDate, selectedSent, selectedState, selectedD
       setError('Token de autenticação, startDate ou endDate não encontrados.');
       setLoading(false);
     }
-  }, [token, startDate, endDate, selectedSent, selectedState, selectedDataSource]);
+
+  }, [token, startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource]);
 
   const options = {
     hAxis: {
@@ -111,7 +117,7 @@ function App({ token, endDate, startDate, selectedSent, selectedState, selectedD
       width: "65%",
       height: "55%"
     },
-    colors: ["#11BF4E", "#F25774", "#FFD700"], // Green, Red, Yellow
+    colors: ["#11BF4E", "#F25774", "#FFD700"],
     backgroundColor: 'transparent',
     legend: {
       position: 'bottom',

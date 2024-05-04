@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Typography } from "@mui/material";
 
-const GoogleMap = ({ token, startDate, endDate, selectedSent, selectedState, selectedDataSource }) => {
+
+const GoogleMap = ({ token, startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource }) => {
 
   const [heatmapData, setHeatmapData] = useState([]);
 
@@ -22,13 +23,17 @@ const GoogleMap = ({ token, startDate, endDate, selectedSent, selectedState, sel
           url += `&state=${selectedState}`;
         }
 
+        if (selectedCountry !== '') {
+          url += `&country=${selectedCountry}`;
+        }
+
         if (selectedDataSource !== '') {
           url += `&datasource=${selectedDataSource}`;
         }
 
         const response = await axios.get(url);
         const data = response.data;
-
+ 
         const newHeatmapData = data.map(item => ({
           lat: parseFloat(item.geolocationLat).toFixed(3),
           lng: parseFloat(item.geolocationLng).toFixed(3)
@@ -43,7 +48,8 @@ const GoogleMap = ({ token, startDate, endDate, selectedSent, selectedState, sel
     if (token && startDate && endDate) {
       fetchData(token, startDate, endDate);
     }
-  }, [token, startDate, endDate, selectedSent, selectedState, selectedDataSource]);
+
+  }, [token, startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource]);
 
   useEffect(() => {
     const script = document.createElement('script');
