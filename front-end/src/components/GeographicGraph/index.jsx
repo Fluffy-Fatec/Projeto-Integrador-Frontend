@@ -3,11 +3,11 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Chart } from 'react-google-charts';
 
-function GeographicGraph({ token, startDate, endDate, selectedSent, selectedState }) {
+function GeographicGraph({ token, startDate, endDate, selectedSent, selectedState, selectedDataSource }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [colorAxisColors, setColorAxisColors] = useState(['red', 'green']); // Cores padrão
+  const [colorAxisColors, setColorAxisColors] = useState(['red', 'green']); 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -32,6 +32,11 @@ function GeographicGraph({ token, startDate, endDate, selectedSent, selectedStat
           url += `&state=${selectedState}`;
         }
 
+        if (selectedDataSource !== '') {
+          url += `&datasource=${selectedDataSource}`;
+        }
+        
+
         const response = await axios.get(url);
 
         const filteredData = response.data.filter(item => {
@@ -55,10 +60,10 @@ function GeographicGraph({ token, startDate, endDate, selectedSent, selectedStat
           case '0':
             colorAxisColors = ['red'];
             break;
-          case '1':
+          case '2':
             colorAxisColors = ['green'];
             break;
-          case '2':
+          case '1':
             colorAxisColors = ['yellow'];
             break;
           default:

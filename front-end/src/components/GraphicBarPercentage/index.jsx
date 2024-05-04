@@ -3,7 +3,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
 
-function App({ token, endDate, startDate }) {
+function App({ token, endDate, startDate, selectedDataSource }) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -14,6 +14,11 @@ function App({ token, endDate, startDate }) {
       const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
 
       let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
+
+      
+      if (selectedDataSource !== '') {
+        url += `&datasource=${selectedDataSource}`;
+      }
 
       const response = await axios.get(url);
 
@@ -32,11 +37,11 @@ function App({ token, endDate, startDate }) {
           };
         }
 
-        if (sentiment === '1') {
+        if (sentiment === '2') {
           stateData[state].positives++;
         } else if (sentiment === '0') {
           stateData[state].negatives++;
-        } else if (sentiment === '2') {
+        } else if (sentiment === '1') {
           stateData[state].neutrals++;
         }
 
@@ -71,7 +76,7 @@ function App({ token, endDate, startDate }) {
       setError('Token de autenticação, startDate ou endDate não encontrados.');
       setLoading(false);
     }
-  }, [token, startDate, endDate]);
+  }, [token, startDate, endDate, selectedDataSource]);
 
   const options = {
     backgroundColor: 'transparent',
@@ -121,7 +126,7 @@ function App({ token, endDate, startDate }) {
         color: '#808080',
       }
     },
-    colors: ["#11BF4E", "#F25774", "#FFD700"], // Green, Red, Yellow
+    colors: ["#11BF4E", "#F25774", "#FFD700"], 
   };
 
   if (loading) {

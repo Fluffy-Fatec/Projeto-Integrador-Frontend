@@ -3,7 +3,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
 
-function App({ token, startDate, endDate, selectedSent, selectedState }) {
+function App({ token, startDate, endDate, selectedSent, selectedState, selectedDataSource }) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -31,6 +31,10 @@ function App({ token, startDate, endDate, selectedSent, selectedState }) {
           url += `&state=${selectedState}`;
         }
 
+        if (selectedDataSource !== '') {
+          url += `&datasource=${selectedDataSource}`;
+        }
+
         const response = await axios.get(url);
 
         const scores = {
@@ -46,11 +50,11 @@ function App({ token, startDate, endDate, selectedSent, selectedState }) {
           const score = item.reviewScore;
           const sentimentoPredito = item.sentimentoPredito;
 
-          if (sentimentoPredito === '1') {
+          if (sentimentoPredito === '2') {
             scores[score].positives++;
           } else if (sentimentoPredito === '0') {
             scores[score].negatives++;
-          } else if (sentimentoPredito === '2') {
+          } else if (sentimentoPredito === '1') {
             scores[score].neutrals++;
           }
         });
@@ -73,7 +77,7 @@ function App({ token, startDate, endDate, selectedSent, selectedState }) {
     };
 
     fetchData();
-  }, [token, startDate, endDate, selectedSent, selectedState]);
+  }, [token, startDate, endDate, selectedSent, selectedState, selectedDataSource]);
 
   const options = {
     backgroundColor: 'transparent',
@@ -124,7 +128,7 @@ function App({ token, startDate, endDate, selectedSent, selectedState }) {
         color: '#808080',
       }
     },
-    colors: ["#11BF4E", "#F25774", "#FFD700"], // Green, Red, Yellow
+    colors: ["#11BF4E", "#F25774", "#FFD700"], 
   };
 
 

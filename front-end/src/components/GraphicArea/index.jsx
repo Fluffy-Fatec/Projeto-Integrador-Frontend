@@ -3,7 +3,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
 
-function App({ token, endDate, startDate, selectedSent, selectedState }) {
+function App({ token, endDate, startDate, selectedSent, selectedState, selectedDataSource }) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,6 +22,10 @@ function App({ token, endDate, startDate, selectedSent, selectedState }) {
       if (selectedState !== '') {
         url += `&state=${selectedState}`;
       }
+
+      if (selectedDataSource !== '') {
+        url += `&datasource=${selectedDataSource}`;
+      }
       
       const response = await axios.get(url);
 
@@ -33,11 +37,11 @@ function App({ token, endDate, startDate, selectedSent, selectedState }) {
           counts[weekNumber] = { 'Positive': 0, 'Negative': 0, 'Neutral': 0 };
         }
 
-        if (item.sentimentoPredito === '1') {
+        if (item.sentimentoPredito === '2') {
           counts[weekNumber]['Positive']++;
         } else if (item.sentimentoPredito === '0') {
           counts[weekNumber]['Negative']++;
-        } else if (item.sentimentoPredito === '2') {
+        } else if (item.sentimentoPredito === '1') {
           counts[weekNumber]['Neutral']++;
         }
       });
@@ -69,7 +73,7 @@ function App({ token, endDate, startDate, selectedSent, selectedState }) {
       setError('Token de autenticação, startDate ou endDate não encontrados.');
       setLoading(false);
     }
-  }, [token, startDate, endDate, selectedSent, selectedState]);
+  }, [token, startDate, endDate, selectedSent, selectedState, selectedDataSource]);
 
   const options = {
     hAxis: {

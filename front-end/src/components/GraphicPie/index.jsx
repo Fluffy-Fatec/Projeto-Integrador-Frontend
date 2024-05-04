@@ -3,7 +3,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
 
-function App({ token, startDate, endDate, selectedState}) {
+function App({ token, startDate, endDate, selectedState, selectedDataSource}) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -18,7 +18,11 @@ function App({ token, startDate, endDate, selectedState}) {
       if (selectedState !== '') {
         url += `&state=${selectedState}`;
       }
-     
+      
+      if (selectedDataSource !== '') {
+        url += `&datasource=${selectedDataSource}`;
+      }
+
       const response = await axios.get(url);
 
       const counts = {
@@ -30,11 +34,11 @@ function App({ token, startDate, endDate, selectedState}) {
       response.data.forEach(item => {
         const sentimentoPredito = item.sentimentoPredito;
 
-        if (sentimentoPredito === '1') {
+        if (sentimentoPredito === '2') {
           counts['Positive']++;
         } else if (sentimentoPredito === '0') {
           counts['Negative']++;
-        } else if (sentimentoPredito === '2') {
+        } else if (sentimentoPredito === '1') {
           counts['Neutral']++;
         }
       });
@@ -62,16 +66,16 @@ function App({ token, startDate, endDate, selectedState}) {
       setError('Token de autenticação, startDate ou endDate não encontrados.');
       setLoading(false);
     }
-  }, [token, startDate, endDate, selectedState]);
+  }, [token, startDate, endDate, selectedState, selectedDataSource]);
 
   const options = {
     backgroundColor: 'transparent',
 
     pieHole: 0.4,
     slices: [
-      { color: '#11BF4E' }, // Positive
-      { color: '#F25774' }, // Negative
-      { color: '#FFD700' }  // Neutral
+      { color: '#11BF4E' }, 
+      { color: '#F25774' }, 
+      { color: '#FFD700' } 
     ],
     is3D: false,
     chartArea: {

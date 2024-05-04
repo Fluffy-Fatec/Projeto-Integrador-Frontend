@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 
 import { Chart } from 'react-google-charts';
 
-export function App({ token, startDate, endDate, selectedSent }) {
+export function App({ token, startDate, endDate, selectedSent, selectedDataSource }) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -18,6 +18,11 @@ export function App({ token, startDate, endDate, selectedSent }) {
       if (selectedSent !== '') {
         url += `&sentimentoPredito=${selectedSent}`;
       }
+
+      if (selectedDataSource !== '') {
+        url += `&datasource=${selectedDataSource}`;
+      }
+      
 
       const response = await axios.get(url);
       const stateCounts = {};
@@ -79,7 +84,7 @@ export function App({ token, startDate, endDate, selectedSent }) {
       setError('Parâmetros de data ou token faltando.');
       setLoading(false);
     }
-  }, [token, startDate, endDate, selectedSent]);
+  }, [token, startDate, endDate, selectedSent, selectedDataSource]);
 
   const options = {
     chartArea: {
