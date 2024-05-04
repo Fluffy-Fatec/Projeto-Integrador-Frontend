@@ -16,6 +16,7 @@ import TableReview from '../Tablereview';
 import HeatMap from '../HeatMap';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FmdGoodIcon from '@mui/icons-material/FmdGood';
+import PublicIcon from '@mui/icons-material/Public';
 
 const GridDashboard = ({ darkMode, token }) => {
   const [startDate, setStartDate] = useState(dayjs().year(2018).startOf('year').toISOString());
@@ -27,6 +28,7 @@ const GridDashboard = ({ darkMode, token }) => {
   const [endInput, setEndInput] = useState('2018-09-01');
   const [selectedSent, setSelectedSent] = useState('');
   const [selectedState, setSelectedState] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState('');
 
   const handleSentChange = (event) => {
     setSelectedSent(event.target.value);
@@ -36,6 +38,11 @@ const GridDashboard = ({ darkMode, token }) => {
   const handleStateChange = (event) => {
     setSelectedState(event.target.value);
     console.log(selectedState)
+  };
+
+  const handleCountryChange = (event) => {
+    setSelectedCountry(event.target.value);
+    console.log(selectedCountry)
   };
 
   useEffect(() => {
@@ -54,6 +61,10 @@ const GridDashboard = ({ darkMode, token }) => {
         if (selectedState) {
           url += `&state=${selectedState}`;
         }
+        if (selectedCountry) {
+          url += `&country=${selectedCountry}`;
+        }
+
         const response = await axios.get(url);
         setDataFromApi(response.data);
       } catch (error) {
@@ -169,6 +180,28 @@ const GridDashboard = ({ darkMode, token }) => {
           </Select>
           <FmdGoodIcon style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
         </FormControl>
+
+        <FormControl variant="filled" fullWidth>
+          <Select
+            native
+            value={selectedCountry}
+            onChange={handleCountryChange}
+            variant="outlined"
+            color='success'
+            fullWidth
+            inputProps={{
+              name: 'Country',
+              id: 'Country',
+              style: { paddingLeft: '40px', paddingRight: '30px' }
+            }}
+            sx={{ width: '150px' }}
+          >
+            <option aria-label="" value="">All Country</option>
+            <option value="Brazil">Brazil</option>
+            <option value="Spain">Spain</option>
+          </Select>
+          <PublicIcon style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
+        </FormControl>
       </DemoContainer>
 
       <Divider sx={{ marginTop: '5px' }} />
@@ -180,17 +213,17 @@ const GridDashboard = ({ darkMode, token }) => {
         <Grid container spacing={3} sx={{ marginTop: '5px' }}>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 550 }}>
-              <GeographicGraph token={token} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} data={dataFromApi} />
+              <GeographicGraph token={token} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} data={dataFromApi} selectedCountry={selectedCountry} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 550 }}>
-              <TableReview token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} data={dataFromApi} />
+              <TableReview token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} data={dataFromApi} selectedCountry={selectedCountry} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 550 }}>
-              <HeatMap token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} data={dataFromApi} />
+              <HeatMap token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} data={dataFromApi} selectedCountry={selectedCountry} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
