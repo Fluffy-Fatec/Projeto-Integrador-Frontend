@@ -11,7 +11,7 @@ import { useTheme } from '@mui/material/styles';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 
-function EnhancedTable({ token, startDate, endDate, selectedSent, selectedState }) {
+function EnhancedTable({ token, startDate, endDate, selectedSent, selectedState, selectedCountry }) {
   const theme = useTheme();
   const [rows, setRows] = useState([]);
   const [page, setPage] = useState(0);
@@ -21,7 +21,7 @@ function EnhancedTable({ token, startDate, endDate, selectedSent, selectedState 
     if (token && startDate && endDate) {
       fetchData(token, startDate, endDate);
     }
-  }, [token, startDate, endDate, selectedSent]);
+  }, [token, startDate, endDate, selectedSent, selectedState, selectedCountry]);
   
   const fetchData = async (token, startDate, endDate) => {
     try {
@@ -37,6 +37,10 @@ function EnhancedTable({ token, startDate, endDate, selectedSent, selectedState 
 
       if (selectedState !== '') {
         url += `&state=${selectedState}`;
+      }
+
+      if (selectedCountry !== '') {
+        url += `&country=${selectedCountry}`;
       }
 
       const response = await axios.get(url);

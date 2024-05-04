@@ -3,7 +3,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
 
-function App({ token, startDate, endDate, selectedState}) {
+function App({ token, startDate, endDate, selectedState, selectedCountry}) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -19,6 +19,10 @@ function App({ token, startDate, endDate, selectedState}) {
         url += `&state=${selectedState}`;
       }
      
+      if (selectedCountry !== '') {
+        url += `&country=${selectedCountry}`;
+      }
+
       const response = await axios.get(url);
 
       const counts = {
@@ -62,7 +66,7 @@ function App({ token, startDate, endDate, selectedState}) {
       setError('Token de autenticação, startDate ou endDate não encontrados.');
       setLoading(false);
     }
-  }, [token, startDate, endDate, selectedState]);
+  }, [token, startDate, endDate, selectedState, selectedCountry]);
 
   const options = {
     backgroundColor: 'transparent',
