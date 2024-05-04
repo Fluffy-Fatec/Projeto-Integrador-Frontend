@@ -3,7 +3,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
 
-function App({ token, startDate, endDate, selectedSent, selectedState }) {
+function App({ token, startDate, endDate, selectedSent, selectedState, selectedCountry}) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -31,10 +31,13 @@ function App({ token, startDate, endDate, selectedSent, selectedState }) {
           url += `&state=${selectedState}`;
         }
 
+        if (selectedCountry !== '') {
+          url += `&country=${selectedCountry}`;
+        }
+
         const response = await axios.get(url);
 
         const scores = {
-          0: { positives: 0, negatives: 0, neutrals: 0 },
           1: { positives: 0, negatives: 0, neutrals: 0 },
           2: { positives: 0, negatives: 0, neutrals: 0 },
           3: { positives: 0, negatives: 0, neutrals: 0 },
@@ -59,7 +62,7 @@ function App({ token, startDate, endDate, selectedSent, selectedState }) {
           ['Score', 'Positive', 'Negative', 'Neutral']
         ];
 
-        for (let score = 5; score >= 0; score--) {
+        for (let score = 5; score >= 1; score--) {
           chartData.push([score.toString(), scores[score].positives, scores[score].negatives, scores[score].neutrals]);
         }
 
@@ -73,7 +76,7 @@ function App({ token, startDate, endDate, selectedSent, selectedState }) {
     };
 
     fetchData();
-  }, [token, startDate, endDate, selectedSent, selectedState]);
+  }, [token, startDate, endDate, selectedSent, selectedState, selectedCountry]);
 
   const options = {
     backgroundColor: 'transparent',

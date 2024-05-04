@@ -76,7 +76,7 @@ const GridDashboard = ({ darkMode, token }) => {
     };
 
     fetchData();
-  }, [startDate, endDate, selectedSent, selectedState]);
+  }, [startDate, endDate, selectedSent, selectedState, selectedCountry]);
 
   const handleStartInputChange = (event) => {
     const inputValue = event.target.value;
@@ -198,7 +198,6 @@ const GridDashboard = ({ darkMode, token }) => {
           >
             <option aria-label="" value="">All Country</option>
             <option value="Brazil">Brazil</option>
-            <option value="Spain">Spain</option>
           </Select>
           <PublicIcon style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
         </FormControl>
@@ -228,22 +227,22 @@ const GridDashboard = ({ darkMode, token }) => {
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 350 }}>
+              <GraphicPie token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} selectedState={selectedState} selectedCountry={selectedCountry} />
+            </Paper>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <Paper style={{ height: 350 }}>
+              <GraphicBarScore token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} selectedState={selectedState} selectedCountry={selectedCountry} />
+            </Paper>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <Paper style={{ height: 350 }}>
+              <GraphicArea darkMode={darkMode} token={token} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} selectedState={selectedState} selectedCountry={selectedCountry} />
+            </Paper>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <Paper style={{ height: 350 }}>
               <GraphicBarDate token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} />
-            </Paper>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Paper style={{ height: 350 }}>
-              <GraphicBarScore token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} selectedState={selectedState} />
-            </Paper>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Paper style={{ height: 350 }}>
-              <GraphicArea darkMode={darkMode} token={token} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} selectedState={selectedState} />
-            </Paper>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Paper style={{ height: 350 }}>
-              <GraphicPie token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} selectedState={selectedState} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
