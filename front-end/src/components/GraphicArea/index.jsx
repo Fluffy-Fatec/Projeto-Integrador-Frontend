@@ -117,7 +117,7 @@ function App({ token, endDate, startDate, selectedSent, selectedState, selectedC
       width: "65%",
       height: "55%"
     },
-    colors: ["#11BF4E", "#F25774", "#FFD700"],
+    colors: ["#06d6a0", "#ef476f", "#ffd166"],
     backgroundColor: 'transparent',
     legend: {
       position: 'bottom',

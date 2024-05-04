@@ -46,6 +46,8 @@ const GridDashboard = ({ darkMode, token }) => {
   const handleDataSourceChange = (event) => {
     setSelectedDataSource(event.target.value);
     console.log(selectedDataSource)
+  }
+
 
     const handleCountryChange = (event) => {
       setSelectedCountry(event.target.value);
@@ -242,7 +244,7 @@ const GridDashboard = ({ darkMode, token }) => {
           <Grid container spacing={3} sx={{ marginTop: '5px' }}>
             <Grid item xs={12} sm={4}>
               <Paper style={{ height: 550 }}>
-                <GeographicGraph token={token} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} data={dataFromApi} selectedDataSource={selectedDataSource} />
+                <GeographicGraph token={token} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} data={dataFromApi} selectedCountry={selectedCountry} selectedDataSource={selectedDataSource} />
               </Paper>
             </Grid>
             <Grid item xs={12} sm={4}>
@@ -290,5 +292,4 @@ const GridDashboard = ({ darkMode, token }) => {
       </LocalizationProvider>
     );
   };
-};
 export default GridDashboard;

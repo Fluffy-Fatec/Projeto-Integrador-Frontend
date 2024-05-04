@@ -136,7 +136,7 @@ function App({ token, startDate, endDate, selectedSent, selectedState, selectedC
         color: '#808080',
       }
     },
-    colors: ["#11BF4E", "#F25774", "#FFD700"],
+    colors: ["#06d6a0", "#ef476f", "#ffd166"],
   };
 
 

@@ -81,9 +81,9 @@ function App({ token, startDate, endDate, selectedState, selectedCountry, select
 
     pieHole: 0.4,
     slices: [
-      { color: '#11BF4E' },
-      { color: '#F25774' },
-      { color: '#FFD700' }
+      { color: '#06d6a0' },
+      { color: '#ef476f' },
+      { color: '#ffd166' }
     ],
     is3D: false,
     chartArea: {

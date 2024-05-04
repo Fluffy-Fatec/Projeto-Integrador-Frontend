@@ -126,7 +126,7 @@ function App({ token, endDate, startDate, selectedDataSource }) {
         color: '#808080',
       }
     },
-    colors: ["#11BF4E", "#F25774", "#FFD700"], 
+    colors: ["#06d6a0", "#ef476f", "#ffd166"], 
   };
 
   if (loading) {
