@@ -11,7 +11,8 @@ import { useTheme } from '@mui/material/styles';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 
-function EnhancedTable({ token, startDate, endDate, selectedSent, selectedState, selectedCountry }) {
+
+function EnhancedTable({ token, startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource }) {
   const theme = useTheme();
   const [rows, setRows] = useState([]);
   const [page, setPage] = useState(0);
@@ -21,8 +22,9 @@ function EnhancedTable({ token, startDate, endDate, selectedSent, selectedState,
     if (token && startDate && endDate) {
       fetchData(token, startDate, endDate);
     }
-  }, [token, startDate, endDate, selectedSent, selectedState, selectedCountry]);
-  
+
+  }, [token, startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource]);
+
   const fetchData = async (token, startDate, endDate) => {
     try {
       const formattedStartDate = new Date(startDate).toISOString().slice(0, -5) + 'Z';
@@ -30,7 +32,6 @@ function EnhancedTable({ token, startDate, endDate, selectedSent, selectedState,
 
       let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
       
-      // Adiciona o parâmetro de sentimento se um sentimento foi selecionado
       if (selectedSent !== '') {
         url += `&sentimentoPredito=${selectedSent}`;
       }
@@ -41,6 +42,12 @@ function EnhancedTable({ token, startDate, endDate, selectedSent, selectedState,
 
       if (selectedCountry !== '') {
         url += `&country=${selectedCountry}`;
+
+      }
+
+      if (selectedDataSource !== '') {
+        url += `&datasource=${selectedDataSource}`;
+
       }
 
       const response = await axios.get(url);
@@ -48,7 +55,7 @@ function EnhancedTable({ token, startDate, endDate, selectedSent, selectedState,
       const formattedRows = response.data.map(item => ({
         message: item.reviewCommentMessage,
         score: item.reviewScore,
-        sentiment: item.sentimentoPredito === '1' ? 'Positive' : 'Negative'
+        sentiment: item.sentimentoPredito === '2' ? 'Positive' : item.sentimentoPredito === '1' ? 'Neutral' : 'Negative'
       }));
 
       setRows(formattedRows);
@@ -68,17 +75,14 @@ function EnhancedTable({ token, startDate, endDate, selectedSent, selectedState,
 
   return (
     <Paper style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Container for Header */}
       <div style={{ padding: '20px', borderBottom: `1px solid ${theme.palette.divider}` }}>
         <Typography variant="h5" style={{ fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20 }}>
           Sentiment Table
         </Typography>
       </div>
 
-      {/* Table Container */}
       <TableContainer style={{ flex: 1 }}>
         <Table stickyHeader>
-          {/* Table Head (Header Row) */}
           <TableHead>
             <TableRow>
               <TableCell style={{ backgroundColor: theme.palette.mode === 'dark' ? '#424242' : '#f5f5f5', color: theme.palette.mode === 'dark' ? '#fff' : 'inherit', position: 'sticky', top: 0, zIndex: 1 }}>Message</TableCell>
@@ -87,7 +91,6 @@ function EnhancedTable({ token, startDate, endDate, selectedSent, selectedState,
             </TableRow>
           </TableHead>
 
-          {/* Table Body */}
           <TableBody>
             {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
               <TableRow key={index}>
@@ -100,7 +103,6 @@ function EnhancedTable({ token, startDate, endDate, selectedSent, selectedState,
         </Table>
       </TableContainer>
 
-      {/* Pagination */}
       <TablePagination
         component="div"
         count={rows.length}

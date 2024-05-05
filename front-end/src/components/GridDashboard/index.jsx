@@ -25,10 +25,12 @@ const GridDashboard = ({ darkMode, token }) => {
   const [error, setError] = useState(null);
   const [dataFromApi, setDataFromApi] = useState(null);
   const [startInput, setStartInput] = useState('2018-08-01');
-  const [endInput, setEndInput] = useState('2018-09-01');
+  const [endInput, setEndInput] = useState('2018-08-02');
   const [selectedSent, setSelectedSent] = useState('');
   const [selectedState, setSelectedState] = useState('');
+  const [selectedDataSource, setSelectedDataSource] = useState('');
   const [selectedCountry, setSelectedCountry] = useState('');
+  const [dataSourceOptions, setDataSourceOptions] = useState([]);
 
   const handleSentChange = (event) => {
     setSelectedSent(event.target.value);
@@ -40,10 +42,40 @@ const GridDashboard = ({ darkMode, token }) => {
     console.log(selectedState)
   };
 
+
+  const handleDataSourceChange = (event) => {
+    setSelectedDataSource(event.target.value);
+    console.log(selectedDataSource)
+  }
+
+
   const handleCountryChange = (event) => {
     setSelectedCountry(event.target.value);
     console.log(selectedCountry)
+
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+
+      try {
+        const response = await axios.get('http://localhost:8080/graphics/datasource', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        setDataSourceOptions(response.data);
+      } catch (error) {
+        console.error('Error fetching data sources:', error);
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [token]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -54,13 +86,20 @@ const GridDashboard = ({ darkMode, token }) => {
         const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
 
         let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
-        // Se um sentimento foi selecionado, adiciona-o à URL
+
         if (selectedSent) {
           url += `&sentimentoPredito=${selectedSent}`;
         }
         if (selectedState) {
           url += `&state=${selectedState}`;
         }
+
+
+        if (selectedDataSource) {
+          url += `&datasource=${selectedDataSource}`;
+        }
+
+
         if (selectedCountry) {
           url += `&country=${selectedCountry}`;
         }
@@ -110,6 +149,7 @@ const GridDashboard = ({ darkMode, token }) => {
           InputLabelProps={{
             shrink: true,
           }}
+          sx={{ marginRight: '10px' }}
         />
         <TextField
           id="end-date"
@@ -120,9 +160,9 @@ const GridDashboard = ({ darkMode, token }) => {
           InputLabelProps={{
             shrink: true,
           }}
+          sx={{ marginRight: '10px' }}
         />
-
-        <FormControl variant="filled" fullWidth>
+        <FormControl variant="filled" sx={{ minWidth: '150px', marginRight: '10px' }}>
           <Select
             native
             value={selectedSent}
@@ -135,17 +175,34 @@ const GridDashboard = ({ darkMode, token }) => {
               id: 'Sentiment',
               style: { paddingLeft: '40px', paddingRight: '30px' }
             }}
-            sx={{ width: '175px' }}
           >
             <option aria-label="" value=""> All Sentiment</option>
-            <option value="1">Positive</option>
+            <option value="2">Positive</option>
             <option value="0">Negative</option>
-            <option value="2">Neutral</option>
+            <option value="1">Neutral</option>
           </Select>
           <FavoriteIcon style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
         </FormControl>
-
-        <FormControl variant="filled" fullWidth>
+        <FormControl variant="filled" fullWidth sx={{ width: '150px' }}>
+          <Select
+            native
+            value={selectedCountry}
+            onChange={handleCountryChange}
+            variant="outlined"
+            color='success'
+            fullWidth
+            inputProps={{
+              name: 'Country',
+              id: 'Country',
+              style: { paddingLeft: '40px', paddingRight: '30px' }
+            }}
+          >
+            <option aria-label="" value="">All Country</option>
+            <option value="Brazil">Brazil</option>
+          </Select>
+          <PublicIcon style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
+        </FormControl>
+        <FormControl variant="filled" sx={{ minWidth: '150px' }}>
           <Select
             native
             value={selectedState}
@@ -158,7 +215,6 @@ const GridDashboard = ({ darkMode, token }) => {
               id: 'State',
               style: { paddingLeft: '40px', paddingRight: '30px' }
             }}
-            sx={{ width: '150px' }}
           >
             <option aria-label="" value="">All State</option>
             <option value="BA">BA</option>
@@ -180,26 +236,24 @@ const GridDashboard = ({ darkMode, token }) => {
           </Select>
           <FmdGoodIcon style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
         </FormControl>
-
-        <FormControl variant="filled" fullWidth>
+        <FormControl variant="filled" sx={{ minWidth: '140px' }}>
           <Select
             native
-            value={selectedCountry}
-            onChange={handleCountryChange}
+            value={selectedDataSource}
+            onChange={handleDataSourceChange}
             variant="outlined"
             color='success'
             fullWidth
             inputProps={{
-              name: 'Country',
-              id: 'Country',
-              style: { paddingLeft: '40px', paddingRight: '30px' }
+              name: 'DataSource',
+              id: 'DataSource',
             }}
-            sx={{ width: '150px' }}
           >
-            <option aria-label="" value="">All Country</option>
-            <option value="Brazil">Brazil</option>
+            <option aria-label="" value=""> Data Source</option>
+            {dataSourceOptions.map((option, index) => (
+              <option key={index} value={option}>{option}</option>
+            ))}
           </Select>
-          <PublicIcon style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
         </FormControl>
       </DemoContainer>
 
@@ -212,47 +266,47 @@ const GridDashboard = ({ darkMode, token }) => {
         <Grid container spacing={3} sx={{ marginTop: '5px' }}>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 550 }}>
-              <GeographicGraph token={token} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} data={dataFromApi} selectedCountry={selectedCountry} />
+              <GeographicGraph token={token} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} data={dataFromApi} selectedCountry={selectedCountry} selectedDataSource={selectedDataSource} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 550 }}>
-              <TableReview token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} data={dataFromApi} selectedCountry={selectedCountry} />
+              <TableReview token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} data={dataFromApi} selectedCountry={selectedCountry} selectedDataSource={selectedDataSource} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 550 }}>
-              <HeatMap token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} data={dataFromApi} selectedCountry={selectedCountry} />
+              <HeatMap token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} data={dataFromApi} selectedCountry={selectedCountry} selectedDataSource={selectedDataSource} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 350 }}>
-              <GraphicPie token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} selectedState={selectedState} selectedCountry={selectedCountry} />
+              <GraphicPie token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} selectedState={selectedState} selectedCountry={selectedCountry} selectedDataSource={selectedDataSource} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 350 }}>
-              <GraphicBarScore token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} selectedState={selectedState} selectedCountry={selectedCountry} />
+              <GraphicBarScore token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} selectedState={selectedState} selectedCountry={selectedCountry} selectedDataSource={selectedDataSource} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 350 }}>
-              <GraphicArea darkMode={darkMode} token={token} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} selectedState={selectedState} selectedCountry={selectedCountry} />
+              <GraphicArea darkMode={darkMode} token={token} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} selectedState={selectedState} selectedCountry={selectedCountry} selectedDataSource={selectedDataSource} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 350 }}>
-              <GraphicBarDate token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} />
+              <GraphicBarDate token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} selectedDataSource={selectedDataSource} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 350 }}>
-              <CloudWordNegative token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} selectedState={selectedState} />
+              <CloudWordNegative token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} selectedState={selectedState} selectedDataSource={selectedDataSource} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 350 }}>
-              <GraphicBarPercentage token={token} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} />
+              <GraphicBarPercentage token={token} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} selectedDataSource={selectedDataSource} />
             </Paper>
           </Grid>
         </Grid>
@@ -260,5 +314,4 @@ const GridDashboard = ({ darkMode, token }) => {
     </LocalizationProvider>
   );
 };
-
 export default GridDashboard;

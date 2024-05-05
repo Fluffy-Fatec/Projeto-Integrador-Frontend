@@ -3,7 +3,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
 
-function App({ token, endDate, startDate, selectedSent, selectedState, selectedCountry }) {
+function App({ token, endDate, startDate, selectedSent, selectedState, selectedCountry, selectedDataSource }) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,11 +22,16 @@ function App({ token, endDate, startDate, selectedSent, selectedState, selectedC
       if (selectedState !== '') {
         url += `&state=${selectedState}`;
       }
-      
+
       if (selectedCountry !== '') {
         url += `&country=${selectedCountry}`;
       }
 
+      if (selectedDataSource !== '') {
+        url += `&datasource=${selectedDataSource}`;
+      }
+      
+      
       const response = await axios.get(url);
 
       const counts = {};
@@ -37,11 +42,11 @@ function App({ token, endDate, startDate, selectedSent, selectedState, selectedC
           counts[weekNumber] = { 'Positive': 0, 'Negative': 0, 'Neutral': 0 };
         }
 
-        if (item.sentimentoPredito === '1') {
+        if (item.sentimentoPredito === '2') {
           counts[weekNumber]['Positive']++;
         } else if (item.sentimentoPredito === '0') {
           counts[weekNumber]['Negative']++;
-        } else if (item.sentimentoPredito === '2') {
+        } else if (item.sentimentoPredito === '1') {
           counts[weekNumber]['Neutral']++;
         }
       });
@@ -73,7 +78,8 @@ function App({ token, endDate, startDate, selectedSent, selectedState, selectedC
       setError('Token de autenticação, startDate ou endDate não encontrados.');
       setLoading(false);
     }
-  }, [token, startDate, endDate, selectedSent, selectedState, selectedCountry]);
+
+  }, [token, startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource]);
 
   const options = {
     hAxis: {
@@ -111,7 +117,7 @@ function App({ token, endDate, startDate, selectedSent, selectedState, selectedC
       width: "65%",
       height: "55%"
     },
-    colors: ["#11BF4E", "#F25774", "#FFD700"], // Green, Red, Yellow
+    colors: ["#06d6a0", "#ef476f", "#ffd166"],
     backgroundColor: 'transparent',
     legend: {
       position: 'bottom',

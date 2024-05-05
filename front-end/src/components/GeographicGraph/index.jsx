@@ -3,11 +3,11 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Chart } from 'react-google-charts';
 
-function GeographicGraph({ token, startDate, endDate, selectedSent, selectedState, selectedCountry }) {
+function GeographicGraph({ token, startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [colorAxisColors, setColorAxisColors] = useState(['red', 'green']); // Cores padrão
+  const [colorAxisColors, setColorAxisColors] = useState(['red', 'green', 'yellow']);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -19,11 +19,12 @@ function GeographicGraph({ token, startDate, endDate, selectedSent, selectedStat
           setLoading(false);
           return;
         }
+        
         const formattedStartDate = new Date(startDate).toISOString().slice(0, -5) + 'Z';
         const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
 
         let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
-        
+
         if (selectedSent !== '') {
           url += `&sentimentoPredito=${selectedSent}`;
         }
@@ -36,34 +37,32 @@ function GeographicGraph({ token, startDate, endDate, selectedSent, selectedStat
           url += `&country=${selectedCountry}`;
         }
 
-        const response = await axios.get(url);
+        if (selectedDataSource !== '') {
+          url += `&datasource=${selectedDataSource}`;
+        }
 
+        const response = await axios.get(url);
         const filteredData = response.data.filter(item => {
           const lat = parseFloat(item.geolocationLat);
           const lng = parseFloat(item.geolocationLng);
           return lat >= -56.0 && lat <= 12.0 && lng >= -81.0 && lng <= -34.0;
         });
 
-        const chartData = filteredData.map(item => [
-          parseFloat(item.geolocationLat),
-          parseFloat(item.geolocationLng),
-          parseInt(item.sentimentoPredito)
-        ]);
-
-        chartData.unshift(["Latitude", "Longitude", "Sentimento"]);
+        const chartData = [['Latitude', 'Longitude', 'Sentimento'], ...filteredData.map(item => [parseFloat(item.geolocationLat), parseFloat(item.geolocationLng), parseInt(item.sentimentoPredito)])];
+        
         setData(chartData);
         setError(null);
 
         let colorAxisColors = [];
         switch (selectedSent) {
           case '0':
-            colorAxisColors = ['red'];
-            break;
-          case '1':
-            colorAxisColors = ['green'];
+            colorAxisColors = ['#ef476f'];
             break;
           case '2':
-            colorAxisColors = ['yellow'];
+            colorAxisColors = ['#06d6a0'];
+            break;
+          case '1':
+            colorAxisColors = ['#ffd166'];
             break;
           default:
             colorAxisColors = ['red', 'green'];
@@ -77,7 +76,7 @@ function GeographicGraph({ token, startDate, endDate, selectedSent, selectedStat
     };
 
     fetchData();
-  }, [token, startDate, endDate, selectedSent, selectedState, selectedCountry]);
+  }, [token, startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource]);
 
   const handleChartSelect = ({ chartWrapper }) => {
     const chart = chartWrapper.getChart();
@@ -95,7 +94,7 @@ function GeographicGraph({ token, startDate, endDate, selectedSent, selectedStat
         <Chart
           chartType="GeoChart"
           width="100%"
-          height="100%"
+          height="500px" // Defina a altura do gráfico
           style={{ marginTop: '-80px' }}
           data={data}
           chartEvents={[
@@ -108,7 +107,7 @@ function GeographicGraph({ token, startDate, endDate, selectedSent, selectedStat
             sizeAxis: { minValue: 0, maxValue: 100 },
             region: '005',
             displayMode: 'markers',
-            colorAxis: { colors: colorAxisColors }, 
+            colorAxis: { colors: colorAxisColors },
             zoomLevel: 5,
             magnifyingGlass: { enable: true },
             dataLabels: true,
