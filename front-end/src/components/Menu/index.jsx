@@ -39,6 +39,7 @@ import Cookies from 'js-cookie';
 import GridDashboard from '../GridDashboard';
 import GridManageAccounts from '../GridManageAccounts';
 import UserUpdateGrid from '../UserUpdateGrid';
+import AppDataSource from '../DataSource';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 const drawerWidth = 240;
@@ -465,7 +466,7 @@ export default function Menu() {
                             <ListItem key={text} disablePadding>
                                 <ListItemButton
                                     onClick={() => handleItemClick(index)}
-                                    disabled={text === 'Data Source' || text === 'Documentation'} // Desabilita os itens 'Data Source', 'Monitoring' e 'Documentation'
+                                    disabled={text === 'Documentation'} // Desabilita os itens 'Data Source', 'Monitoring' e 'Documentation'
                                     sx={{
                                         height: '40px',
                                         borderRadius: clickedIndex === index ? '20px' : '0',
@@ -590,6 +591,7 @@ export default function Menu() {
                     </ListItem>
                 </Drawer>
                 <Box component="main" sx={{ p: 3 }}>
+                    {clickedIndex === 0 && <AppDataSource darkMode={darkMode} token={token} theme={theme} />}
                     {clickedIndex === 1 && <GridDashboard darkMode={darkMode} token={token} theme={theme} />}
                     {clickedIndex === 3 && <UserUpdateGrid darkMode={darkMode} token={token} theme={theme} />}
                     {isAdmin && clickedIndex === 5 && <GridManageAccounts token={token} darkMode={darkMode} theme={theme} />}

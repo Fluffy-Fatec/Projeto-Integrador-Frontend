@@ -183,6 +183,25 @@ const GridDashboard = ({ darkMode, token }) => {
           </Select>
           <FavoriteIcon style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
         </FormControl>
+        <FormControl variant="filled" fullWidth sx={{ width: '150px' }}>
+          <Select
+            native
+            value={selectedCountry}
+            onChange={handleCountryChange}
+            variant="outlined"
+            color='success'
+            fullWidth
+            inputProps={{
+              name: 'Country',
+              id: 'Country',
+              style: { paddingLeft: '40px', paddingRight: '30px' }
+            }}
+          >
+            <option aria-label="" value="">All Country</option>
+            <option value="Brazil">Brazil</option>
+          </Select>
+          <PublicIcon style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
+        </FormControl>
         <FormControl variant="filled" sx={{ minWidth: '150px' }}>
           <Select
             native
@@ -216,25 +235,6 @@ const GridDashboard = ({ darkMode, token }) => {
             <option value="SP">SP</option>
           </Select>
           <FmdGoodIcon style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
-        </FormControl>
-        <FormControl variant="filled" fullWidth sx={{ width: '150px' }}>
-          <Select
-            native
-            value={selectedCountry}
-            onChange={handleCountryChange}
-            variant="outlined"
-            color='success'
-            fullWidth
-            inputProps={{
-              name: 'Country',
-              id: 'Country',
-              style: { paddingLeft: '40px', paddingRight: '30px' }
-            }}
-          >
-            <option aria-label="" value="">All Country</option>
-            <option value="Brazil">Brazil</option>
-          </Select>
-          <PublicIcon style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
         </FormControl>
         <FormControl variant="filled" sx={{ minWidth: '140px' }}>
           <Select

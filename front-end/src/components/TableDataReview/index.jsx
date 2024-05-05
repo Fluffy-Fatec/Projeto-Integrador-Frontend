@@ -10,21 +10,21 @@ import Paper from '@mui/material/Paper';
 import TablePagination from '@mui/material/TablePagination';
 import { useTheme } from '@mui/material/styles';
 
-function EnhancedTable({ token }) {
+function EnhancedTable({ token, dataSource }) {
   const theme = useTheme();
   const [rows, setRows] = useState([]);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   useEffect(() => {
-    if (token) {
-      fetchData(token);
+    if (token && dataSource) {
+      fetchData(token, dataSource);
     }
-  }, [token]);
+  }, [token, dataSource]);
 
-  const fetchData = async (token) => {
+  const fetchData = async (token, dataSource) => {
     try {
-      const response = await axios.get('http://localhost:8080/graphics/list', {
+      const response = await axios.get(`http://localhost:8080/graphics/datasource/list/${dataSource}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
