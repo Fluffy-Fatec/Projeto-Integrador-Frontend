@@ -49,7 +49,9 @@ export default function AppRoutes() {
       localStorage.removeItem('accessToken');
       localStorage.setItem('inactiveRedirect', 'true');
       window.location.href = '/';
+
     }, 360000);
+
 
     setInactiveTimer(timer);
   };
@@ -61,6 +63,7 @@ export default function AppRoutes() {
       localStorage.removeItem('inactiveRedirect');
     }
   }, []);
+
 
   useEffect(() => {
     const handleUserActivity = () => {
