@@ -1,122 +1,131 @@
-import { Typography } from "@mui/material";
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
-import { Chart } from 'react-google-charts';
+import Typography from '@mui/material/Typography';
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { Chart } from "react-google-charts";
 
-function GeographicGraph({ token, startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource }) {
-  const [data, setData] = useState([]);
+function App({ token, startDate, endDate, selectedState, selectedCountry, selectedDataSource }) {
+  const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [colorAxisColors, setColorAxisColors] = useState(['red', 'green', 'yellow']);
+
+  const fetchData = async (token, startDate, endDate) => {
+    try {
+      const formattedStartDate = new Date(startDate).toISOString().slice(0, -5) + 'Z';
+      const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
+
+      let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
+
+      if (selectedState !== '') {
+        url += `&state=${selectedState}`;
+      }
+
+      if (selectedCountry !== '') {
+        url += `&country=${selectedCountry}`;
+      }
+
+      if (selectedDataSource !== '') {
+        url += `&datasource=${selectedDataSource}`;
+      }
+
+      const response = await axios.get(url);
+
+      const countsByState = {};
+
+      response.data.forEach(item => {
+        const state = item.geolocationState;
+        const sentimentoPredito = item.sentimentoPredito;
+
+        if (!countsByState[state]) {
+          countsByState[state] = {
+            'Positive': 0,
+            'Negative': 0,
+            'Neutral': 0
+          };
+        }
+
+        if (sentimentoPredito === '2') {
+          countsByState[state]['Positive']++;
+        } else if (sentimentoPredito === '0') {
+          countsByState[state]['Negative']++;
+        } else if (sentimentoPredito === '1') {
+          countsByState[state]['Neutral']++;
+        }
+      });
+
+      const chartData = [['State', 'Positive', 'Negative', 'Neutral']];
+
+      for (const state in countsByState) {
+        const { Positive, Negative, Neutral } = countsByState[state];
+        chartData.push([state, Positive, Negative, Neutral]);
+      }
+
+      setChartData(chartData);
+      setLoading(false);
+    } catch (error) {
+      console.error('Erro ao buscar dados da API:', error);
+      setError('Erro ao buscar dados da API.');
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
+    if (token && startDate && endDate) {
+      fetchData(token, startDate, endDate);
+    } else {
+      setError('Token de autenticação, startDate ou endDate não encontrados.');
+      setLoading(false);
+    }
+  }, [token, startDate, endDate, selectedCountry, selectedDataSource]);
 
-      try {
-        if (!token) {
-          setError('Token de autenticação não encontrado.');
-          setLoading(false);
-          return;
-        }
-        
-        const formattedStartDate = new Date(startDate).toISOString().slice(0, -5) + 'Z';
-        const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
-
-        let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
-
-        if (selectedSent !== '') {
-          url += `&sentimentoPredito=${selectedSent}`;
-        }
-
-        if (selectedState !== '') {
-          url += `&state=${selectedState}`;
-        }
-
-        if (selectedCountry !== '') {
-          url += `&country=${selectedCountry}`;
-        }
-
-        if (selectedDataSource !== '') {
-          url += `&datasource=${selectedDataSource}`;
-        }
-
-        const response = await axios.get(url);
-        const filteredData = response.data.filter(item => {
-          const lat = parseFloat(item.geolocationLat);
-          const lng = parseFloat(item.geolocationLng);
-          return lat >= -56.0 && lat <= 12.0 && lng >= -81.0 && lng <= -34.0;
-        });
-
-        const chartData = [['Latitude', 'Longitude', 'Sentimento'], ...filteredData.map(item => [parseFloat(item.geolocationLat), parseFloat(item.geolocationLng), parseInt(item.sentimentoPredito)])];
-        
-        setData(chartData);
-        setError(null);
-
-        let colorAxisColors = [];
-        switch (selectedSent) {
-          case '0':
-            colorAxisColors = ['#ef476f'];
-            break;
-          case '2':
-            colorAxisColors = ['#06d6a0'];
-            break;
-          case '1':
-            colorAxisColors = ['#ffd166'];
-            break;
-          default:
-            colorAxisColors = ['red', 'green'];
-        }
-        setColorAxisColors(colorAxisColors);
-      } catch (error) {
-        setError('Erro ao carregar os dados.');
-      } finally {
-        setLoading(false);
+  const options = {
+    backgroundColor: 'transparent',
+    pieHole: 0.4,
+    slices: [
+      { color: '#ef476f' },
+      { color: '#ffd166' },
+      { color: '#06d6a0' }
+    ],
+    series: {
+      0: { color: '#06d6a0' },
+      1: { color: '#ef476f' },
+      2: { color: '#ffd166' },
+    },
+    is3D: false,
+    chartArea: {
+      width: "65%",
+      height: "55%"
+    },
+    legend: {
+      position: 'bottom',
+      textStyle: {
+        fontName: 'Segoe UI',
+        fontSize: 12,
+        color: '#808080',
       }
-    };
-
-    fetchData();
-  }, [token, startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource]);
-
-  const handleChartSelect = ({ chartWrapper }) => {
-    const chart = chartWrapper.getChart();
-    const selection = chart.getSelection();
-    if (selection.length === 0) return;
-    const region = data[selection[0].row + 1];
+    },
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <>
-      <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20 }}>Sentiment Map</Typography>
-      {loading && <Typography>Loading...</Typography>}
-      {error && <Typography>Error: {error}</Typography>}
-      {!loading && !error && (
-        <Chart
-          chartType="GeoChart"
-          width="100%"
-          height="500px" // Defina a altura do gráfico
-          style={{ marginTop: '-80px' }}
-          data={data}
-          chartEvents={[
-            {
-              eventName: 'select',
-              callback: handleChartSelect
-            }
-          ]}
-          options={{
-            sizeAxis: { minValue: 0, maxValue: 100 },
-            region: '005',
-            displayMode: 'markers',
-            colorAxis: { colors: colorAxisColors },
-            zoomLevel: 5,
-            magnifyingGlass: { enable: true },
-            dataLabels: true,
-            backgroundColor: 'transparent',
-          }}
-        />
-      )}
+      <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20 }}>State Sentiment Trend Chart</Typography>
+      <Chart
+        chartType="ComboChart"
+        width="100%"
+        height="100%"
+        style={{ marginTop: '-75px' }}
+        data={chartData}
+        options={options}
+      />
     </>
   );
 }
 
-export default GeographicGraph;
+export default App;
