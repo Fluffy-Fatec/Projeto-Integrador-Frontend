@@ -3,11 +3,11 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
 
-function App({ token }) {
+
+function App({ token, startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource }) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  console.log(" 1" + token)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -18,48 +18,74 @@ function App({ token }) {
           return;
         }
 
-        const response = await axios.get('http://localhost:8080/graphics/list', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
-        });
+        const formattedStartDate = new Date(startDate).toISOString().slice(0, -5) + 'Z';
+        const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
 
-        const scores = {
-          1: { positives: 0, negatives: 0 },
-          2: { positives: 0, negatives: 0 },
-          3: { positives: 0, negatives: 0 },
-          4: { positives: 0, negatives: 0 },
-          5: { positives: 0, negatives: 0 }
-        };
+        let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
 
-        response.data.forEach(item => {
-          const score = item.reviewScore;
-          const sentimentoPredito = item.sentimentoPredito;
 
-          if (sentimentoPredito === '1') {
-            scores[score].positives++;
-          } else if (sentimentoPredito === '0') {
-            scores[score].negatives++;
-          }
-        });
-
-        const chartData = [['Score', 'Positive', 'Negative']];
-
-        for (let score = 5; score >= 1; score--) {
-          chartData.push([score.toString(), scores[score].positives, scores[score].negatives]);
+        if (selectedSent !== '') {
+          url += `&sentimentoPredito=${selectedSent}`;
         }
 
-        setChartData(chartData);
-        setLoading(false);
-      } catch (error) {
+        if (selectedState !== '') {
+          url += `&state=${selectedState}`;
+        }
+
+        if (selectedCountry !== '') {
+          url += `&country=${selectedCountry}`;
+
+        }
+
+        if (selectedDataSource !== '') {
+          url += `&datasource=${selectedDataSource}`;
+        }
+
+
+          const response = await axios.get(url);
+
+          const scores = {
+            1: { positives: 0, negatives: 0, neutrals: 0 },
+            2: { positives: 0, negatives: 0, neutrals: 0 },
+            3: { positives: 0, negatives: 0, neutrals: 0 },
+            4: { positives: 0, negatives: 0, neutrals: 0 },
+            5: { positives: 0, negatives: 0, neutrals: 0 }
+          };
+
+          response.data.forEach(item => {
+            const score = item.reviewScore;
+            const sentimentoPredito = item.sentimentoPredito;
+
+            if (sentimentoPredito === '2') {
+              scores[score].positives++;
+            } else if (sentimentoPredito === '0') {
+              scores[score].negatives++;
+            } else if (sentimentoPredito === '1') {
+              scores[score].neutrals++;
+            }
+          });
+
+          const chartData = [
+            ['Score', 'Positive', 'Negative', 'Neutral']
+          ];
+
+          for (let score = 5; score >= 1; score--) {
+            chartData.push([score.toString(), scores[score].positives, scores[score].negatives, scores[score].neutrals]);
+          }
+
+          setChartData(chartData);
+          setLoading(false);
+        } catch (error) {
         console.error('Erro ao buscar dados da API:', error);
         setError('Erro ao buscar dados da API.');
         setLoading(false);
       }
     };
 
+
     fetchData();
-  }, [token]);
+  }, [token, startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource]);
+
 
   const options = {
     backgroundColor: 'transparent',
@@ -72,7 +98,7 @@ function App({ token }) {
     hAxis: {
       title: "Comment Count",
       minValue: 0,
-    
+
       titleTextStyle: {
         bold: true,
         fontName: 'Segoe UI',
@@ -88,7 +114,7 @@ function App({ token }) {
     },
     vAxis: {
       title: "Score",
-      
+
       titleTextStyle: {
         bold: true,
         fontName: 'Segoe UI',
@@ -110,7 +136,7 @@ function App({ token }) {
         color: '#808080',
       }
     },
-    colors: ["#11BF4E", "#F25774"],
+    colors: ["#06d6a0", "#ef476f", "#ffd166"],
   };
 
 

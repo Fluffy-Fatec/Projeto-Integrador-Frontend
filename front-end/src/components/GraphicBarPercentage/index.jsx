@@ -3,18 +3,24 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
 
-function App({token}) {
+function App({ token, endDate, startDate, selectedDataSource }) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const fetchData = async (token) => {
     try {
-      const response = await axios.get('http://localhost:8080/graphics/list', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-      });
+      const formattedStartDate = new Date(startDate).toISOString().slice(0, -5) + 'Z';
+      const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
+
+      let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
+
+      
+      if (selectedDataSource !== '') {
+        url += `&datasource=${selectedDataSource}`;
+      }
+
+      const response = await axios.get(url);
 
       const stateData = {};
 
@@ -26,28 +32,32 @@ function App({token}) {
           stateData[state] = {
             positives: 0,
             negatives: 0,
+            neutrals: 0,
             total: 0
           };
         }
 
-        if (sentiment === '1') {
+        if (sentiment === '2') {
           stateData[state].positives++;
         } else if (sentiment === '0') {
           stateData[state].negatives++;
+        } else if (sentiment === '1') {
+          stateData[state].neutrals++;
         }
 
         stateData[state].total++;
       });
 
       const chartData = [
-        ['State', 'Positive', 'Negative']
+        ['State', 'Positive', 'Negative', 'Neutral']
       ];
 
       for (const state in stateData) {
-        const { positives, negatives, total } = stateData[state];
+        const { positives, negatives, neutrals, total } = stateData[state];
         const positivePercentage = (positives / total) * 100;
         const negativePercentage = (negatives / total) * 100;
-        chartData.push([state, positivePercentage, negativePercentage]);
+        const neutralPercentage = (neutrals / total) * 100;
+        chartData.push([state, positivePercentage, negativePercentage, neutralPercentage]);
       }
 
       setChartData(chartData);
@@ -60,13 +70,13 @@ function App({token}) {
   };
 
   useEffect(() => {
-    if (token) {
+    if (token && startDate && endDate) {
       fetchData(token);
     } else {
-      setError('Token de autenticação não encontrado.');
+      setError('Token de autenticação, startDate ou endDate não encontrados.');
       setLoading(false);
     }
-  }, []);
+  }, [token, startDate, endDate, selectedDataSource]);
 
   const options = {
     backgroundColor: 'transparent',
@@ -79,7 +89,7 @@ function App({token}) {
       title: "Percentage",
       minValue: 0,
       maxValue: 100,
-      
+
       titleTextStyle: {
         bold: true,
         fontName: 'Segoe UI',
@@ -112,11 +122,11 @@ function App({token}) {
       position: 'bottom',
       textStyle: {
         fontName: 'Segoe UI',
-        fontSize: 12, 
-        color: '#808080', 
+        fontSize: 12,
+        color: '#808080',
       }
     },
-    colors: ["#11BF4E", "#F25774"],
+    colors: ["#06d6a0", "#ef476f", "#ffd166"], 
   };
 
   if (loading) {

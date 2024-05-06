@@ -1,8 +1,8 @@
-import React from 'react';
+import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
+import React from 'react';
 import TableUpdateUser from '../TableUpdateUser';
 import UserTable from '../UserTable';
-import Box from '@mui/material/Box';
 
 const GridManageAccounts = () => {
     return (

@@ -1,23 +1,30 @@
-
-import React, { useState, useEffect } from 'react';	
 import Typography from '@mui/material/Typography';
-import axios from 'axios';	
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 
 import { Chart } from 'react-google-charts';
 
-export function App({token}) {
+export function App({ token, startDate, endDate, selectedSent, selectedDataSource }) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchData = async (token) => {
+  const fetchData = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/graphics/list', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-      });
+      const formattedStartDate = new Date(startDate).toISOString().slice(0, -5) + 'Z';
+      const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
+      let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
 
+      if (selectedSent !== '') {
+        url += `&sentimentoPredito=${selectedSent}`;
+      }
+
+      if (selectedDataSource !== '') {
+        url += `&datasource=${selectedDataSource}`;
+      }
+
+
+      const response = await axios.get(url);
       const stateCounts = {};
       response.data.forEach(item => {
         const state = item.geolocationState;
@@ -71,16 +78,15 @@ export function App({token}) {
   };
 
   useEffect(() => {
-    if (token) {
-      fetchData(token);
+    if (token && startDate && endDate) {
+      fetchData();
     } else {
-      setError('Token de autenticação não encontrado.');
+      setError('Parâmetros de data ou token faltando.');
       setLoading(false);
     }
-  }, []);
+  }, [token, startDate, endDate, selectedSent, selectedDataSource]);
 
   const options = {
-
     chartArea: {
       width: "65%",
       height: "55%"
@@ -147,7 +153,7 @@ export function App({token}) {
     <>
       <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20 }}>Sentiment Over Time by State</Typography>
       <Chart
-        chartType="ColumnChart"
+        chartType="Histogram"
         width="100%"
         height="100%"
         style={{ marginTop: '-75px' }}

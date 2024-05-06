@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import PaginaLogin from "./pages/Login";
+import Privacy from "./pages/Privacy";
 import Dashboard from "./pages/Menu";
 import PaginaRegistration from "./pages/Registration";
 import Cookies from 'js-cookie';
@@ -39,6 +40,7 @@ export default function AppRoutes() {
   const isAuthenticated = useAuthentication();
   const isAdmin = useAdmin();
   const [inactiveTimer, setInactiveTimer] = useState(null);
+
   const resetInactiveTimer = () => {
     if (inactiveTimer) {
       clearTimeout(inactiveTimer);
@@ -47,8 +49,10 @@ export default function AppRoutes() {
       localStorage.removeItem('accessToken');
       localStorage.setItem('inactiveRedirect', 'true');
       window.location.href = '/';
-    }, 60000); 
-  
+
+    }, 360000);
+
+
     setInactiveTimer(timer);
   };
 
@@ -84,14 +88,13 @@ export default function AppRoutes() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<PaginaLogin />} />
+        <Route path="/privacy" element={<Privacy />} />
         <Route path={`/auth/register/${dynamicPath}`} element={<PaginaRegistration />} />
         <Route
           path="/dashboard"
           element={
             isAuthenticated ? (
               <Dashboard />
-            ) : isAuthenticated ? (
-              <Navigate to="/" />
             ) : (
               <Navigate to="/" />
             )

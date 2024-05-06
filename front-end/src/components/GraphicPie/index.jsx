@@ -2,46 +2,64 @@ import Typography from '@mui/material/Typography';
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
-import Cookies from 'js-cookie'; // Importe a biblioteca js-cookie
 
 
-function App({token}) {
+function App({ token, startDate, endDate, selectedState, selectedCountry, selectedDataSource }) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchData = async (token) => {
+  const fetchData = async (token, startDate, endDate) => {
     try {
-      const response = await axios.get('http://localhost:8080/graphics/list', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-      });
+      const formattedStartDate = new Date(startDate).toISOString().slice(0, -5) + 'Z';
+      const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
 
-      const counts = {
-        'Positive': 0,
-        'Negative': 0
-      };
+      let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
 
-      response.data.forEach(item => {
-        const sentimentoPredito = item.sentimentoPredito;
+      if (selectedState !== '') {
+        url += `&state=${selectedState}`;
+      }
 
-        if (sentimentoPredito === '1') {
-          counts['Positive']++;
-        } else if (sentimentoPredito === '0') {
-          counts['Negative']++;
-        }
-      });
+      if (selectedCountry !== '') {
+        url += `&country=${selectedCountry}`;
 
-      const chartData = [
-        ['Sentiment', 'Count'],
-        ['Positive', counts['Positive']],
-        ['Negative', counts['Negative']]
-      ];
+      }
 
-      setChartData(chartData);
-      setLoading(false);
-    } catch (error) {
+      if (selectedDataSource !== '') {
+        url += `&datasource=${selectedDataSource}`;
+
+      }
+
+        const response = await axios.get(url);
+
+        const counts = {
+          'Positive': 0,
+          'Negative': 0,
+          'Neutral': 0
+        };
+
+        response.data.forEach(item => {
+          const sentimentoPredito = item.sentimentoPredito;
+
+          if (sentimentoPredito === '2') {
+            counts['Positive']++;
+          } else if (sentimentoPredito === '0') {
+            counts['Negative']++;
+          } else if (sentimentoPredito === '1') {
+            counts['Neutral']++;
+          }
+        });
+
+        const chartData = [
+          ['Sentiment', 'Count'],
+          ['Positive', counts['Positive']],
+          ['Negative', counts['Negative']],
+          ['Neutral', counts['Neutral']]
+        ];
+
+        setChartData(chartData);
+        setLoading(false);
+      }catch (error) {
       console.error('Erro ao buscar dados da API:', error);
       setError('Erro ao buscar dados da API.');
       setLoading(false);
@@ -49,22 +67,24 @@ function App({token}) {
   };
 
   useEffect(() => {
-    if (token) {
-      fetchData(token);
+    if (token && startDate && endDate) {
+      fetchData(token, startDate, endDate);
     } else {
-      setError('Token de autenticação não encontrado.');
+      setError('Token de autenticação, startDate ou endDate não encontrados.');
       setLoading(false);
     }
-  }, []);
+
+  }, [token, startDate, endDate, selectedState, selectedCountry, selectedDataSource]);
 
   const options = {
     backgroundColor: 'transparent',
-  
+
     pieHole: 0.4,
-    slices: {
-      0: { color: '#11BF4E' },
-      1: { color: '#F25774' }
-    },
+    slices: [
+      { color: '#06d6a0' },
+      { color: '#ef476f' },
+      { color: '#ffd166' }
+    ],
     is3D: false,
     chartArea: {
       width: "65%",
@@ -78,7 +98,7 @@ function App({token}) {
         color: '#808080',
       }
     },
-  }
+  };
 
   if (loading) {
     return <div>Loading...</div>;

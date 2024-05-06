@@ -3,7 +3,7 @@ import Login from "../../components/FundoLogin";
 
 function LoginPage() {
   return (
-    <Login/>
+    <Login />
   )
 }
 
