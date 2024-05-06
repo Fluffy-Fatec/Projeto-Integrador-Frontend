@@ -1,10 +1,9 @@
+import React, { useCallback, useEffect, useState } from 'react';
 import { CircularProgress, Divider, FormControl, Grid, Paper, Select, TextField } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import axios from 'axios';
 import dayjs from 'dayjs';
-import React, { useEffect, useState } from 'react';
 import CloudWordNegative from '../CloudWordNegative';
 import GeographicGraph from '../GeographicGraph';
 import GraphicArea from '../GraphicArea';
@@ -17,105 +16,84 @@ import HeatMap from '../HeatMap';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FmdGoodIcon from '@mui/icons-material/FmdGood';
 import PublicIcon from '@mui/icons-material/Public';
+import { Button, IconButton } from '@mui/material';
+import SearchOffRoundedIcon from '@mui/icons-material/SearchOffRounded';
 
 const GridDashboard = ({ darkMode, token }) => {
-  const [startDate, setStartDate] = useState(dayjs().year(2018).startOf('year').toISOString());
-  const [endDate, setEndDate] = useState(dayjs().year(2018).endOf('year').toISOString());
+  const [startDate, setStartDate] = useState(dayjs().year(2023).startOf('year').toISOString());
+  const [endDate, setEndDate] = useState(dayjs().year(2024).endOf('year').toISOString());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [dataFromApi, setDataFromApi] = useState(null);
-  const [startInput, setStartInput] = useState('2018-08-01');
-  const [endInput, setEndInput] = useState('2018-08-02');
+  const [startInput, setStartInput] = useState('2023-05-04');
+  const [endInput, setEndInput] = useState('2024-05-04');
   const [selectedSent, setSelectedSent] = useState('');
   const [selectedState, setSelectedState] = useState('');
   const [selectedDataSource, setSelectedDataSource] = useState('');
   const [selectedCountry, setSelectedCountry] = useState('');
   const [dataSourceOptions, setDataSourceOptions] = useState([]);
+  const [states, setStates] = useState([]);
+  const [countries, setCountries] = useState([]);
 
-  const handleSentChange = (event) => {
-    setSelectedSent(event.target.value);
-    console.log(selectedSent)
-  };
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [dataSourceResponse, countriesResponse, statesResponse] = await Promise.all([
+        axios.get('http://localhost:8080/graphics/datasource', { headers: { 'Authorization': `Bearer ${token}` } }),
+        axios.get('http://localhost:8080/graphics/countries', { headers: { 'Authorization': `Bearer ${token}` } }),
+        axios.get('http://localhost:8080/graphics/states', { headers: { 'Authorization': `Bearer ${token}` } })
+      ]);
 
-  const handleStateChange = (event) => {
-    setSelectedState(event.target.value);
-    console.log(selectedState)
-  };
-
-
-  const handleDataSourceChange = (event) => {
-    setSelectedDataSource(event.target.value);
-    console.log(selectedDataSource)
-  }
-
-
-  const handleCountryChange = (event) => {
-    setSelectedCountry(event.target.value);
-    console.log(selectedCountry)
-
-  };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-
-      try {
-        const response = await axios.get('http://localhost:8080/graphics/datasource', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        setDataSourceOptions(response.data);
-      } catch (error) {
-        console.error('Error fetching data sources:', error);
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+      setDataSourceOptions(dataSourceResponse.data);
+      setCountries(countriesResponse.data);
+      setStates(statesResponse.data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
   }, [token]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-
-      try {
-        const formattedStartDate = new Date(startDate).toISOString().slice(0, -5) + 'Z';
-        const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
-
-        let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
-
-        if (selectedSent) {
-          url += `&sentimentoPredito=${selectedSent}`;
-        }
-        if (selectedState) {
-          url += `&state=${selectedState}`;
-        }
-
-
-        if (selectedDataSource) {
-          url += `&datasource=${selectedDataSource}`;
-        }
-
-
-        if (selectedCountry) {
-          url += `&country=${selectedCountry}`;
-        }
-
-        const response = await axios.get(url);
-        setDataFromApi(response.data);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
-  }, [startDate, endDate, selectedSent, selectedState, selectedCountry]);
+  }, [fetchData]);
+
+  const fetchDataByFilters = useCallback(async () => {
+    setLoading(true);
+    try {
+      const formattedStartDate = dayjs(startDate).toISOString().slice(0, -5) + 'Z';
+      const formattedEndDate = dayjs(endDate).toISOString().slice(0, -5) + 'Z';
+
+      let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
+
+      if (selectedSent) {
+        url += `&sentimentoPredito=${selectedSent}`;
+      }
+      if (selectedState) {
+        url += `&state=${selectedState}`;
+      }
+      if (selectedDataSource) {
+        url += `&datasource=${selectedDataSource}`;
+      }
+      if (selectedCountry) {
+        url += `&country=${selectedCountry}`;
+      }
+
+      const response = await axios.get(url);
+      setDataFromApi(response.data);
+      
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource]);
+
+  useEffect(() => {
+    fetchDataByFilters();
+  }, [fetchDataByFilters]);
 
   const handleStartInputChange = (event) => {
     const inputValue = event.target.value;
@@ -137,9 +115,37 @@ const GridDashboard = ({ darkMode, token }) => {
     setEndDate(formattedEndDate);
   };
 
+  const handleSentChange = (event) => {
+    setSelectedSent(event.target.value);
+  };
+
+  const handleStateChange = (event) => {
+    setSelectedState(event.target.value);
+  };
+
+  const handleDataSourceChange = (event) => {
+    setSelectedDataSource(event.target.value);
+  };
+
+  const handleCountryChange = (event) => {
+    setSelectedCountry(event.target.value);
+  };
+
+  const handleSelectChange = (event) => {
+    setSelectedCountry('');
+    handleCountryChange(event);
+  };
+
+  const handleClearFilters = () => {
+    setSelectedSent('');
+    setSelectedState('');
+    setSelectedDataSource('');
+    setSelectedCountry('');
+  };
+
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <DemoContainer components={['DateField', 'DateField']} sx={{ marginTop: '50px' }}>
+      <div style={{ marginTop: '50px' }}>
         <TextField
           id="start-date"
           label="Start Date"
@@ -149,7 +155,7 @@ const GridDashboard = ({ darkMode, token }) => {
           InputLabelProps={{
             shrink: true,
           }}
-          sx={{ marginRight: '10px' }}
+          style={{ marginRight: '10px' }}
         />
         <TextField
           id="end-date"
@@ -160,9 +166,9 @@ const GridDashboard = ({ darkMode, token }) => {
           InputLabelProps={{
             shrink: true,
           }}
-          sx={{ marginRight: '10px' }}
+          style={{ marginRight: '10px' }}
         />
-        <FormControl variant="filled" sx={{ minWidth: '150px', marginRight: '10px' }}>
+        <FormControl variant="filled" style={{ minWidth: '150px', marginRight: '10px' }}>
           <Select
             native
             value={selectedSent}
@@ -183,11 +189,11 @@ const GridDashboard = ({ darkMode, token }) => {
           </Select>
           <FavoriteIcon style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
         </FormControl>
-        <FormControl variant="filled" fullWidth sx={{ width: '150px' }}>
+        <FormControl variant="filled" fullWidth style={{ width: '150px' }}>
           <Select
             native
             value={selectedCountry}
-            onChange={handleCountryChange}
+            onChange={handleSelectChange}
             variant="outlined"
             color='success'
             fullWidth
@@ -197,12 +203,14 @@ const GridDashboard = ({ darkMode, token }) => {
               style: { paddingLeft: '40px', paddingRight: '30px' }
             }}
           >
-            <option aria-label="" value="">All Country</option>
-            <option value="Brazil">Brazil</option>
+            <option aria-label="All Country" value="">All Country</option>
+            {countries.map(country => (
+              <option key={country} value={country}>{country}</option>
+            ))}
           </Select>
           <PublicIcon style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
         </FormControl>
-        <FormControl variant="filled" sx={{ minWidth: '150px' }}>
+        <FormControl variant="filled" style={{ minWidth: '150px', marginLeft: '10px' }}>
           <Select
             native
             value={selectedState}
@@ -216,27 +224,14 @@ const GridDashboard = ({ darkMode, token }) => {
               style: { paddingLeft: '40px', paddingRight: '30px' }
             }}
           >
-            <option aria-label="" value="">All State</option>
-            <option value="BA">BA</option>
-            <option value="CE">CE</option>
-            <option value="DF">DF</option>
-            <option value="ES">ES</option>
-            <option value="GO">GO</option>
-            <option value="MA">MA</option>
-            <option value="MG">MG</option>
-            <option value="MT">MT</option>
-            <option value="PB">PB</option>
-            <option value="PE">PE</option>
-            <option value="PR">PR</option>
-            <option value="RJ">RJ</option>
-            <option value="RN">RN</option>
-            <option value="RS">RS</option>
-            <option value="SC">SC</option>
-            <option value="SP">SP</option>
+            <option aria-label="All State" value="">All State</option>
+            {states.map(state => (
+              <option key={state} value={state}>{state}</option>
+            ))}
           </Select>
           <FmdGoodIcon style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
         </FormControl>
-        <FormControl variant="filled" sx={{ minWidth: '140px' }}>
+        <FormControl variant="filled" style={{ minWidth: '150px', marginLeft: '10px' }}>
           <Select
             native
             value={selectedDataSource}
@@ -255,18 +250,25 @@ const GridDashboard = ({ darkMode, token }) => {
             ))}
           </Select>
         </FormControl>
-      </DemoContainer>
+        <IconButton
+          onClick={handleClearFilters}
+          style={{ marginTop: '10px', width: '40px', marginLeft:'10px' }}
+          color="error"
+        >
+          <SearchOffRoundedIcon />
+        </IconButton>
+      </div>
 
-      <Divider sx={{ marginTop: '5px' }} />
+      <Divider style={{ marginTop: '5px' }} />
 
       {loading && <CircularProgress />}
       {error && <p>Error: {error}</p>}
 
       {!loading && !error && (
-        <Grid container spacing={3} sx={{ marginTop: '5px' }}>
+        <Grid container spacing={3} style={{ marginTop: '5px' }}>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 550 }}>
-              <GeographicGraph token={token} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} data={dataFromApi} selectedCountry={selectedCountry} selectedDataSource={selectedDataSource} />
+            <HeatMap  token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} data={dataFromApi} selectedCountry={selectedCountry} selectedDataSource={selectedDataSource} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
@@ -276,7 +278,7 @@ const GridDashboard = ({ darkMode, token }) => {
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 550 }}>
-              <HeatMap token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} data={dataFromApi} selectedCountry={selectedCountry} selectedDataSource={selectedDataSource} />
+            <GraphicBarPercentage token={token} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} selectedDataSource={selectedDataSource} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
@@ -306,7 +308,7 @@ const GridDashboard = ({ darkMode, token }) => {
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper style={{ height: 350 }}>
-              <GraphicBarPercentage token={token} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} selectedDataSource={selectedDataSource} />
+            <GeographicGraph token={token} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} data={dataFromApi} selectedCountry={selectedCountry} selectedDataSource={selectedDataSource} />
             </Paper>
           </Grid>
         </Grid>
@@ -314,4 +316,5 @@ const GridDashboard = ({ darkMode, token }) => {
     </LocalizationProvider>
   );
 };
+
 export default GridDashboard;

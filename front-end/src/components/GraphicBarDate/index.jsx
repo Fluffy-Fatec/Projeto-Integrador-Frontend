@@ -22,7 +22,7 @@ export function App({ token, startDate, endDate, selectedSent, selectedDataSourc
       if (selectedDataSource !== '') {
         url += `&datasource=${selectedDataSource}`;
       }
-      
+
 
       const response = await axios.get(url);
       const stateCounts = {};
@@ -153,7 +153,7 @@ export function App({ token, startDate, endDate, selectedSent, selectedDataSourc
     <>
       <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20 }}>Sentiment Over Time by State</Typography>
       <Chart
-        chartType="ColumnChart"
+        chartType="Histogram"
         width="100%"
         height="100%"
         style={{ marginTop: '-75px' }}
