@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { animated, useSpring } from "react-spring";
 import { TagCloud } from "react-tagcloud";
 
-const WorldGraphics = ({ token, selectedSent }) => {
+const WorldGraphics = ({ token, selectedSent, options }) => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -58,12 +58,11 @@ const WorldGraphics = ({ token, selectedSent }) => {
 
     const handleFilterChange = (event) => {
         setSelectedWord(null);
-        // setFilter(event.target.value);
     };
 
     return (
         <>
-            <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20 }}>Cloud Sentiment Word</Typography>
+            <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: '12px', color: '#888888' }}>Cloud Sentiment Word</Typography>
             <div>
 
                 {loading && <p>Carregando...</p>}
@@ -96,6 +95,7 @@ const WorldGraphics = ({ token, selectedSent }) => {
                                     {tag.value}
                                 </animated.span>
                             )}
+                            {...options} // Aqui você passa as configurações como props para TagCloud
                         />
 
                     </div>
