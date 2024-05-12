@@ -22,6 +22,8 @@
     "@stitches/react": "^1.2.8",
     "apexcharts": "^3.49.0",
     "axios": "^1.6.8",
+    "dom-to-image": "^2.6.0",
+    "html-to-image": "^1.11.11",
     "js-cookie": "^3.0.5",
     "leaflet": "^1.9.4",
     "react": "^18.2.0",

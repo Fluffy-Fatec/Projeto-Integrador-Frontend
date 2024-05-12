@@ -1,6 +1,8 @@
-import { Button, Typography } from "@mui/material";
+import { FileDownloadOutlined as FileDownloadOutlinedIcon } from '@mui/icons-material';
+import { Button, Grid, Typography } from "@mui/material";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import domToImage from 'dom-to-image';
+import React, { useEffect, useRef, useState } from "react";
 import ReactWordcloud from "react-wordcloud";
 
 const WorldGraphics = ({ token, selectedSent }) => {
@@ -10,6 +12,7 @@ const WorldGraphics = ({ token, selectedSent }) => {
     const [highlightedWord, setHighlightedWord] = useState(null);
     const [selectedWord, setSelectedWord] = useState(null);
     const [filter, setFilter] = useState(selectedSent || "1");
+    const chartRef = useRef(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -47,20 +50,47 @@ const WorldGraphics = ({ token, selectedSent }) => {
         setFilter(event.target.value);
     };
 
+    const handleExportClick = () => {
+        if (chartRef.current) {
+            setLoading(true);
+
+            domToImage.toPng(chartRef.current, { bgcolor: '#ffffff' })
+                .then((dataUrl) => {
+                    const link = document.createElement('a');
+                    link.download = 'wordcloud.png';
+                    link.href = dataUrl;
+                    link.click();
+                    setLoading(false);
+                })
+                .catch((error) => {
+                    setError('Erro ao exportar gráfico para PNG.');
+                    setLoading(false);
+                });
+        }
+    };
+
     return (
         <>
-            <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: '12px', color: '#888888' }}>Cloud Sentiment Word</Typography>
+            <Grid container alignItems="center" spacing={2}>
+                <Grid item xs={10.5}>
+                    <Typography variant="h5" style={{ fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: '12px', color: '#888888', marginLeft: "10px" }}>Cloud Sentiment Word</Typography>
+                </Grid>
+                <Grid item xs={1}>
+                    <FileDownloadOutlinedIcon onClick={handleExportClick} style={{ cursor: 'pointer', color: '#888888', fontSize: '20px' }} />
+                </Grid>
+            </Grid>
+
             <div>
                 {loading && <p>Carregando...</p>}
                 {error && <p>{error}</p>}
                 {data && (
-                    <div style={{ width: "400px", height: "300px" }}>
+                    <div style={{ maxWidth: "100%", height: "300px" }} ref={chartRef}>
                         <ReactWordcloud
                             options={{
                                 rotations: 2,
                                 rotationAngles: [-90, 0],
                                 colors: ['#06d6a0', '#ef476f', '#ffd166'],
-                                fontSizes: [25, 45],
+                                fontSizes: [22, 42],
                             }}
                             callbacks={{
                                 onWordClick: handleWordClick,
