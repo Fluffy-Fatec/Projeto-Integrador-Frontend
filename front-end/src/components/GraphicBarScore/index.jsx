@@ -1,11 +1,10 @@
-import Typography from '@mui/material/Typography';
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Chart } from "react-google-charts";
-
+import Chart from "react-apexcharts";
 
 function App({ token, startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource }) {
-  const [chartData, setChartData] = useState([]);
+  const [chartOptions, setChartOptions] = useState({});
+  const [chartSeries, setChartSeries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -23,7 +22,6 @@ function App({ token, startDate, endDate, selectedSent, selectedState, selectedC
 
         let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
 
-
         if (selectedSent !== '') {
           url += `&sentimentoPredito=${selectedSent}`;
         }
@@ -34,111 +32,103 @@ function App({ token, startDate, endDate, selectedSent, selectedState, selectedC
 
         if (selectedCountry !== '') {
           url += `&country=${selectedCountry}`;
-
         }
 
         if (selectedDataSource !== '') {
           url += `&datasource=${selectedDataSource}`;
         }
 
+        const response = await axios.get(url);
 
-          const response = await axios.get(url);
+        const scores = {
+          1: { positives: 0, negatives: 0, neutrals: 0 },
+          2: { positives: 0, negatives: 0, neutrals: 0 },
+          3: { positives: 0, negatives: 0, neutrals: 0 },
+          4: { positives: 0, negatives: 0, neutrals: 0 },
+          5: { positives: 0, negatives: 0, neutrals: 0 }
+        };
 
-          const scores = {
-            1: { positives: 0, negatives: 0, neutrals: 0 },
-            2: { positives: 0, negatives: 0, neutrals: 0 },
-            3: { positives: 0, negatives: 0, neutrals: 0 },
-            4: { positives: 0, negatives: 0, neutrals: 0 },
-            5: { positives: 0, negatives: 0, neutrals: 0 }
-          };
+        response.data.forEach(item => {
+          const score = item.reviewScore;
+          const sentimentoPredito = item.sentimentoPredito;
 
-          response.data.forEach(item => {
-            const score = item.reviewScore;
-            const sentimentoPredito = item.sentimentoPredito;
-
-            if (sentimentoPredito === '2') {
-              scores[score].positives++;
-            } else if (sentimentoPredito === '0') {
-              scores[score].negatives++;
-            } else if (sentimentoPredito === '1') {
-              scores[score].neutrals++;
-            }
-          });
-
-          const chartData = [
-            ['Score', 'Positive', 'Negative', 'Neutral']
-          ];
-
-          for (let score = 5; score >= 1; score--) {
-            chartData.push([score.toString(), scores[score].positives, scores[score].negatives, scores[score].neutrals]);
+          if (sentimentoPredito === '2') {
+            scores[score].positives++;
+          } else if (sentimentoPredito === '0') {
+            scores[score].negatives++;
+          } else if (sentimentoPredito === '1') {
+            scores[score].neutrals++;
           }
+        });
 
-          setChartData(chartData);
-          setLoading(false);
-        } catch (error) {
+        const chartData = [
+          { name: 'Positive', data: [] },
+          { name: 'Negative', data: [] },
+          { name: 'Neutral', data: [] }
+        ];
+
+        for (let score = 5; score >= 1; score--) {
+          chartData[0].data.push(scores[score].positives);
+          chartData[1].data.push(scores[score].negatives);
+          chartData[2].data.push(scores[score].neutrals);
+        }
+
+        const options = {
+          chart: {
+            type: 'bar',
+            height: 350,
+            toolbar: {
+              show: true
+            },
+          },
+          dataLabels: {
+            enabled: true
+          },
+          plotOptions: {
+            bar: {
+              horizontal: true,
+            },
+          },
+          title: {
+            text: 'Review Score by Sentiment',
+            align: 'left',
+            style: {
+              fontSize: '12px',
+              fontWeight: 'bold',
+              fontFamily: 'Segoe UI',
+              color: '#888888'
+            },
+          },
+
+          style: {
+            fontSize: '12px',
+            fontWeight: 'bold',
+            fontFamily: 'Segoe UI',
+            color: '#888888'
+          },
+          markers: {
+            hover: {
+              sizeOffset: 4
+            }
+          },
+          xaxis: {
+            categories: ['5', '4', '3', '2', '1']
+          },
+          colors: ['#06d6a0', '#ef476f', '#ffd166'],
+        };
+
+        setChartOptions(options);
+        setChartSeries(chartData);
+        setLoading(false);
+      } catch (error) {
         console.error('Erro ao buscar dados da API:', error);
         setError('Erro ao buscar dados da API.');
         setLoading(false);
       }
     };
 
-
     fetchData();
   }, [token, startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource]);
-
-
-  const options = {
-    backgroundColor: 'transparent',
-    chartArea: {
-      width: "60%",
-      height: "55%"
-    },
-
-    isStacked: true,
-    hAxis: {
-      title: "Comment Count",
-      minValue: 0,
-
-      titleTextStyle: {
-        bold: true,
-        fontName: 'Segoe UI',
-        fontSize: 14,
-        color: '#808080',
-        italic: false
-      },
-      textStyle: {
-        fontName: 'Segoe UI',
-        fontSize: 12,
-        color: '#808080'
-      },
-    },
-    vAxis: {
-      title: "Score",
-
-      titleTextStyle: {
-        bold: true,
-        fontName: 'Segoe UI',
-        fontSize: 14,
-        color: '#808080',
-        italic: false
-      },
-      textStyle: {
-        fontName: 'Segoe UI',
-        fontSize: 12,
-        color: '#808080'
-      },
-    },
-    legend: {
-      position: 'bottom',
-      textStyle: {
-        fontName: 'Segoe UI',
-        fontSize: 12,
-        color: '#808080',
-      }
-    },
-    colors: ["#06d6a0", "#ef476f", "#ffd166"],
-  };
-
 
   if (loading) {
     return <div>Loading...</div>;
@@ -150,14 +140,12 @@ function App({ token, startDate, endDate, selectedSent, selectedState, selectedC
 
   return (
     <>
-      <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20 }}>Review Score by Sentiment</Typography>
+      <br />
       <Chart
-        chartType="BarChart"
-        width="100%"
-        height="100%"
-        style={{ marginTop: '-75px' }}
-        data={chartData}
-        options={options}
+        options={chartOptions}
+        series={chartSeries}
+        type="bar"
+        height={350}
       />
     </>
   );

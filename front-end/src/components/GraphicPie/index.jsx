@@ -1,11 +1,9 @@
-import Typography from '@mui/material/Typography';
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Chart } from "react-google-charts";
-
+import ReactApexChart from "react-apexcharts";
 
 function App({ token, startDate, endDate, selectedState, selectedCountry, selectedDataSource }) {
-  const [chartData, setChartData] = useState([]);
+  const [chartData, setChartData] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -22,44 +20,69 @@ function App({ token, startDate, endDate, selectedState, selectedCountry, select
 
       if (selectedCountry !== '') {
         url += `&country=${selectedCountry}`;
-
       }
 
       if (selectedDataSource !== '') {
         url += `&datasource=${selectedDataSource}`;
-
       }
 
-        const response = await axios.get(url);
+      const response = await axios.get(url);
 
-        const counts = {
-          'Positive': 0,
-          'Negative': 0,
-          'Neutral': 0
-        };
+      const counts = {
+        'Positive': 0,
+        'Negative': 0,
+        'Neutral': 0
+      };
 
-        response.data.forEach(item => {
-          const sentimentoPredito = item.sentimentoPredito;
+      response.data.forEach(item => {
+        const sentimentoPredito = item.sentimentoPredito;
 
-          if (sentimentoPredito === '2') {
-            counts['Positive']++;
-          } else if (sentimentoPredito === '0') {
-            counts['Negative']++;
-          } else if (sentimentoPredito === '1') {
-            counts['Neutral']++;
-          }
-        });
+        if (sentimentoPredito === '2') {
+          counts['Positive']++;
+        } else if (sentimentoPredito === '0') {
+          counts['Negative']++;
+        } else if (sentimentoPredito === '1') {
+          counts['Neutral']++;
+        }
+      });
 
-        const chartData = [
-          ['Sentiment', 'Count'],
-          ['Positive', counts['Positive']],
-          ['Negative', counts['Negative']],
-          ['Neutral', counts['Neutral']]
-        ];
+      const chartData = {
+        options: {
+          chart: {
+            background: 'transparent',
+            type: 'pie',
+            toolbar: {
+              show: true
+            },
+          },
+          title: {
+            text: 'Sentiment Over Time',
+            align: 'left',
+            style: {
+              fontSize: '12px',
+              fontWeight: 'bold',
+              fontFamily: 'Segoe UI',
+              color: '#888888'
+            },
+          },
 
-        setChartData(chartData);
-        setLoading(false);
-      }catch (error) {
+          labels: Object.keys(counts),
+          colors: ['#06d6a0', '#ef476f', '#ffd166'],
+          legend: {
+            position: 'bottom',
+            labels: {
+              colors: '#808080',
+              fontSize: '12px',
+              fontFamily: 'Segoe UI',
+            }
+          },
+        },
+        series: Object.values(counts),
+      };
+
+      setChartData(chartData);
+      setLoading(false);
+    } catch (error) {
       console.error('Erro ao buscar dados da API:', error);
       setError('Erro ao buscar dados da API.');
       setLoading(false);
@@ -73,32 +96,7 @@ function App({ token, startDate, endDate, selectedState, selectedCountry, select
       setError('Token de autenticação, startDate ou endDate não encontrados.');
       setLoading(false);
     }
-
   }, [token, startDate, endDate, selectedState, selectedCountry, selectedDataSource]);
-
-  const options = {
-    backgroundColor: 'transparent',
-
-    pieHole: 0.4,
-    slices: [
-      { color: '#06d6a0' },
-      { color: '#ef476f' },
-      { color: '#ffd166' }
-    ],
-    is3D: false,
-    chartArea: {
-      width: "65%",
-      height: "55%"
-    },
-    legend: {
-      position: 'bottom',
-      textStyle: {
-        fontName: 'Segoe UI',
-        fontSize: 12,
-        color: '#808080',
-      }
-    },
-  };
 
   if (loading) {
     return <div>Loading...</div>;
@@ -110,15 +108,8 @@ function App({ token, startDate, endDate, selectedState, selectedCountry, select
 
   return (
     <>
-      <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20 }}>Sentiment Over Time</Typography>
-      <Chart
-        chartType="PieChart"
-        width="100%"
-        height="100%"
-        style={{ marginTop: '-75px' }}
-        data={chartData}
-        options={options}
-      />
+      <br />
+      <ReactApexChart options={chartData.options} series={chartData.series} type="pie" height={350} />
     </>
   );
 }

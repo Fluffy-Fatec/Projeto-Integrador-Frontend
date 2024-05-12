@@ -33,15 +33,15 @@ import InfoIcon from '@mui/icons-material/Info';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import Person2Icon from '@mui/icons-material/Person2';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import Badge from '@mui/material/Badge';
 import { ThemeProvider, createTheme, styled, useTheme } from '@mui/material/styles';
 import Cookies from 'js-cookie';
+import AppDataSource from '../DataSource';
 import GridDashboard from '../GridDashboard';
 import GridManageAccounts from '../GridManageAccounts';
 import UserUpdateGrid from '../UserUpdateGrid';
-import AppDataSource from '../DataSource';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 const drawerWidth = 240;
 
 const openedMixin = (theme) => ({
@@ -159,17 +159,17 @@ const themeDark = createTheme({
     palette: {
         mode: 'dark',
         primary: {
-            main: '#90caf9',
+            main: '#888888',
         },
         secondary: {
-            main: '#ff4081',
+            main: '#888888',
         },
         background: {
             default: '#121212',
         },
         text: {
-            primary: '#ffffff',
-            secondary: '#bdbdbd',
+            primary: '#888888',
+            secondary: '#888888',
         },
     },
 });

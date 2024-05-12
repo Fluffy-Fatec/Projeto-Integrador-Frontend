@@ -3,8 +3,7 @@ import React, { useEffect, useState } from "react";
 import Chart from "react-apexcharts";
 
 function App({ token, endDate, startDate, selectedDataSource }) {
-  const [chartOptions, setChartOptions] = useState({});
-  const [chartSeries, setChartSeries] = useState([]);
+  const [chartData, setChartData] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -47,69 +46,20 @@ function App({ token, endDate, startDate, selectedDataSource }) {
         stateData[state].total++;
       });
 
-      const chartData = [];
-      const chartSeriesData = [
-        { name: 'Positive', data: [] },
-        { name: 'Negative', data: [] },
-        { name: 'Neutral', data: [] }
-      ];
+      const series = [{
+        data: []
+      }];
 
       for (const state in stateData) {
         const { positives, negatives, neutrals, total } = stateData[state];
-        const positivePercentage = (positives / total) * 100;
-        const negativePercentage = (negatives / total) * 100;
-        const neutralPercentage = (neutrals / total) * 100;
-        chartData.push(state);
-        chartSeriesData[0].data.push(positivePercentage);
-        chartSeriesData[1].data.push(negativePercentage);
-        chartSeriesData[2].data.push(neutralPercentage);
+        const positivePercentage = ((positives / total) * 100).toFixed(2);
+        const negativePercentage = ((negatives / total) * 100).toFixed(2);
+        const neutralPercentage = ((neutrals / total) * 100).toFixed(2);
+
+        series[0].data.push({ x: state, y: parseFloat(positivePercentage) });
       }
 
-      setChartOptions({
-        chart: {
-          type: 'bar',
-          height: 350,
-          stacked: true,
-
-          toolbar: {
-            show: true
-          }
-        },
-        plotOptions: {
-          bar: {
-            borderRadius: 0,
-            horizontal: true,
-            barHeight: '80%',
-          }
-        },
-        xaxis: {
-          categories: chartData,
-          style: {
-            color: '#888888'
-          }
-
-        },
-        legend: {
-          position: 'bottom',
-          offsetY: 10
-        },
-        title: {
-          text: '      Sentiment by State          ',
-          align: 'left',
-          style: {
-            fontSize: '12px',
-            fontWeight: 'bold',
-            fontFamily: 'Segoe UI',
-            color: '#888888'
-          },
-        },
-        colors: ['#06d6a0', '#ef476f', '#ffd166'],
-        dataLabels: {
-          enabled: false
-        }
-      });
-
-      setChartSeries(chartSeriesData);
+      setChartData({ series });
       setLoading(false);
     } catch (error) {
       console.error('Erro ao buscar dados da API:', error);
@@ -127,6 +77,27 @@ function App({ token, endDate, startDate, selectedDataSource }) {
     }
   }, [token, startDate, endDate, selectedDataSource]);
 
+  const options = {
+    chart: {
+      type: 'treemap',
+      height: 350
+    },
+    title: {
+      text: 'Sentiment Treemap by State',
+      align: 'left',
+      style: {
+        fontSize: '12px',
+        fontWeight: 'bold',
+        fontFamily: 'Segoe UI',
+        color: '#888888'
+      },
+    },
+    legend: {
+      show: false
+    },
+    colors: ["#06d6a0"]
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -138,12 +109,16 @@ function App({ token, endDate, startDate, selectedDataSource }) {
   return (
     <>
       <br />
-      <Chart
-        options={chartOptions}
-        series={chartSeries}
-        type="bar"
-        height={350}
-      />
+      <div style={{ marginLeft: '15px' }}
+      >
+        <Chart
+          options={options}
+          series={chartData.series}
+          type="treemap"
+          height="400"
+          width="95%"
+        />
+      </div>
     </>
   );
 }

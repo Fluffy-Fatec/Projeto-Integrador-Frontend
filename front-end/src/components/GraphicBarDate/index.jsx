@@ -1,11 +1,9 @@
-import Typography from '@mui/material/Typography';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-
-import { Chart } from 'react-google-charts';
+import Chart from 'react-apexcharts';
 
 export function App({ token, startDate, endDate, selectedSent, selectedDataSource }) {
-  const [chartData, setChartData] = useState([]);
+  const [chartData, setChartData] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -23,52 +21,26 @@ export function App({ token, startDate, endDate, selectedSent, selectedDataSourc
         url += `&datasource=${selectedDataSource}`;
       }
 
-
       const response = await axios.get(url);
-      const stateCounts = {};
-      response.data.forEach(item => {
-        const state = item.geolocationState;
-        stateCounts[state] = (stateCounts[state] || 0) + 1;
-      });
 
-      const topStates = Object.keys(stateCounts)
-        .sort((a, b) => stateCounts[b] - stateCounts[a])
-        .slice(0, 5);
-
-      const groupedData = {};
+      const originCounts = {};
       response.data.forEach(item => {
-        const state = item.geolocationState;
-        if (topStates.includes(state)) {
-          const date = new Date(item.reviewCreationDate);
-          const week = getWeekNumber(date);
-          const year = date.getFullYear();
-          const weekKey = `${year}-W${week}`;
-          if (!groupedData[weekKey]) {
-            groupedData[weekKey] = {};
-            topStates.forEach(state => {
-              groupedData[weekKey][state] = 0;
-            });
-          }
-          groupedData[weekKey][state]++;
+        const origin = item.origin;
+        if (!originCounts[origin]) {
+          originCounts[origin] = { positive: 0, negative: 0, neutral: 0 };
+        }
+
+        const sentiment = item.sentimentoPredito;
+        if (sentiment === '2') {
+          originCounts[origin].positive++;
+        } else if (sentiment === '0') {
+          originCounts[origin].negative++;
+        } else if (sentiment === '1') {
+          originCounts[origin].neutral++;
         }
       });
 
-      const sortedWeeks = Object.keys(groupedData).sort((a, b) => {
-        const [aYear, aWeek] = a.split('-W').map(Number);
-        const [bYear, bWeek] = b.split('-W').map(Number);
-        if (aYear !== bYear) {
-          return aYear - bYear;
-        } else {
-          return aWeek - bWeek;
-        }
-      });
-
-      const chartData = [['Week', ...topStates]];
-      sortedWeeks.forEach(week => {
-        chartData.push([week, ...topStates.map(state => groupedData[week][state])]);
-      });
-
-      setChartData(chartData);
+      setChartData(originCounts);
       setLoading(false);
     } catch (error) {
       console.error('Erro ao buscar dados da API:', error);
@@ -87,58 +59,52 @@ export function App({ token, startDate, endDate, selectedSent, selectedDataSourc
   }, [token, startDate, endDate, selectedSent, selectedDataSource]);
 
   const options = {
-    chartArea: {
-      width: "65%",
-      height: "55%"
+    chart: {
+      type: 'bar',
+      height: 350
     },
-    isStacked: false,
-    hAxis: {
-      title: "Week",
-      titleTextStyle: {
-        bold: true,
-        fontName: 'Segoe UI',
-        fontSize: 14,
-        color: '#808080',
-        italic: false
-      },
-      textStyle: {
-        fontName: 'Segoe UI',
-        fontSize: 12,
-        color: '#808080'
-      }
-    },
-    vAxis: {
-      title: "Comment Count",
-      minValue: 0,
-      titleTextStyle: {
-        bold: true,
-        fontName: 'Segoe UI',
-        fontSize: 14,
-        color: '#808080',
-        italic: false,
-        textStyle: {
-          fontName: 'Segoe UI',
-          fontSize: 12,
-          color: '#808080'
-        },
+    plotOptions: {
+      bar: {
+        horizontal: true,
+        columnWidth: '55%',
+        endingShape: 'rounded'
       },
     },
-    legend: {
-      position: 'bottom',
-      textStyle: {
-        fontName: 'Segoe UI',
-        fontSize: 12,
-        color: '#808080',
+    colors: ['#06d6a0', '#ef476f', '#ffd166'],
+    dataLabels: {
+      enabled: false
+    },
+    grid: {
+      borderColor: '#f1f1f1',
+    },
+    yaxis: {
+      title: {
+        text: 'Data source',
+        style: {
+          color: '#888888'
+        }
       }
     },
-    backgroundColor: 'transparent',
-    colors: ["#3C5AB7", "#F25774", "#11BF4E", "#FF7131", "#6D83C9"],
-  };
-
-  const getWeekNumber = (date) => {
-    const onejan = new Date(date.getFullYear(), 0, 1);
-    const millisecsInDay = 86400000;
-    return Math.ceil((((date - onejan) / millisecsInDay) + onejan.getDay() + 1) / 7);
+    xaxis: {
+      categories: ['Positivo', 'Negativo', 'Neutro'],
+    },
+    tooltip: {
+      y: {
+        formatter: function (val) {
+          return val.toFixed(0);
+        }
+      }
+    },
+    title: {
+      text: 'Sentiment Classification by Source',
+      align: 'left',
+      style: {
+        fontSize: '12px',
+        fontWeight: 'bold',
+        fontFamily: 'Segoe UI',
+        color: '#888888',
+      },
+    },
   };
 
   if (loading) {
@@ -151,14 +117,15 @@ export function App({ token, startDate, endDate, selectedSent, selectedDataSourc
 
   return (
     <>
-      <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20 }}>Sentiment Over Time by State</Typography>
+      <br />
       <Chart
-        chartType="Histogram"
-        width="100%"
-        height="100%"
-        style={{ marginTop: '-75px' }}
-        data={chartData}
         options={options}
+        series={Object.entries(chartData).map(([origin, counts]) => ({
+          name: origin,
+          data: [counts.positive, counts.negative, counts.neutral]
+        }))}
+        type="bar"
+        height={350}
       />
     </>
   );
