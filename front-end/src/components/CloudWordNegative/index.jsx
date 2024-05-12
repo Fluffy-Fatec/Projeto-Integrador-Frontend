@@ -1,11 +1,15 @@
-import { FileDownloadOutlined as FileDownloadOutlinedIcon } from '@mui/icons-material';
+import { faFileCsv } from '@fortawesome/free-solid-svg-icons/faFileCsv'; // Importe também o ícone CSV, se ainda não estiver importado
+import { faFileImage } from '@fortawesome/free-solid-svg-icons/faFileImage';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button, Grid, Typography } from "@mui/material";
 import axios from "axios";
 import domToImage from 'dom-to-image';
+import { saveAs } from 'file-saver';
+import Papa from 'papaparse';
 import React, { useEffect, useRef, useState } from "react";
 import ReactWordcloud from "react-wordcloud";
 
-const WorldGraphics = ({ token, selectedSent }) => {
+const WordGraphics = ({ token, selectedSent }) => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -50,33 +54,45 @@ const WorldGraphics = ({ token, selectedSent }) => {
         setFilter(event.target.value);
     };
 
-    const handleExportClick = () => {
+    const handleExportJpgClick = () => {
         if (chartRef.current) {
             setLoading(true);
 
-            domToImage.toPng(chartRef.current, { bgcolor: '#ffffff' })
+            domToImage.toJpeg(chartRef.current, { quality: 0.95 })
                 .then((dataUrl) => {
                     const link = document.createElement('a');
-                    link.download = 'wordcloud.png';
+                    link.download = 'wordcloud.jpg';
                     link.href = dataUrl;
                     link.click();
                     setLoading(false);
                 })
                 .catch((error) => {
-                    setError('Erro ao exportar gráfico para PNG.');
+                    setError('Erro ao exportar gráfico para JPG.');
                     setLoading(false);
                 });
         }
     };
 
+    const handleExportCsvClick = () => {
+        if (data) {
+            const csv = Papa.unparse(data); 
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+            saveAs(blob, 'wordcloud.csv');
+        }
+    };
+
     return (
         <>
+        <br />
             <Grid container alignItems="center" spacing={2}>
-                <Grid item xs={10.5}>
+                <Grid item xs={10}>
                     <Typography variant="h5" style={{ fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: '12px', color: '#888888', marginLeft: "10px" }}>Cloud Sentiment Word</Typography>
                 </Grid>
-                <Grid item xs={1}>
-                    <FileDownloadOutlinedIcon onClick={handleExportClick} style={{ cursor: 'pointer', color: '#888888', fontSize: '20px' }} />
+                <Grid item xs={0.7}>
+                    <FontAwesomeIcon icon={faFileCsv} onClick={handleExportCsvClick} style={{ cursor: 'pointer', color: '#888888', fontSize: '15px' }} />
+                </Grid>
+                <Grid item xs={0.7}>
+                    <FontAwesomeIcon icon={faFileImage} onClick={handleExportJpgClick} style={{ cursor: 'pointer', color: '#888888', fontSize: '15px' }} />
                 </Grid>
             </Grid>
 
@@ -115,4 +131,4 @@ const WorldGraphics = ({ token, selectedSent }) => {
     );
 };
 
-export default WorldGraphics;
+export default WordGraphics;
