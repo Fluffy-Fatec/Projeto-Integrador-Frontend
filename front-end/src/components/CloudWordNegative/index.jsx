@@ -1,10 +1,9 @@
 import { Button, Typography } from "@mui/material";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { animated, useSpring } from "react-spring";
-import { TagCloud } from "react-tagcloud";
+import ReactWordcloud from "react-wordcloud";
 
-const WorldGraphics = ({ token, selectedSent, options }) => {
+const WorldGraphics = ({ token, selectedSent }) => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -39,65 +38,40 @@ const WorldGraphics = ({ token, selectedSent, options }) => {
         fetchData();
     }, [token, filter, selectedSent]);
 
-    const wordTransitionProps = useSpring({
-        scale: highlightedWord ? 1.2 : 1,
-        config: { tension: 300, friction: 10 },
-    });
-
-    const handleMouseEnter = (word) => {
-        setHighlightedWord(word);
-    };
-
-    const handleMouseLeave = () => {
-        setHighlightedWord(null);
-    };
-
     const handleWordClick = (word) => {
-        setSelectedWord(word);
+        setSelectedWord(word.text);
     };
 
     const handleFilterChange = (event) => {
         setSelectedWord(null);
+        setFilter(event.target.value);
     };
 
     return (
         <>
             <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: '12px', color: '#888888' }}>Cloud Sentiment Word</Typography>
             <div>
-
                 {loading && <p>Carregando...</p>}
                 {error && <p>{error}</p>}
                 {data && (
-                    <div style={{ width: "370px", height: "45px", marginLeft: "20px" }}>
-                        <TagCloud
-                            minSize={12}
-                            maxSize={35}
-                            tags={data
-                                .slice(0, 25)
-                                .map((item) => ({ value: item.word, count: Number(item.count) }))
-                            }
-                            onMouseEnter={(word) => handleMouseEnter(word)}
-                            onMouseLeave={() => handleMouseLeave()}
-                            onClick={(word) => handleWordClick(word)}
-                            renderer={(tag, size, color) => (
-                                <animated.span
-                                    key={tag.value}
-                                    style={{
-                                        cursor: "pointer",
-                                        fontSize: `${size}px`,
-                                        margin: "3px",
-                                        padding: "3px",
-                                        display: "inline-block",
-                                        color: highlightedWord === tag.value ? "red" : color,
-                                        transform: wordTransitionProps.scale.interpolate(scale => `scale(${scale})`),
-                                    }}
-                                >
-                                    {tag.value}
-                                </animated.span>
-                            )}
-                            {...options} // Aqui você passa as configurações como props para TagCloud
+                    <div style={{ width: "400px", height: "300px" }}>
+                        <ReactWordcloud
+                            options={{
+                                rotations: 2,
+                                rotationAngles: [-90, 0],
+                                colors: ['#06d6a0', '#ef476f', '#ffd166'],
+                                fontSizes: [25, 45],
+                            }}
+                            callbacks={{
+                                onWordClick: handleWordClick,
+                                onWordMouseOver: (word) => setHighlightedWord(word),
+                                onWordMouseOut: () => setHighlightedWord(null),
+                            }}
+                            words={data.slice(0, 25).map((item) => ({
+                                text: item.word,
+                                value: Number(item.count),
+                            }))}
                         />
-
                     </div>
                 )}
                 {selectedWord && (
