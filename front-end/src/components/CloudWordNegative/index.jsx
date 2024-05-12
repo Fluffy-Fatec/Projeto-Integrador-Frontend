@@ -58,7 +58,7 @@ const WordGraphics = ({ token, selectedSent }) => {
         if (chartRef.current) {
             setLoading(true);
 
-            domToImage.toJpeg(chartRef.current, { quality: 0.95 })
+            domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff'})
                 .then((dataUrl) => {
                     const link = document.createElement('a');
                     link.download = 'wordcloud.jpg';
