@@ -8,6 +8,9 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import TablePagination from '@mui/material/TablePagination';
+import IconButton from '@mui/material/IconButton';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import { useTheme } from '@mui/material/styles';
 
 function EnhancedTable({ token, dataSource }) {
@@ -40,7 +43,8 @@ function EnhancedTable({ token, dataSource }) {
         geolocationState: item.geolocationState,
         geolocation: item.geolocation,
         reviewCreationDate: new Date(item.reviewCreationDate).toLocaleDateString(),
-        creationdate: new Date(item.creationdate).toLocaleDateString()
+        creationdate: new Date(item.creationdate).toLocaleDateString(),
+        classifier: item.id
       }));
 
       setRows(formattedRows);
@@ -58,6 +62,14 @@ function EnhancedTable({ token, dataSource }) {
     setPage(0);
   };
 
+  const handleThumbUpClick = (id) => {
+    console.log(`Row ID: ${id}`);
+  };
+
+  const handleThumbDownClick = (id) => {
+    console.log(`Row ID: ${id}`);
+  };
+
   return (
     <Paper style={{ height: '100%', width: '100%', overflow: 'auto' }}>
       <TableContainer style={{ height: 'calc(100vh - 120px)', maxHeight: '100%' }}>
@@ -67,7 +79,7 @@ function EnhancedTable({ token, dataSource }) {
               {[
                 'ID', 'Message', 'Score', 'Sentiment', 'Geolocation Lat',
                 'Geolocation Lng', 'Geolocation State', 'Geolocation',
-                'Review Creation Date', 'Creation Date'
+                'Review Creation Date', 'Creation Date', 'Classifier'
               ].map((header, index) => (
                 <TableCell
                   key={index}
@@ -75,7 +87,7 @@ function EnhancedTable({ token, dataSource }) {
                   style={{
                     backgroundColor: theme.palette.mode === 'dark' ? '#424242' : '#f5f5f5',
                     color: theme.palette.mode === 'dark' ? '#fff' : 'inherit',
-                    wordWrap: 'break-word', // Permite que o texto quebre em várias linhas
+                    wordWrap: 'break-word',
                   }}
                 >
                   {header}
@@ -86,13 +98,24 @@ function EnhancedTable({ token, dataSource }) {
           <TableBody>
             {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
               <TableRow key={index}>
-                {Object.values(row).map((cell, idx) => (
+                {Object.keys(row).map((key, idx) => (
                   <TableCell
                     key={idx}
                     align={idx > 1 ? 'right' : 'left'}
                     style={{ maxWidth: '200px', wordWrap: 'break-word' }}
                   >
-                    {cell}
+                    {key === 'classifier' ? (
+                      <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <IconButton onClick={() => handleThumbUpClick(row.id)} aria-label="thumbs up">
+                          <ThumbUpIcon style={{ color: '#299D00' }} />
+                        </IconButton>
+                        <IconButton onClick={() => handleThumbDownClick(row.id)} aria-label="thumbs down">
+                          <ThumbDownIcon style={{ color: '#FF5151' }} />
+                        </IconButton>
+                      </div>
+                    ) : (
+                      row[key]
+                    )}
                   </TableCell>
                 ))}
               </TableRow>
