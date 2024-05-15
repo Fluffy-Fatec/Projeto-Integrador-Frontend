@@ -47,7 +47,7 @@ function EnhancedTable({ token, dataSource }) {
         geolocation: item.geolocation,
         reviewCreationDate: new Date(item.reviewCreationDate).toLocaleDateString(),
         creationdate: new Date(item.creationdate).toLocaleDateString(),
-        classifier: item.id
+        classifier: ''
       }));
 
       setRows(formattedRows);
@@ -77,10 +77,12 @@ function EnhancedTable({ token, dataSource }) {
     const sanitizedRows = rows.map(row => {
       const sanitizedRow = {};
       for (const key in row) {
-        if (typeof row[key] === 'string') {
-          sanitizedRow[key] = row[key].replace(/\n/g, '');
-        } else {
-          sanitizedRow[key] = row[key];
+        if (key !== 'classifier') {
+          if (typeof row[key] === 'string') {
+            sanitizedRow[key] = row[key].replace(/\n/g, '');
+          } else {
+            sanitizedRow[key] = row[key];
+          }
         }
       }
       return sanitizedRow;
