@@ -12,6 +12,9 @@ import IconButton from '@mui/material/IconButton';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import { useTheme } from '@mui/material/styles';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFileCsv } from '@fortawesome/free-solid-svg-icons';
+import Papa from 'papaparse';
 
 function EnhancedTable({ token, dataSource }) {
   const theme = useTheme();
@@ -70,8 +73,23 @@ function EnhancedTable({ token, dataSource }) {
     console.log(`Row ID: ${id}`);
   };
 
+  const handleExportCSV = () => {
+    const csv = Papa.unparse(rows);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.setAttribute('download', `${dataSource}_data.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <Paper style={{ height: '100%', width: '100%', overflow: 'auto' }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px' }}>
+        <FontAwesomeIcon icon={faFileCsv} onClick={handleExportCSV} style={{ cursor: 'pointer', color: '#888888', fontSize: '20px' }} />
+      </div>
       <TableContainer style={{ height: 'calc(100vh - 120px)', maxHeight: '100%' }}>
         <Table stickyHeader>
           <TableHead>
