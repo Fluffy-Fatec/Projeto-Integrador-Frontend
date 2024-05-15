@@ -48,7 +48,7 @@ const CustomComponent = ({ darkMode, token }) => {
   return (
     <Box sx={{ flexGrow: 1, minHeight: '100%' }}>
       <Grid container style={{ minHeight: '100%' }}>
-        <Grid item xs={12} sm={3} style={{ marginTop: '35px', maxWidth: '100%', flexBasis: '250px', backgroundColor: darkMode ? '#111' : '#FFF', padding: '20px', borderRight: '1px solid #ccc' }}>
+        <Grid item xs={12} sm={3} style={{ marginTop: '60px', maxWidth: '100%', flexBasis: '250px', backgroundColor: darkMode ? '#111' : '#FFF', padding: '20px', borderRight: '1px solid #ccc' }}>
           {loading ? (
             <p>Loading...</p>
           ) : error ? (
@@ -74,7 +74,7 @@ const CustomComponent = ({ darkMode, token }) => {
           )}
         </Grid>
 
-        <Grid item xs={12} sm={9} style={{ backgroundColor: darkMode ? '#111' : '#FFF', color: darkMode ? '#FFF' : '#000', padding: '25px' }}>
+        <Grid item xs={12} sm={9} style={{ backgroundColor: darkMode ? '#111' : '#FFF', color: darkMode ? '#FFF' : '#000', padding: '25px' , marginTop: '60px'}}>
           <Item darkMode={darkMode}>
             {activeTable && (
               <TableReview darkMode={darkMode} token={token} dataSource={activeTable} />
