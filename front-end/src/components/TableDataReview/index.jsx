@@ -74,7 +74,19 @@ function EnhancedTable({ token, dataSource }) {
   };
 
   const handleExportCSV = () => {
-    const csv = Papa.unparse(rows);
+    const sanitizedRows = rows.map(row => {
+      const sanitizedRow = {};
+      for (const key in row) {
+        if (typeof row[key] === 'string') {
+          sanitizedRow[key] = row[key].replace(/\n/g, '');
+        } else {
+          sanitizedRow[key] = row[key];
+        }
+      }
+      return sanitizedRow;
+    });
+    
+    const csv = Papa.unparse(sanitizedRows);
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
