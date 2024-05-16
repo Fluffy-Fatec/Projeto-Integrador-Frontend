@@ -1,26 +1,31 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { faFileCsv } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import ThumbDownIcon from '@mui/icons-material/ThumbDown';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import Modal from '@mui/material/Modal';
+import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
 import TablePagination from '@mui/material/TablePagination';
-import IconButton from '@mui/material/IconButton';
-import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-import ThumbDownIcon from '@mui/icons-material/ThumbDown';
+import TableRow from '@mui/material/TableRow';
+import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFileCsv } from '@fortawesome/free-solid-svg-icons';
+import axios from 'axios';
 import Papa from 'papaparse';
+import React, { useEffect, useState } from 'react';
 
 function EnhancedTable({ token, dataSource }) {
   const theme = useTheme();
   const [rows, setRows] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [open, setOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(null);
 
   useEffect(() => {
     if (token && dataSource) {
@@ -69,8 +74,9 @@ function EnhancedTable({ token, dataSource }) {
     console.log(`Row ID: ${id}`);
   };
 
-  const handleThumbDownClick = (id) => {
-    console.log(`Row ID: ${id}`);
+  const handleThumbDownClick = (row) => {
+    setSelectedRow(row);
+    setOpen(true);
   };
 
   const handleExportCSV = () => {
@@ -87,7 +93,7 @@ function EnhancedTable({ token, dataSource }) {
       }
       return sanitizedRow;
     });
-    
+
     const csv = Papa.unparse(sanitizedRows);
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
@@ -97,6 +103,11 @@ function EnhancedTable({ token, dataSource }) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedRow(null);
   };
 
   return (
@@ -141,7 +152,7 @@ function EnhancedTable({ token, dataSource }) {
                         <IconButton onClick={() => handleThumbUpClick(row.id)} aria-label="thumbs up">
                           <ThumbUpIcon style={{ color: '#299D00' }} />
                         </IconButton>
-                        <IconButton onClick={() => handleThumbDownClick(row.id)} aria-label="thumbs down">
+                        <IconButton onClick={() => handleThumbDownClick(row)} aria-label="thumbs down">
                           <ThumbDownIcon style={{ color: '#FF5151' }} />
                         </IconButton>
                       </div>
@@ -163,6 +174,29 @@ function EnhancedTable({ token, dataSource }) {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
+
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-title"
+        aria-describedby="modal-description"
+      >
+        <Box sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: '500px',
+          borderRadius: 5,
+          bgcolor: 'background.paper',
+          boxShadow: 24,
+          p: 4,
+        }}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            <strong>About</strong>
+          </Typography>
+        </Box>
+      </Modal>
     </Paper>
   );
 }
