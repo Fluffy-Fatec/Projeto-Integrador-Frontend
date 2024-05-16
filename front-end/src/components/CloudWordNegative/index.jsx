@@ -83,7 +83,6 @@ const WordGraphics = ({ token, selectedSent }) => {
 
     return (
         <>
-        <br />
             <Grid container alignItems="center" spacing={2}>
                 <Grid item xs={10}>
                     <Typography variant="h5" style={{ fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: '12px', color: '#888888', marginLeft: "10px" }}>Cloud Sentiment Word</Typography>

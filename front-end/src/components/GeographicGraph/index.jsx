@@ -1,11 +1,19 @@
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
-import Chart from 'react-apexcharts';
+import axios from "axios";
+import React, { useEffect, useState, useRef } from "react";
+import Chart from "react-apexcharts";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFileCsv, faFileImage } from "@fortawesome/free-solid-svg-icons";
+import domToImage from "dom-to-image";
+import Papa from "papaparse";
+import { saveAs } from "file-saver";
 
 function ApexChart({ startDate, endDate, selectedState, selectedCountry, selectedDataSource }) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const chartRef = useRef(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -74,7 +82,10 @@ function ApexChart({ startDate, endDate, selectedState, selectedCountry, selecte
   const options = {
     chart: {
       height: 350,
-      type: 'line'
+      type: 'line',
+      toolbar: {
+        show: false // Adiciona esta linha para remover o menu do gráfico
+      }
     },
     dataLabels: {
       enabled: false
@@ -106,7 +117,7 @@ function ApexChart({ startDate, endDate, selectedState, selectedCountry, selecte
       }
     },
     title: {
-      text: 'Count by Feelings by State',
+      text: '',
       align: 'left',
       style: {
         fontSize: '12px',
@@ -116,6 +127,35 @@ function ApexChart({ startDate, endDate, selectedState, selectedCountry, selecte
       },
     },
     colors: ['#06d6a0', '#ef476f', '#ffd166'],
+  };
+
+  const handleExportJpgClick = () => {
+    if (chartRef.current) {
+      domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff' })
+        .then((dataUrl) => {
+          const link = document.createElement('a');
+          link.download = 'chart.jpg';
+          link.href = dataUrl;
+          link.click();
+        })
+        .catch((error) => {
+          console.error('Error exporting chart to JPG:', error);
+          setError('Error exporting chart to JPG.');
+        });
+    }
+  };
+
+  const handleExportCsvClick = () => {
+    const data = chartData.map(item => ({
+      state: item.x,
+      positive: item.Positive,
+      negative: item.Negative,
+      neutral: item.Neutral
+    }));
+
+    const csv = Papa.unparse(data);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    saveAs(blob, 'chart.csv');
   };
 
   if (loading) {
@@ -128,12 +168,24 @@ function ApexChart({ startDate, endDate, selectedState, selectedCountry, selecte
 
   return (
     <div>
-      <br />
-      <Chart options={options} series={[
-        { name: 'Positive', data: chartData.map(data => data.Positive) },
-        { name: 'Negative', data: chartData.map(data => data.Negative) },
-        { name: 'Neutral', data: chartData.map(data => data.Neutral) }
-      ]} type="line" height={350} />
+      <Grid container alignItems="center" spacing={2}>
+        <Grid item xs={10}>
+          <Typography variant="h5" style={{ fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: '12px', color: '#888888', marginLeft: "10px" }}>Count by Feelings by State</Typography>
+        </Grid>
+        <Grid item xs={0.7}>
+          <FontAwesomeIcon icon={faFileCsv} onClick={handleExportCsvClick} style={{ cursor: 'pointer', color: '#888888', fontSize: '15px' }} />
+        </Grid>
+        <Grid item xs={0.7}>
+          <FontAwesomeIcon icon={faFileImage} onClick={handleExportJpgClick} style={{ cursor: 'pointer', color: '#888888', fontSize: '15px' }} />
+        </Grid>
+      </Grid>
+      <div ref={chartRef}>
+        <Chart options={options} series={[
+          { name: 'Positive', data: chartData.map(data => data.Positive) },
+          { name: 'Negative', data: chartData.map(data => data.Negative) },
+          { name: 'Neutral', data: chartData.map(data => data.Neutral) }
+        ]} type="line" height={350} />
+      </div>
     </div>
   );
 }

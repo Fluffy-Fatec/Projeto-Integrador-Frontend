@@ -1,11 +1,19 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
-import ReactApexChart from "react-apexcharts";
+import React, { useEffect, useState, useRef } from "react";
+import Chart from "react-apexcharts";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFileCsv, faFileImage } from "@fortawesome/free-solid-svg-icons";
+import domToImage from "dom-to-image";
+import Papa from "papaparse";
+import { saveAs } from "file-saver";
 
 function App({ token, startDate, endDate, selectedState, selectedCountry, selectedDataSource }) {
   const [chartData, setChartData] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const chartRef = useRef(null);
 
   const fetchData = async (token, startDate, endDate) => {
     try {
@@ -52,12 +60,11 @@ function App({ token, startDate, endDate, selectedState, selectedCountry, select
             background: 'transparent',
             type: 'pie',
             toolbar: {
-              show: true
+              show: false
             },
           },
           title: {
-            text: 'Sentiment Over Time',
-            align: 'left',
+  
             style: {
               fontSize: '12px',
               fontWeight: 'bold',
@@ -65,7 +72,6 @@ function App({ token, startDate, endDate, selectedState, selectedCountry, select
               color: '#888888'
             },
           },
-
           labels: Object.keys(counts),
           colors: ['#06d6a0', '#ef476f', '#ffd166'],
           legend: {
@@ -89,6 +95,33 @@ function App({ token, startDate, endDate, selectedState, selectedCountry, select
     }
   };
 
+  const handleExportJpgClick = () => {
+    if (chartRef.current) {
+      domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff' })
+        .then((dataUrl) => {
+          const link = document.createElement('a');
+          link.download = 'chart.jpg';
+          link.href = dataUrl;
+          link.click();
+        })
+        .catch((error) => {
+          console.error('Erro ao exportar gráfico para JPG:', error);
+          setError('Erro ao exportar gráfico para JPG.');
+        });
+    }
+  };
+
+  const handleExportCsvClick = () => {
+    const data = chartData.options.labels.map((label, index) => ({
+      sentiment: label,
+      count: chartData.series[index]
+    }));
+
+    const csv = Papa.unparse(data);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    saveAs(blob, 'chart.csv');
+  };
+
   useEffect(() => {
     if (token && startDate && endDate) {
       fetchData(token, startDate, endDate);
@@ -108,8 +141,20 @@ function App({ token, startDate, endDate, selectedState, selectedCountry, select
 
   return (
     <>
-      <br />
-      <ReactApexChart options={chartData.options} series={chartData.series} type="pie" height={350} />
+      <Grid container alignItems="center" spacing={2}>
+        <Grid item xs={10}>
+          <Typography variant="h5" style={{ fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: '12px', color: '#888888', marginLeft: "10px" }}>Percentage of Sentiment </Typography>
+        </Grid>
+        <Grid item xs={0.7}>
+          <FontAwesomeIcon icon={faFileCsv} onClick={handleExportCsvClick} style={{ cursor: 'pointer', color: '#888888', fontSize: '15px' }} />
+        </Grid>
+        <Grid item xs={0.7}>
+          <FontAwesomeIcon icon={faFileImage} onClick={handleExportJpgClick} style={{ cursor: 'pointer', color: '#888888', fontSize: '15px' }} />
+        </Grid>
+      </Grid>
+      <div ref={chartRef}>
+        <Chart options={chartData.options} series={chartData.series} type="pie" height={300} />
+      </div>
     </>
   );
 }

@@ -1,11 +1,19 @@
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
-import Chart from 'react-apexcharts';
+import axios from "axios";
+import React, { useEffect, useState, useRef } from "react";
+import Chart from "react-apexcharts";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFileCsv, faFileImage } from "@fortawesome/free-solid-svg-icons";
+import domToImage from "dom-to-image";
+import Papa from "papaparse";
+import { saveAs } from "file-saver";
 
 export function App({ token, startDate, endDate, selectedSent, selectedDataSource }) {
   const [chartData, setChartData] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const chartRef = useRef(null); 
 
   const fetchData = async () => {
     try {
@@ -58,10 +66,42 @@ export function App({ token, startDate, endDate, selectedSent, selectedDataSourc
     }
   }, [token, startDate, endDate, selectedSent, selectedDataSource]);
 
+  const handleExportJpgClick = () => {
+    if (chartRef.current) {
+      domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff' })
+        .then((dataUrl) => {
+          const link = document.createElement('a');
+          link.download = 'chart.jpg';
+          link.href = dataUrl;
+          link.click();
+        })
+        .catch((error) => {
+          console.error('Erro ao exportar gráfico para JPG:', error);
+          setError('Erro ao exportar gráfico para JPG.');
+        });
+    }
+  };
+
+  const handleExportCsvClick = () => {
+    const data = Object.entries(chartData).map(([origin, counts]) => ({
+      origin,
+      positive: counts.positive,
+      negative: counts.negative,
+      neutral: counts.neutral
+    }));
+
+    const csv = Papa.unparse(data);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    saveAs(blob, 'chart.csv');
+  };
+
   const options = {
     chart: {
       type: 'bar',
-      height: 350
+      height: 350,
+      toolbar: {
+        show: false // Adiciona esta linha para remover o menu do gráfico
+      }
     },
     plotOptions: {
       bar: {
@@ -96,8 +136,6 @@ export function App({ token, startDate, endDate, selectedSent, selectedDataSourc
       }
     },
     title: {
-      text: 'Sentiment Classification by Source',
-      align: 'left',
       style: {
         fontSize: '12px',
         fontWeight: 'bold',
@@ -117,16 +155,28 @@ export function App({ token, startDate, endDate, selectedSent, selectedDataSourc
 
   return (
     <>
-      <br />
-      <Chart
-        options={options}
-        series={Object.entries(chartData).map(([origin, counts]) => ({
-          name: origin,
-          data: [counts.positive, counts.negative, counts.neutral]
-        }))}
-        type="bar"
-        height={350}
-      />
+      <Grid container alignItems="center" spacing={2}>
+        <Grid item xs={10}>
+          <Typography variant="h5" style={{ fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: '12px', color: '#888888', marginLeft: "10px" }}>Sentiment Classification by Source</Typography>
+        </Grid>
+        <Grid item xs={0.7}>
+          <FontAwesomeIcon icon={faFileCsv} onClick={handleExportCsvClick} style={{ cursor: 'pointer', color: '#888888', fontSize: '15px' }} />
+        </Grid>
+        <Grid item xs={0.7}>
+          <FontAwesomeIcon icon={faFileImage} onClick={handleExportJpgClick} style={{ cursor: 'pointer', color: '#888888', fontSize: '15px' }} />
+        </Grid>
+      </Grid>
+      <div ref={chartRef}>
+        <Chart
+          options={options}
+          series={Object.entries(chartData).map(([origin, counts]) => ({
+            name: origin,
+            data: [counts.positive, counts.negative, counts.neutral]
+          }))}
+          type="bar"
+          height={350}
+        />
+      </div>
     </>
   );
 }

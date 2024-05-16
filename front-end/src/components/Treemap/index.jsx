@@ -1,11 +1,19 @@
+import { faFileCsv, faFileImage } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import domToImage from "dom-to-image";
+import { saveAs } from "file-saver";
+import Papa from "papaparse";
+import React, { useEffect, useRef, useState } from "react";
 import Chart from "react-apexcharts";
 
 function App({ token, endDate, startDate, selectedDataSource }) {
   const [chartData, setChartData] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const chartRef = useRef(null);
 
   const fetchData = async (token) => {
     try {
@@ -77,13 +85,43 @@ function App({ token, endDate, startDate, selectedDataSource }) {
     }
   }, [token, startDate, endDate, selectedDataSource]);
 
+  const handleExportJpgClick = () => {
+    if (chartRef.current) {
+      domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff' })
+        .then((dataUrl) => {
+          const link = document.createElement('a');
+          link.download = 'chart.jpg';
+          link.href = dataUrl;
+          link.click();
+        })
+        .catch((error) => {
+          console.error('Erro ao exportar gráfico para JPG:', error);
+          setError('Erro ao exportar gráfico para JPG.');
+        });
+    }
+  };
+
+  const handleExportCsvClick = () => {
+    const data = chartData.series[0].data.map(item => ({
+      state: item.x,
+      positivePercentage: item.y
+    }));
+
+    const csv = Papa.unparse(data);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    saveAs(blob, 'chart.csv');
+  };
+
   const options = {
     chart: {
       type: 'treemap',
-      height: 350
+      height: 350,
+      toolbar: {
+        show: false // Adiciona esta linha para remover o menu do gráfico
+      }
     },
     title: {
-      text: 'Sentiment Treemap by State',
+      text: '',
       align: 'left',
       style: {
         fontSize: '12px',
@@ -108,14 +146,23 @@ function App({ token, endDate, startDate, selectedDataSource }) {
 
   return (
     <>
-      <br />
-      <div style={{ marginLeft: '15px' }}
-      >
+      <Grid container alignItems="center" spacing={2}>
+        <Grid item xs={10}>
+          <Typography variant="h5" style={{ fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: '12px', color: '#888888', marginLeft: "10px" }}>Sentiment Treemap by State</Typography>
+        </Grid>
+        <Grid item xs={0.7}>
+          <FontAwesomeIcon icon={faFileCsv} onClick={handleExportCsvClick} style={{ cursor: 'pointer', color: '#888888', fontSize: '15px' }} />
+        </Grid>
+        <Grid item xs={0.7}>
+          <FontAwesomeIcon icon={faFileImage} onClick={handleExportJpgClick} style={{ cursor: 'pointer', color: '#888888', fontSize: '15px' }} />
+        </Grid>
+      </Grid>
+      <div style={{ marginLeft: '15px' }} ref={chartRef}>
         <Chart
           options={options}
           series={chartData.series}
           type="treemap"
-          height="400"
+          height="350"
           width="95%"
         />
       </div>

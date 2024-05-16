@@ -1,5 +1,12 @@
+import { faFileCsv, faFileImage } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import domToImage from "dom-to-image";
+import { saveAs } from "file-saver";
+import Papa from "papaparse";
+import React, { useEffect, useRef, useState } from "react";
 import Chart from "react-apexcharts";
 
 function App({ token, startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource }) {
@@ -7,6 +14,7 @@ function App({ token, startDate, endDate, selectedSent, selectedState, selectedC
   const [chartSeries, setChartSeries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const chartRef = useRef(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,7 +46,9 @@ function App({ token, startDate, endDate, selectedSent, selectedState, selectedC
           url += `&datasource=${selectedDataSource}`;
         }
 
-        const response = await axios.get(url);
+        const response = await axios.get(url, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
 
         const scores = {
           1: { positives: 0, negatives: 0, neutrals: 0 },
@@ -78,19 +88,19 @@ function App({ token, startDate, endDate, selectedSent, selectedState, selectedC
             type: 'bar',
             height: 350,
             toolbar: {
-              show: true
+              show: false
             },
           },
           dataLabels: {
-            enabled: true
+            enabled: false
           },
           plotOptions: {
             bar: {
-              horizontal: true,
+              horizontal: false,
             },
           },
           title: {
-            text: 'Review Score by Sentiment',
+            text: '',
             align: 'left',
             style: {
               fontSize: '12px',
@@ -98,18 +108,6 @@ function App({ token, startDate, endDate, selectedSent, selectedState, selectedC
               fontFamily: 'Segoe UI',
               color: '#888888'
             },
-          },
-
-          style: {
-            fontSize: '12px',
-            fontWeight: 'bold',
-            fontFamily: 'Segoe UI',
-            color: '#888888'
-          },
-          markers: {
-            hover: {
-              sizeOffset: 4
-            }
           },
           xaxis: {
             categories: ['5', '4', '3', '2', '1']
@@ -130,6 +128,35 @@ function App({ token, startDate, endDate, selectedSent, selectedState, selectedC
     fetchData();
   }, [token, startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource]);
 
+  const handleExportJpgClick = () => {
+    if (chartRef.current) {
+      domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff' })
+        .then((dataUrl) => {
+          const link = document.createElement('a');
+          link.download = 'chart.jpg';
+          link.href = dataUrl;
+          link.click();
+        })
+        .catch((error) => {
+          console.error('Erro ao exportar gráfico para JPG:', error);
+          setError('Erro ao exportar gráfico para JPG.');
+        });
+    }
+  };
+
+  const handleExportCsvClick = () => {
+    const data = chartSeries[0].data.map((_, index) => ({
+      score: chartOptions.xaxis.categories[index],
+      positive: chartSeries[0].data[index],
+      negative: chartSeries[1].data[index],
+      neutral: chartSeries[2].data[index]
+    }));
+
+    const csv = Papa.unparse(data);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    saveAs(blob, 'chart.csv');
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -140,13 +167,25 @@ function App({ token, startDate, endDate, selectedSent, selectedState, selectedC
 
   return (
     <>
-      <br />
-      <Chart
-        options={chartOptions}
-        series={chartSeries}
-        type="bar"
-        height={350}
-      />
+      <Grid container alignItems="center" spacing={2}>
+        <Grid item xs={10}>
+          <Typography variant="h5" style={{ fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: '12px', color: '#888888', marginLeft: "10px" }}>Review Score by Sentiment</Typography>
+        </Grid>
+        <Grid item xs={0.7}>
+          <FontAwesomeIcon icon={faFileCsv} onClick={handleExportCsvClick} style={{ cursor: 'pointer', color: '#888888', fontSize: '15px' }} />
+        </Grid>
+        <Grid item xs={0.7}>
+          <FontAwesomeIcon icon={faFileImage} onClick={handleExportJpgClick} style={{ cursor: 'pointer', color: '#888888', fontSize: '15px' }} />
+        </Grid>
+      </Grid>
+      <div ref={chartRef}> {/* Assign the reference to the chart container */}
+        <Chart
+          options={chartOptions}
+          series={chartSeries}
+          type="bar"
+          height={350}
+        />
+      </div>
     </>
   );
 }

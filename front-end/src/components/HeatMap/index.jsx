@@ -1,12 +1,34 @@
-import { Typography } from "@mui/material";
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
-
-let heatmap;
+import { Typography, Grid, IconButton } from "@mui/material";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFileCsv, faFileImage } from "@fortawesome/free-solid-svg-icons";
+import html2canvas from 'html2canvas';
+import Papa from 'papaparse';
+import { saveAs } from 'file-saver';
 
 const GoogleMap = ({ token, startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource }) => {
-
   const [heatmapData, setHeatmapData] = useState([]);
+  const [map, setMap] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const fetchData = useCallback(async () => {
+    try {
+      const url = constructApiUrl(startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource);
+      const response = await axios.get(url);
+      const data = response.data;
+      const newHeatmapData = data.map(item => ({
+        lat: parseFloat(item.geolocationLat).toFixed(3),
+        lng: parseFloat(item.geolocationLng).toFixed(3),
+        sentiment: item.sentimentoPredito
+      }));
+      setHeatmapData(newHeatmapData);
+    } catch (error) {
+      console.error('Erro ao buscar dados da API:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -33,11 +55,10 @@ const GoogleMap = ({ token, startDate, endDate, selectedSent, selectedState, sel
 
         const response = await axios.get(url);
         const data = response.data;
-        console.log(data)
-        // Sempre definir os dados do heatmap
         const newHeatmapData = data.map(item => ({
           lat: parseFloat(item.geolocationLat).toFixed(3),
-          lng: parseFloat(item.geolocationLng).toFixed(3)
+          lng: parseFloat(item.geolocationLng).toFixed(3),
+          sentiment: item.sentimentoPredito
         }));
         setHeatmapData(newHeatmapData);
 
@@ -51,12 +72,30 @@ const GoogleMap = ({ token, startDate, endDate, selectedSent, selectedState, sel
     }
   }, [token, startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource]);
 
-
   useEffect(() => {
     if (heatmapData.length > 0) {
       const script = document.createElement('script');
       script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBT-XPf587QgEzoVCHPBFgLwM0_vfPRS34&libraries=visualization&loading=async&callback=initMap`;
       script.async = true;
+      window.initMap = () => {
+        const newMap = new window.google.maps.Map(document.getElementById('map'), {
+          center: { lat: 0, lng: 0 },
+          zoom: 2,
+          mapTypeId: 'satellite'
+        });
+        setMap(newMap);
+        if (heatmapData.length > 0) {
+          const bounds = new window.google.maps.LatLngBounds();
+          heatmapData.forEach(coord => {
+            bounds.extend({ lat: coord.lat, lng: coord.lng });
+          });
+          newMap.fitBounds(bounds);
+          const heatmap = new window.google.maps.visualization.HeatmapLayer({
+            data: heatmapData.map(coord => new window.google.maps.LatLng(coord.lat, coord.lng)),
+            map: newMap
+          });
+        }
+      };
       document.body.appendChild(script);
 
       return () => {
@@ -65,32 +104,57 @@ const GoogleMap = ({ token, startDate, endDate, selectedSent, selectedState, sel
     }
   }, [heatmapData]);
 
-  window.initMap = () => {
-    var centerMap = new window.google.maps.LatLng(37.09024, -95.712891);
-    const map = new window.google.maps.Map(document.getElementById('map'), {
-      center: centerMap,
-      zoom: 3,
-      mapTypeId: 'satellite'
-    });
-
-    const newHeatmapData = heatmapData.map(coord => new window.google.maps.LatLng(parseFloat(coord.lat), parseFloat(coord.lng)));
-
-    if (heatmap) {
-      heatmap.setMap(null);
+  const handleExportJpgClick = () => {
+    const mapElement = document.getElementById('map');
+    if (mapElement) {
+      html2canvas(mapElement, { useCORS: true, backgroundColor: '#ffffff' })
+        .then((canvas) => {
+          canvas.toBlob((blob) => {
+            saveAs(blob, 'heatmap.jpg');
+          }, 'image/jpeg', 0.95);
+        })
+        .catch((error) => {
+          console.error('Erro ao exportar mapa para JPG:', error);
+        });
     }
+  };
 
-    heatmap = new window.google.maps.visualization.HeatmapLayer({
-      data: newHeatmapData
-    });
-    heatmap.setMap(map);
+  const handleExportCsvClick = () => {
+    const csvData = heatmapData.map((coord) => ({
+      Latitude: coord.lat,
+      Longitude: coord.lng,
+      Sentiment: coord.sentiment
+    }));
+    const csv = Papa.unparse(csvData);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    saveAs(blob, 'heatmap.csv');
   };
 
   return (
     <>
-      <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: '12px', color: '#888888' }}>Review Heatmap</Typography>
-      <div id="map" style={{ width: '100%', height: '82%' }}>
-        {/* O mapa será renderizado dentro deste elemento */}
-      </div>
+      <Grid container alignItems="center" spacing={2}>
+        <Grid item xs={10}>
+          <Typography variant="h5" style={{ fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: '12px', color: '#888888', marginLeft: "10px" }}>
+            Review Heatmap
+          </Typography>
+        </Grid>
+        <Grid item xs={0.7}>
+          <IconButton onClick={handleExportCsvClick} style={{ cursor: 'pointer', color: '#888888', fontSize: '15px' }}>
+            <FontAwesomeIcon icon={faFileCsv} />
+          </IconButton>
+        </Grid>
+        <Grid item xs={0.7}>
+          <IconButton onClick={handleExportJpgClick} style={{ cursor: 'pointer', color: '#888888', fontSize: '15px' }}>
+            <FontAwesomeIcon icon={faFileImage} />
+          </IconButton>
+        </Grid>
+      </Grid>
+      <br />
+      {loading ? (
+        <div>Loading...</div>
+      ) : (
+        <div id="map" style={{ width: '100%', height: '80%' }}></div>
+      )}
     </>
   );
 };
