@@ -2,6 +2,7 @@ import { faFileCsv } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import { Button, Divider, MenuItem, Select, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Modal from '@mui/material/Modal';
@@ -26,6 +27,8 @@ function EnhancedTable({ token, dataSource }) {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [open, setOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
+  const [sentiment, setSentiment] = useState('');
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
     if (token && dataSource) {
@@ -76,6 +79,7 @@ function EnhancedTable({ token, dataSource }) {
 
   const handleThumbDownClick = (row) => {
     setSelectedRow(row);
+    setSentiment(row.sentiment); // Definindo o estado 'sentiment' com o valor da propriedade 'sentiment' da linha clicada
     setOpen(true);
   };
 
@@ -108,6 +112,27 @@ function EnhancedTable({ token, dataSource }) {
   const handleClose = () => {
     setOpen(false);
     setSelectedRow(null);
+    setSentiment('');
+  };
+
+  const handleSave = () => {
+    console.log(`Sentiment for row ID ${selectedRow.id} updated to ${sentiment}`);
+    handleClose();
+  };
+
+  const handleDelete = () => {
+    console.log(`Row ID: ${selectedRow.id} deleted`);
+    // Here you would add the logic to delete the row from the backend
+    setConfirmOpen(false);
+    handleClose();
+  };
+
+  const handleConfirmOpen = () => {
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmClose = () => {
+    setConfirmOpen(false);
   };
 
   return (
@@ -192,11 +217,86 @@ function EnhancedTable({ token, dataSource }) {
           boxShadow: 24,
           p: 4,
         }}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            <strong>About</strong>
+          <Typography id="modal-modal-title" variant="h6" component="h2" align="center">
+            <strong>Update Sentiment</strong>
           </Typography>
+          <Typography id="modal-modal-description" variant="subtitle1" component="h4" align="center">
+            Select the correct sentiment for this comment:
+          </Typography>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+            <Select
+              value={sentiment}
+              onChange={(e) => setSentiment(e.target.value)}
+              displayEmpty
+              style={{ marginRight: '10px', minWidth: '150px', height: '40px' }}
+            >
+              <MenuItem value="" disabled>Select sentiment</MenuItem>
+              <MenuItem value="Positive">Positive</MenuItem>
+              <MenuItem value="Negative">Negative</MenuItem>
+              <MenuItem value="Neutral">Neutral</MenuItem>
+            </Select>
+            <Button
+              onClick={handleSave}
+              variant="contained"
+              color="primary"
+              style={{ height: '40px' }} 
+            >
+              Update
+            </Button>
+          </div>
+          <Divider style={{ margin: '20px 0', position: 'relative' }}>
+            <Typography
+              style={{
+                position: 'absolute',
+                top: '-12px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                backgroundColor: theme.palette.background.paper,
+                padding: '0 10px'
+              }}
+            >
+              or
+            </Typography>
+          </Divider>
+          <Typography id="modal-modal-title" variant="h6" component="h2" align="center">
+            <strong>Delete Row</strong>
+          </Typography>
+          <Typography id="modal-modal-description" variant="subtitle1" component="h4" align="center">
+            If you want to remove this record from the database:
+          </Typography>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+            <Button
+              onClick={handleConfirmOpen}
+              variant="contained"
+              style={{ backgroundColor: '#FF5151', color: '#FFFFFF' }}
+            >
+              Delete
+            </Button>
+          </div>
         </Box>
       </Modal>
+
+      <Dialog
+        open={confirmOpen}
+        onClose={handleConfirmClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Confirm Deletion"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to delete this record? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleConfirmClose} style={{ color: theme.palette.error.main }}>
+            Cancel
+          </Button>
+          <Button onClick={handleDelete} style={{ color: theme.palette.success.main }} autoFocus>
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Paper>
   );
 }
