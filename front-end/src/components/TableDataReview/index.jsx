@@ -2,7 +2,7 @@ import { faFileCsv } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-import { Button, Divider, MenuItem, Select, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, MenuItem, Select, Snackbar, Alert } from '@mui/material';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Modal from '@mui/material/Modal';
@@ -29,6 +29,8 @@ function EnhancedTable({ token, dataSource }) {
   const [selectedRow, setSelectedRow] = useState(null);
   const [sentiment, setSentiment] = useState('');
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   useEffect(() => {
     if (token && dataSource) {
@@ -48,7 +50,7 @@ function EnhancedTable({ token, dataSource }) {
         id: item.id,
         message: item.reviewCommentMessage,
         score: item.reviewScore,
-        sentiment: item.sentimentoPredito === '1' ? 'Positive' : 'Negative',
+        sentiment: item.sentimentoPredito === '2' ? 'Positive' : item.sentimentoPredito === '1' ? 'Neutral' : 'Negative',
         geolocationLat: item.geolocationLat,
         geolocationLng: item.geolocationLng,
         geolocationState: item.geolocationState,
@@ -57,6 +59,8 @@ function EnhancedTable({ token, dataSource }) {
         creationdate: new Date(item.creationdate).toLocaleDateString(),
         classifier: ''
       }));
+
+      formattedRows.sort((a, b) => a.id - b.id);
 
       setRows(formattedRows);
     } catch (error) {
@@ -79,7 +83,7 @@ function EnhancedTable({ token, dataSource }) {
 
   const handleThumbDownClick = (row) => {
     setSelectedRow(row);
-    setSentiment(row.sentiment); // Definindo o estado 'sentiment' com o valor da propriedade 'sentiment' da linha clicada
+    setSentiment(row.sentiment);
     setOpen(true);
   };
 
@@ -115,9 +119,29 @@ function EnhancedTable({ token, dataSource }) {
     setSentiment('');
   };
 
-  const handleSave = () => {
-    console.log(`Sentiment for row ID ${selectedRow.id} updated to ${sentiment}`);
-    handleClose();
+  const handleSave = async () => {
+    const sentimentMap = {
+      'Negative': 0,
+      'Neutral': 1,
+      'Positive': 2
+    };
+
+    const sentid = sentimentMap[sentiment];
+
+    try {
+      await axios.put(`http://localhost:8080/graphics/update/${selectedRow.id}/${sentid}`, {}, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      setRows(rows.map(row => row.id === selectedRow.id ? { ...row, sentiment } : row));
+      setSnackbarMessage(`Sentiment for row ID ${selectedRow.id} updated to ${sentid}`);
+      setSnackbarOpen(true);
+      handleClose();
+    } catch (error) {
+      console.log("An error occurred:", error);
+    }
   };
 
   const handleDelete = async () => {
@@ -142,6 +166,10 @@ function EnhancedTable({ token, dataSource }) {
 
   const handleConfirmClose = () => {
     setConfirmOpen(false);
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
   };
 
   return (
@@ -247,8 +275,7 @@ function EnhancedTable({ token, dataSource }) {
             <Button
               onClick={handleSave}
               variant="contained"
-              color="primary"
-              style={{ height: '40px' }} 
+              style={{ backgroundColor: '#299D00', color: '#FFFFFF', height: '40px' }}
             >
               Update
             </Button>
@@ -306,6 +333,16 @@ function EnhancedTable({ token, dataSource }) {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+      >
+        <Alert onClose={handleSnackbarClose} severity="success" sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Paper>
   );
 }
