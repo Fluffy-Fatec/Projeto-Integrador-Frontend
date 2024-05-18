@@ -120,11 +120,20 @@ function EnhancedTable({ token, dataSource }) {
     handleClose();
   };
 
-  const handleDelete = () => {
-    console.log(`Row ID: ${selectedRow.id} deleted`);
-    // Here you would add the logic to delete the row from the backend
-    setConfirmOpen(false);
-    handleClose();
+  const handleDelete = async () => {
+    try {
+      await axios.delete(`http://localhost:8080/graphics/review/${selectedRow.id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      setRows(rows.filter(row => row.id !== selectedRow.id));
+      setConfirmOpen(false);
+      handleClose();
+    } catch (error) {
+      console.log("An error occurred:", error);
+      setConfirmOpen(false);
+    }
   };
 
   const handleConfirmOpen = () => {
