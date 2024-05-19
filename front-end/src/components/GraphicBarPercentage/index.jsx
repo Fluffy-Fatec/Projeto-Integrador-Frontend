@@ -15,6 +15,7 @@ function App({ token, endDate, startDate, selectedDataSource }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const chartRef = useRef(null);
+  const user = localStorage.getItem('username');
 
   const fetchData = async (token) => {
     try {
@@ -131,34 +132,57 @@ function App({ token, endDate, startDate, selectedDataSource }) {
     }
   }, [token, startDate, endDate, selectedDataSource]);
 
-  const handleExportJpgClick = () => {
-    if (chartRef.current) {
-      domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff' })
-        .then((dataUrl) => {
-          const link = document.createElement('a');
-          link.download = 'chart.jpg';
-          link.href = dataUrl;
-          link.click();
-        })
-        .catch((error) => {
-          console.error('Erro ao exportar gráfico para JPG:', error);
-          setError('Erro ao exportar gráfico para JPG.');
+  const handleExportJpgClick = async () => {
+    try {
+      if (chartRef.current) {
+        const dataUrl = await domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff' });
+        const link = document.createElement('a');
+        link.download = 'chart.jpg';
+        link.href = dataUrl;
+        link.click();
+  
+        await axios.post('http://localhost:8080/graphics/report/log', {
+          userName: user,
+          graphicTitle: "Sentiment by State",
+          type: "JPEG"
         });
+      } else {
+        setError('Chart data is incomplete or missing.');
+      }
+    } catch (error) {
+      console.error('Error exporting chart JPEG:', error);
+      setError('Error exporting chart JPEG.');
     }
   };
 
-  const handleExportCsvClick = () => {
-    const data = chartSeries[0].data.map((_, index) => ({
-      state: chartOptions.xaxis.categories[index],
-      positive: chartSeries[0].data[index],
-      negative: chartSeries[1].data[index],
-      neutral: chartSeries[2].data[index]
-    }));
-
-    const csv = Papa.unparse(data);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-    saveAs(blob, 'chart.csv');
+  const handleExportCsvClick = async () => {
+    try {
+      if (chartSeries.length > 0 && chartSeries[0].data.length > 0) {
+        const data = chartSeries[0].data.map((_, index) => ({
+          state: chartOptions.xaxis.categories[index],
+          positive: chartSeries[0].data[index],
+          negative: chartSeries[1].data[index],
+          neutral: chartSeries[2].data[index]
+        }));
+  
+        const csv = Papa.unparse(data);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+        saveAs(blob, 'chart.csv');
+  
+        await axios.post('http://localhost:8080/graphics/report/log', {
+          userName: user,
+          graphicTitle: "Sentiment by State",
+          type: "JPEG"
+        });
+      } else {
+        setError('No data available to export.');
+      }
+    } catch (error) {
+      console.error('Error exporting chart data:', error);
+      setError('Error exporting chart data.');
+    }
   };
+  
 
   if (loading) {
     return <div>Loading...</div>;

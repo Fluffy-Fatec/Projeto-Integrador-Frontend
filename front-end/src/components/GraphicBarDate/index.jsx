@@ -14,6 +14,7 @@ export function App({ token, startDate, endDate, selectedSent, selectedDataSourc
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const chartRef = useRef(null); 
+  const user = localStorage.getItem('username');
 
   const fetchData = async () => {
     try {
@@ -66,41 +67,64 @@ export function App({ token, startDate, endDate, selectedSent, selectedDataSourc
     }
   }, [token, startDate, endDate, selectedSent, selectedDataSource]);
 
-  const handleExportJpgClick = () => {
+
+  const handleExportJpgClick = async () => {
     if (chartRef.current) {
-      domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff' })
-        .then((dataUrl) => {
-          const link = document.createElement('a');
-          link.download = 'chart.jpg';
-          link.href = dataUrl;
-          link.click();
-        })
-        .catch((error) => {
-          console.error('Erro ao exportar gráfico para JPG:', error);
-          setError('Erro ao exportar gráfico para JPG.');
+      try {
+        const dataUrl = await domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff' });
+        const link = document.createElement('a');
+        link.download = 'chart.jpg';
+        link.href = dataUrl;
+        link.click();
+  
+        await axios.post('http://localhost:8080/graphics/report/log', {
+          userName: user,
+          graphicTitle: "Sentiment Classification by Source",
+          type: "JPEG"
         });
+      } catch (error) {
+        console.error('Error logging chart JPEG export:', error);
+        setError('Error logging chart JPEG export.');
+      }
+    } else {
+      setError('No chart reference found.');
     }
   };
-
-  const handleExportCsvClick = () => {
-    const data = Object.entries(chartData).map(([origin, counts]) => ({
-      origin,
-      positive: counts.positive,
-      negative: counts.negative,
-      neutral: counts.neutral
-    }));
-
-    const csv = Papa.unparse(data);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-    saveAs(blob, 'chart.csv');
+  
+  const handleExportCsvClick = async () => {
+    if (chartData) {
+      const data = Object.entries(chartData).map(([origin, counts]) => ({
+        origin,
+        positive: counts.positive,
+        negative: counts.negative,
+        neutral: counts.neutral
+      }));
+  
+      const csv = Papa.unparse(data);
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+      saveAs(blob, 'chart.csv');
+  
+      try {
+        await axios.post('http://localhost:8080/graphics/report/log', {
+          userName: user,
+          graphicTitle: "Sentiment Classification by Source",
+          type: "CSV"
+        });
+      } catch (error) {
+        console.error('Error logging chart CSV export:', error);
+        setError('Error logging chart CSV export.');
+      }
+    } else {
+      setError('Chart data is incomplete or missing.');
+    }
   };
-
+  
   const options = {
     chart: {
       type: 'bar',
       height: 350,
       toolbar: {
-        show: false // Adiciona esta linha para remover o menu do gráfico
+        show: false 
       }
     },
     plotOptions: {

@@ -151,6 +151,7 @@ const GridDashboard = ({ darkMode, token }) => {
           type="date"
           value={startInput}
           onChange={handleStartInputChange}
+          color='success'
           InputLabelProps={{
             shrink: true,
           }}
@@ -162,6 +163,7 @@ const GridDashboard = ({ darkMode, token }) => {
           type="date"
           value={endInput}
           onChange={handleEndInputChange}
+          color='success'
           InputLabelProps={{
             shrink: true,
           }}

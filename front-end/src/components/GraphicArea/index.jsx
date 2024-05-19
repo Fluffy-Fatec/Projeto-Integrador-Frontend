@@ -1,13 +1,13 @@
-import axios from "axios";
-import React, { useEffect, useState, useRef } from "react";
-import Chart from "react-apexcharts";
+import { faFileCsv, faFileImage } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFileCsv, faFileImage } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
 import domToImage from "dom-to-image";
-import Papa from "papaparse";
 import { saveAs } from "file-saver";
+import Papa from "papaparse";
+import React, { useEffect, useRef, useState } from "react";
+import Chart from "react-apexcharts";
 
 function App({ token, endDate, startDate, selectedSent, selectedState, selectedCountry, selectedDataSource }) {
   const [chartOptions, setChartOptions] = useState({});
@@ -122,12 +122,16 @@ function App({ token, endDate, startDate, selectedSent, selectedState, selectedC
         });
         return row;
       });
-
+  
       const csv = Papa.unparse(csvData);
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
       saveAs(blob, 'chart.csv');
+    } else {
+      console.error('Nenhum dado disponível para exportar para CSV.');
+      setError('Nenhum dado disponível para exportar para CSV.');
     }
   };
+  
 
   useEffect(() => {
     if (token && startDate && endDate) {

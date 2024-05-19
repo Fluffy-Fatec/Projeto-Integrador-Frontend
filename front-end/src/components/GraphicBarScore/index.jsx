@@ -15,6 +15,7 @@ function App({ token, startDate, endDate, selectedSent, selectedState, selectedC
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const chartRef = useRef(null);
+  const user = localStorage.getItem('username');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -128,34 +129,59 @@ function App({ token, startDate, endDate, selectedSent, selectedState, selectedC
     fetchData();
   }, [token, startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource]);
 
-  const handleExportJpgClick = () => {
-    if (chartRef.current) {
-      domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff' })
-        .then((dataUrl) => {
-          const link = document.createElement('a');
-          link.download = 'chart.jpg';
-          link.href = dataUrl;
-          link.click();
-        })
-        .catch((error) => {
-          console.error('Erro ao exportar gráfico para JPG:', error);
-          setError('Erro ao exportar gráfico para JPG.');
+  const handleExportJpgClick = async () => {
+    try {
+      if (chartRef.current) {
+        const dataUrl = await domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff' });
+        
+        const link = document.createElement('a');
+        link.download = 'chart.jpg';
+        link.href = dataUrl;
+        link.click();
+  
+        await axios.post('http://localhost:8080/graphics/report/log', {
+          userName: user,
+          graphicTitle: "Review Score by Sentiment",
+          type: "JPEG"
         });
+      } else {
+        setError('Chart data is incomplete or missing.');
+      }
+    } catch (error) {
+      console.error('Error exporting chart JPEG:', error);
+      setError('Error exporting chart JPEG.');
     }
   };
+  
 
-  const handleExportCsvClick = () => {
-    const data = chartSeries[0].data.map((_, index) => ({
-      score: chartOptions.xaxis.categories[index],
-      positive: chartSeries[0].data[index],
-      negative: chartSeries[1].data[index],
-      neutral: chartSeries[2].data[index]
-    }));
-
-    const csv = Papa.unparse(data);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-    saveAs(blob, 'chart.csv');
+  const handleExportCsvClick = async () => {
+    try {
+      if (chartSeries && chartSeries.length >= 3 && chartOptions && chartOptions.xaxis && chartOptions.xaxis.categories) {
+        const data = chartSeries[0].data.map((_, index) => ({
+          score: chartOptions.xaxis.categories[index],
+          positive: chartSeries[0].data[index],
+          negative: chartSeries[1].data[index],
+          neutral: chartSeries[2].data[index]
+        }));
+  
+        const csv = Papa.unparse(data);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+        saveAs(blob, 'chart.csv');
+  
+        await axios.post('http://localhost:8080/graphics/report/log', {
+          userName: user,
+          graphicTitle: "Review Score by Sentiment",
+          type: "CSV"
+        });
+      } else {
+        setError('No data available to export.');
+      }
+    } catch (error) {
+      console.error('Error exporting chart data:', error);
+      setError('Error exporting chart data.');
+    }
   };
+  
 
   if (loading) {
     return <div>Loading...</div>;
@@ -178,7 +204,7 @@ function App({ token, startDate, endDate, selectedSent, selectedState, selectedC
           <FontAwesomeIcon icon={faFileImage} onClick={handleExportJpgClick} style={{ cursor: 'pointer', color: '#888888', fontSize: '15px' }} />
         </Grid>
       </Grid>
-      <div ref={chartRef}> {/* Assign the reference to the chart container */}
+      <div ref={chartRef}>
         <Chart
           options={chartOptions}
           series={chartSeries}

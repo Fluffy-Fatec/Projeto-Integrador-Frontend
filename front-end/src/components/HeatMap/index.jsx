@@ -1,16 +1,44 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
-import { Typography, Grid, IconButton } from "@mui/material";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFileCsv, faFileImage } from "@fortawesome/free-solid-svg-icons";
-import html2canvas from 'html2canvas';
-import Papa from 'papaparse';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Grid, IconButton, Typography } from "@mui/material";
+import axios from 'axios';
+import domToImage from 'dom-to-image';
 import { saveAs } from 'file-saver';
+import Papa from 'papaparse';
+import React, { useCallback, useEffect, useState } from 'react';
 
-const GoogleMap = ({ token, startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource }) => {
+const GoogleMap = ({
+  token,
+  startDate,
+  endDate,
+  selectedSent,
+  selectedState,
+  selectedCountry,
+  selectedDataSource
+}) => {
   const [heatmapData, setHeatmapData] = useState([]);
   const [map, setMap] = useState(null);
   const [loading, setLoading] = useState(false);
+  const user = localStorage.getItem('username');
+
+  const constructApiUrl = (startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource) => {
+    let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(new Date(startDate).toISOString().slice(0, -5) + 'Z')}&endDate=${encodeURIComponent(new Date(endDate).toISOString().slice(0, -5) + 'Z')}`;
+
+    if (selectedSent !== '') {
+      url += `&sentimentoPredito=${selectedSent}`;
+    }
+    if (selectedState !== '') {
+      url += `&state=${selectedState}`;
+    }
+    if (selectedCountry !== '') {
+      url += `&country=${selectedCountry}`;
+    }
+    if (selectedDataSource !== '') {
+      url += `&datasource=${selectedDataSource}`;
+    }
+
+    return url;
+  };
 
   const fetchData = useCallback(async () => {
     try {
@@ -18,8 +46,8 @@ const GoogleMap = ({ token, startDate, endDate, selectedSent, selectedState, sel
       const response = await axios.get(url);
       const data = response.data;
       const newHeatmapData = data.map(item => ({
-        lat: parseFloat(item.geolocationLat).toFixed(3),
-        lng: parseFloat(item.geolocationLng).toFixed(3),
+        lat: parseFloat(item.geolocationLat),
+        lng: parseFloat(item.geolocationLng),
         sentiment: item.sentimentoPredito
       }));
       setHeatmapData(newHeatmapData);
@@ -31,51 +59,16 @@ const GoogleMap = ({ token, startDate, endDate, selectedSent, selectedState, sel
   }, [startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const formattedStartDate = new Date(startDate).toISOString().slice(0, -5) + 'Z';
-        const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
-        let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
-
-        if (selectedSent !== '') {
-          url += `&sentimentoPredito=${selectedSent}`;
-        }
-
-        if (selectedState !== '') {
-          url += `&state=${selectedState}`;
-        }
-
-        if (selectedCountry !== '') {
-          url += `&country=${selectedCountry}`;
-        }
-
-        if (selectedDataSource !== '') {
-          url += `&datasource=${selectedDataSource}`;
-        }
-
-        const response = await axios.get(url);
-        const data = response.data;
-        const newHeatmapData = data.map(item => ({
-          lat: parseFloat(item.geolocationLat).toFixed(3),
-          lng: parseFloat(item.geolocationLng).toFixed(3),
-          sentiment: item.sentimentoPredito
-        }));
-        setHeatmapData(newHeatmapData);
-
-      } catch (error) {
-        console.error('Erro ao buscar dados da API:', error);
-      }
-    };
-
     if (token && startDate && endDate) {
+      setLoading(true);
       fetchData();
     }
-  }, [token, startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource]);
+  }, [token, startDate, endDate, fetchData]);
 
   useEffect(() => {
-    if (heatmapData.length > 0) {
+    if (!map) {
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBT-XPf587QgEzoVCHPBFgLwM0_vfPRS34&libraries=visualization&loading=async&callback=initMap`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBT-XPf587QgEzoVCHPBFgLwM0_vfPRS34&libraries=visualization&callback=initMap`;
       script.async = true;
       window.initMap = () => {
         const newMap = new window.google.maps.Map(document.getElementById('map'), {
@@ -84,10 +77,11 @@ const GoogleMap = ({ token, startDate, endDate, selectedSent, selectedState, sel
           mapTypeId: 'satellite'
         });
         setMap(newMap);
+
         if (heatmapData.length > 0) {
           const bounds = new window.google.maps.LatLngBounds();
           heatmapData.forEach(coord => {
-            bounds.extend({ lat: coord.lat, lng: coord.lng });
+            bounds.extend(coord);
           });
           newMap.fitBounds(bounds);
           const heatmap = new window.google.maps.visualization.HeatmapLayer({
@@ -100,34 +94,53 @@ const GoogleMap = ({ token, startDate, endDate, selectedSent, selectedState, sel
 
       return () => {
         document.body.removeChild(script);
+        window.initMap = null;
       };
     }
-  }, [heatmapData]);
+  }, [map, heatmapData]);
 
-  const handleExportJpgClick = () => {
+
+  const handleExportJpgClick = async () => {
     const mapElement = document.getElementById('map');
     if (mapElement) {
-      html2canvas(mapElement, { useCORS: true, backgroundColor: '#ffffff' })
-        .then((canvas) => {
-          canvas.toBlob((blob) => {
-            saveAs(blob, 'heatmap.jpg');
-          }, 'image/jpeg', 0.95);
-        })
-        .catch((error) => {
-          console.error('Erro ao exportar mapa para JPG:', error);
+      try {
+        const dataUrl = await domToImage.toPng(mapElement);
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = 'heatmap.png';
+        link.click();
+        await axios.post('http://localhost:8080/graphics/report/log', {
+          userName: user,
+          graphicTitle: "Heatmap Export",
+          type: "PNG"
         });
+      } catch (error) {
+        console.error('Error exporting heatmap to PNG:', error);
+      }
     }
   };
+  
 
-  const handleExportCsvClick = () => {
+  const handleExportCsvClick = async () => {
     const csvData = heatmapData.map((coord) => ({
       Latitude: coord.lat,
       Longitude: coord.lng,
       Sentiment: coord.sentiment
     }));
+
     const csv = Papa.unparse(csvData);
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     saveAs(blob, 'heatmap.csv');
+
+    try {
+      await axios.post('http://localhost:8080/graphics/report/log', {
+        userName: user,
+        graphicTitle: "Heatmap Export",
+        type: "CSV"
+      });
+    } catch (error) {
+      console.error('Error exporting heatmap to CSV:', error);
+    }
   };
 
   return (
@@ -153,7 +166,7 @@ const GoogleMap = ({ token, startDate, endDate, selectedSent, selectedState, sel
       {loading ? (
         <div>Loading...</div>
       ) : (
-        <div id="map" style={{ width: '100%', height: '80%' }}></div>
+        <div id="map" style={{ width: '100%', height: '70%' }}></div>
       )}
     </>
   );

@@ -14,6 +14,7 @@ function ApexChart({ startDate, endDate, selectedState, selectedCountry, selecte
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const chartRef = useRef(null);
+  const user = localStorage.getItem('username');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -84,7 +85,7 @@ function ApexChart({ startDate, endDate, selectedState, selectedCountry, selecte
       height: 350,
       type: 'line',
       toolbar: {
-        show: false // Adiciona esta linha para remover o menu do gráfico
+        show: false
       }
     },
     dataLabels: {
@@ -129,33 +130,51 @@ function ApexChart({ startDate, endDate, selectedState, selectedCountry, selecte
     colors: ['#06d6a0', '#ef476f', '#ffd166'],
   };
 
-  const handleExportJpgClick = () => {
+  const handleExportJpgClick = async () => {
     if (chartRef.current) {
-      domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff' })
-        .then((dataUrl) => {
-          const link = document.createElement('a');
-          link.download = 'chart.jpg';
-          link.href = dataUrl;
-          link.click();
-        })
-        .catch((error) => {
-          console.error('Error exporting chart to JPG:', error);
-          setError('Error exporting chart to JPG.');
-        });
+      try {
+        const dataUrl = await domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff' });
+        const link = document.createElement('a');
+        link.download = 'chart.jpg';
+        link.href = dataUrl;
+        link.click();
+        try {
+          await axios.post('http://localhost:8080/graphics/report/log', {
+            userName: user,
+            graphicTitle: "Count by Feelings by State",
+            type: "JPEG"
+          });
+        } catch (error) {
+          console.error('Error logging chart JPEG export:', error);
+          setError('Error logging chart JPEG export.');
+        }
+      } catch (error) {
+        console.error('Error exporting chart to JPG:', error);
+        setError('Error exporting chart to JPG.');
+      }
     }
   };
+  
 
-  const handleExportCsvClick = () => {
+  const handleExportCsvClick = async () => {
     const data = chartData.map(item => ({
       state: item.x,
       positive: item.Positive,
       negative: item.Negative,
       neutral: item.Neutral
     }));
-
     const csv = Papa.unparse(data);
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     saveAs(blob, 'chart.csv');
+    try {
+      await axios.post('http://localhost:8080/graphics/report/log', {
+        userName: user,
+        graphicTitle: "Count by Feelings by State",
+        type: "CSV"
+      });
+    } catch (error) {
+      console.error('Error exporting Count by Feelings by State to CSV:', error);
+    }
   };
 
   if (loading) {

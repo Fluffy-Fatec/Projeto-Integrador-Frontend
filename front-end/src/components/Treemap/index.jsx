@@ -14,6 +14,7 @@ function App({ token, endDate, startDate, selectedDataSource }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const chartRef = useRef(null);
+  const user = localStorage.getItem('username');
 
   const fetchData = async (token) => {
     try {
@@ -85,39 +86,63 @@ function App({ token, endDate, startDate, selectedDataSource }) {
     }
   }, [token, startDate, endDate, selectedDataSource]);
 
-  const handleExportJpgClick = () => {
+  const handleExportJpgClick = async () => {
     if (chartRef.current) {
-      domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff' })
-        .then((dataUrl) => {
-          const link = document.createElement('a');
-          link.download = 'chart.jpg';
-          link.href = dataUrl;
-          link.click();
-        })
-        .catch((error) => {
-          console.error('Erro ao exportar gráfico para JPG:', error);
-          setError('Erro ao exportar gráfico para JPG.');
+      try {
+        const dataUrl = await domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff' });
+        const link = document.createElement('a');
+        link.download = 'chart.jpg';
+        link.href = dataUrl;
+        link.click();
+        
+        await axios.post('http://localhost:8080/graphics/report/log', {
+          userName: user,
+          graphicTitle: "Sentiment Treemap by State",
+          type: "JPEG"
         });
+      } catch (error) {
+        console.error('Error exporting chart JPEG:', error);
+        setError('Error exporting chart JPEG.');
+      }
+    } else {
+      setError('Chart data is incomplete or missing.');
     }
   };
-
-  const handleExportCsvClick = () => {
-    const data = chartData.series[0].data.map(item => ({
-      state: item.x,
-      positivePercentage: item.y
-    }));
-
-    const csv = Papa.unparse(data);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-    saveAs(blob, 'chart.csv');
+  
+  const handleExportCsvClick = async () => {
+    if (chartData.series && chartData.series.length > 0 && chartData.series[0].data.length > 0) {
+      try {
+        const csvData = chartData.series[0].data.map(item => ({
+          State: item.x,
+          Percentage: item.y
+        }));
+  
+        const csv = Papa.unparse(csvData);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+        saveAs(blob, 'sentiment_treemap.csv');
+  
+        await axios.post('http://localhost:8080/graphics/report/log', {
+          userName: user,
+          graphicTitle: "Sentiment Treemap by State",
+          type: "CSV"
+        });
+      } catch (error) {
+        console.error('Error exporting chart data:', error);
+        setError('Error exporting chart data.');
+      }
+    } else {
+      setError('No data available to export.');
+    }
   };
+  
+  
 
   const options = {
     chart: {
       type: 'treemap',
       height: 350,
       toolbar: {
-        show: false // Adiciona esta linha para remover o menu do gráfico
+        show: false
       }
     },
     title: {

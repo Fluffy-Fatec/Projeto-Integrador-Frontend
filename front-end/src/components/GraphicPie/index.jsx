@@ -14,6 +14,7 @@ function App({ token, startDate, endDate, selectedState, selectedCountry, select
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const chartRef = useRef(null);
+  const user = localStorage.getItem('username');
 
   const fetchData = async (token, startDate, endDate) => {
     try {
@@ -95,32 +96,57 @@ function App({ token, startDate, endDate, selectedState, selectedCountry, select
     }
   };
 
-  const handleExportJpgClick = () => {
-    if (chartRef.current) {
-      domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff' })
-        .then((dataUrl) => {
-          const link = document.createElement('a');
-          link.download = 'chart.jpg';
-          link.href = dataUrl;
-          link.click();
-        })
-        .catch((error) => {
-          console.error('Erro ao exportar gráfico para JPG:', error);
-          setError('Erro ao exportar gráfico para JPG.');
+  const handleExportJpgClick = async () => {
+    try {
+      if (chartRef.current) {
+        const dataUrl = await domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff' });
+        const link = document.createElement('a');
+        link.download = 'chart.jpg';
+        link.href = dataUrl;
+        link.click();
+  
+        await axios.post('http://localhost:8080/graphics/report/log', {
+          userName: user,
+          graphicTitle: "Percentage of Sentiment",
+          type: "JPEG"
         });
+      } else {
+        setError('Chart data is incomplete or missing.');
+      }
+    } catch (error) {
+      console.error('Error exporting chart JPEG:', error);
+      setError('Error exporting chart JPEG.');
     }
   };
+  
 
-  const handleExportCsvClick = () => {
-    const data = chartData.options.labels.map((label, index) => ({
-      sentiment: label,
-      count: chartData.series[index]
-    }));
-
-    const csv = Papa.unparse(data);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-    saveAs(blob, 'chart.csv');
+  const handleExportCsvClick = async () => {
+    try {
+      if (chartData && chartData.options && chartData.options.labels && chartData.series) {
+        const data = chartData.options.labels.map((label, index) => ({
+          sentiment: label,
+          count: chartData.series[index]
+        }));
+  
+        const csv = Papa.unparse(data);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+        saveAs(blob, 'chart.csv');
+  
+        await axios.post('http://localhost:8080/graphics/report/log', {
+          userName: user,
+          graphicTitle: "Percentage of Sentiment",
+          type: "CSV"
+        });
+      } else {
+        setError('No data available to export.');
+      }
+    } catch (error) {
+      console.error('Error exporting chart data:', error);
+      setError('Error exporting chart data.');
+    }
   };
+  
+ 
 
   useEffect(() => {
     if (token && startDate && endDate) {
