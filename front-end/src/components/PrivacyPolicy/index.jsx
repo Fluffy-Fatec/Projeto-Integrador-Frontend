@@ -16,13 +16,14 @@ import { useNavigate } from 'react-router-dom';
 const defaultTheme = createTheme();
 
 export default function SignIn() {
-    const [isChecked, setIsChecked] = useState(false);
+    const [isChecked, setIsChecked] = useState({});
     const [terms, setTerms] = useState('');
-    const [username, setUsername] = useState('');
+    const [functions, setFunctions] = useState([]);
     const [acceptanceStatus, setAcceptanceStatus] = useState('');
 
     useEffect(() => {
         fetchTerms();
+        fetchFunctions();
     }, []);
 
     const fetchTerms = async () => {
@@ -38,8 +39,30 @@ export default function SignIn() {
         }
     };
 
+    const fetchFunctions = async () => {
+        try {
+            const response = await axios.get('http://localhost:8080/term/function/list');
+            if (response.data) {
+                setFunctions(response.data);
+                const initialCheckedState = response.data.reduce((acc, func) => {
+                    acc[func.id] = false; // Utiliza o `id` da função
+                    return acc;
+                }, {});
+                setIsChecked(initialCheckedState);
+            } else {
+                console.error('Invalid function list response:', response);
+            }
+        } catch (error) {
+            console.error('Error when fetching functions:', error);
+        }
+    };
+
     const handleCheckboxChange = (event) => {
-        setIsChecked(event.target.checked);
+        const { name, checked } = event.target;
+        setIsChecked(prevState => ({
+            ...prevState,
+            [name]: checked
+        }));
     };
 
     const navigate = useNavigate();
@@ -48,14 +71,20 @@ export default function SignIn() {
 
     const handleAccept = async () => {
         try {
-            await axios.post('http://localhost:8080/auth/user/term', {
+            const acceptedFunctions = Object.keys(isChecked).filter(funcId => isChecked[funcId]);
+            const functionIds = acceptedFunctions.map(id => parseInt(id));
+
+
+            const functionResponse = await axios.post('http://localhost:8080/term/function/accept', {
                 username: storedUsername,
-                termAccepted: isChecked ? 'accepted' : 'rejected'
+                functionId: functionIds,
+                termAccepted: 'accepted'
             });
-            console.log('Terms accepted successfully!');
+            console.log('Functions accepted successfully!');
+
             navigate('/');
         } catch (error) {
-            console.error('Error accepting terms:', error);
+            console.error('Error accepting terms or functions:', error);
         }
     };
 
@@ -77,25 +106,28 @@ export default function SignIn() {
                                 Privacy Policy
                             </Typography>
                             <br />
-                            <Divider></Divider>
+                            <Divider />
                             <br />
                             <Typography style={{ fontSize: '1rem', marginBottom: '2%', color: "#5F5F5F", textAlign: 'justify' }}>
                                 {terms}
                             </Typography>
-                            <Grid item xs={12} style={{ textAlign: 'justify' }}>
-                                <Typography variant="subtitle1" style={{ marginBottom: 1, fontSize: '0.8rem' }}>
-                                    <Checkbox
-                                        color="success"
-                                        checked={isChecked}
-                                        onChange={handleCheckboxChange}
-                                        size="small"
-                                    />
-                                    <label style={{ fontSize: '1rem', marginBottom: '2%', color: "#5F5F5F", textAlign: 'justify' }}>
-                                        By checking this box, I agree to the processing of my personal data by Fluffy Tech in accordance with the Privacy Policy.
-                                    </label>
-                                </Typography>
-                            </Grid>
-                            <br></br>
+                            {functions.map((func) => (
+                                <Grid item xs={12} style={{ textAlign: 'justify' }} key={func.id}>
+                                    <Typography variant="subtitle1" style={{ marginBottom: 1, fontSize: '0.8rem' }}>
+                                        <Checkbox
+                                            color="success"
+                                            checked={isChecked[func.id] || false}
+                                            onChange={handleCheckboxChange}
+                                            name={func.id.toString()}
+                                            size="small"
+                                        />
+                                        <label style={{ fontSize: '1rem', marginBottom: '2%', color: "#5F5F5F", textAlign: 'justify' }}>
+                                            {func.funcName}
+                                        </label>
+                                    </Typography>
+                                </Grid>
+                            ))}
+                            <br />
                             <Button onClick={handleAccept}
                                 style={{
                                     borderRadius: 5,
