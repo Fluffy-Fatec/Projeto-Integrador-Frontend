@@ -2,7 +2,7 @@ import { faFileCsv } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, MenuItem, Select, Snackbar, Alert } from '@mui/material';
+import { Alert, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, MenuItem, Select, Snackbar } from '@mui/material';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Modal from '@mui/material/Modal';
@@ -97,7 +97,6 @@ function EnhancedTable({ token, dataSource }) {
   const handleThumbDownClick = (row) => {
     setSelectedRow(row);
     setSentiment(row.sentiment);
-    setThumbsDownClicked(prev => ({ ...prev, [row.id]: true }));
     setOpen(true);
   };
 
@@ -134,6 +133,11 @@ function EnhancedTable({ token, dataSource }) {
   };
 
   const handleSave = async () => {
+    if (sentiment === selectedRow.sentiment) {
+      setSnackbarMessage(`Cannot update to the same sentiment: ${sentiment}`);
+      setSnackbarOpen(true);
+      return;
+    }
     const sentimentMap = {
       'Negative': 0,
       'Neutral': 1,
@@ -156,8 +160,13 @@ function EnhancedTable({ token, dataSource }) {
       });
 
       setRows(rows.map(row => row.id === selectedRow.id ? { ...row, sentiment } : row));
-      setSnackbarMessage(`Sentiment for row ID ${selectedRow.id} updated to ${sentid}`);
+      setSnackbarMessage(`Sentiment for row ID ${selectedRow.id}`);
       setSnackbarOpen(true);
+
+      // Update the state to hide the thumb up button after saving
+      setThumbsUpClicked(prev => ({ ...prev, [selectedRow.id]: true }));
+      setThumbsDownClicked(prev => ({ ...prev, [selectedRow.id]: false }));
+
       handleClose();
     } catch (error) {
       console.log("An error occurred:", error);
@@ -288,6 +297,7 @@ function EnhancedTable({ token, dataSource }) {
               onChange={(e) => setSentiment(e.target.value)}
               displayEmpty
               style={{ marginRight: '10px', minWidth: '150px', height: '40px' }}
+              color='success'
             >
               <MenuItem value="" disabled>Select sentiment</MenuItem>
               <MenuItem value="Positive">Positive</MenuItem>
@@ -296,8 +306,9 @@ function EnhancedTable({ token, dataSource }) {
             </Select>
             <Button
               onClick={handleSave}
-              variant="contained"
-              style={{ backgroundColor: '#299D00', color: '#FFFFFF', height: '40px' }}
+              variant="outlined"
+              sx={{ borderRadius: 5 }}
+              style={{ backgroundColor: '#11BF4E', color: '#FFFFFF', height: '40px' }}
             >
               Update
             </Button>
@@ -325,8 +336,9 @@ function EnhancedTable({ token, dataSource }) {
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
             <Button
               onClick={handleConfirmOpen}
-              variant="contained"
-              style={{ backgroundColor: '#FF5151', color: '#FFFFFF' }}
+              variant="outlined"
+              sx={{ borderRadius: 5 }}
+              style={{ backgroundColor: '#FF5151', color: '#FFFFFF', height: '40px' }}
             >
               Delete
             </Button>
