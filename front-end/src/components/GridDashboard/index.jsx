@@ -167,6 +167,7 @@ const GridDashboard = ({ darkMode, token }) => {
           InputLabelProps={{
             shrink: true,
           }}
+          
           style={{ marginRight: '10px' }}
         />
         <FormControl variant="filled" style={{ minWidth: '150px', marginRight: '10px' }}>

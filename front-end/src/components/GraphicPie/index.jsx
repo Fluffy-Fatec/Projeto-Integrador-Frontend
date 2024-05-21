@@ -65,7 +65,6 @@ function App({ token, startDate, endDate, selectedState, selectedCountry, select
             },
           },
           title: {
-  
             style: {
               fontSize: '12px',
               fontWeight: 'bold',
@@ -101,7 +100,7 @@ function App({ token, startDate, endDate, selectedState, selectedCountry, select
       if (chartRef.current) {
         const dataUrl = await domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff' });
         const link = document.createElement('a');
-        link.download = 'chart.jpg';
+        link.download = 'Percentage of Sentiment.jpg';
         link.href = dataUrl;
         link.click();
   
@@ -130,7 +129,7 @@ function App({ token, startDate, endDate, selectedState, selectedCountry, select
   
         const csv = Papa.unparse(data);
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-        saveAs(blob, 'chart.csv');
+        saveAs(blob, 'Percentage of Sentiment.csv');
   
         await axios.post('http://localhost:8080/graphics/report/log', {
           userName: user,
@@ -179,7 +178,7 @@ function App({ token, startDate, endDate, selectedState, selectedCountry, select
         </Grid>
       </Grid>
       <div ref={chartRef}>
-        <Chart options={chartData.options} series={chartData.series} type="pie" height={300} />
+        <Chart options={chartData.options} series={chartData.series} type="pie" height={350} />
       </div>
     </>
   );

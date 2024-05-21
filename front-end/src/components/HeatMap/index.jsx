@@ -2,10 +2,11 @@ import { faFileCsv, faFileImage } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Grid, IconButton, Typography } from "@mui/material";
 import axios from 'axios';
-import domToImage from 'dom-to-image';
 import { saveAs } from 'file-saver';
 import Papa from 'papaparse';
 import React, { useCallback, useEffect, useState } from 'react';
+import html2canvas from 'html2canvas';
+
 
 const GoogleMap = ({
   token,
@@ -19,6 +20,7 @@ const GoogleMap = ({
   const [heatmapData, setHeatmapData] = useState([]);
   const [map, setMap] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [exporting, setExporting] = useState(false); // Estado para controlar a exportação
   const user = localStorage.getItem('username');
 
   const constructApiUrl = (startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource) => {
@@ -99,50 +101,83 @@ const GoogleMap = ({
     }
   }, [map, heatmapData]);
 
-
   const handleExportJpgClick = async () => {
-    const mapElement = document.getElementById('map');
-    if (mapElement) {
+    if (!exporting) {
+      setExporting(true);
       try {
-        const dataUrl = await domToImage.toPng(mapElement);
-        const link = document.createElement('a');
-        link.href = dataUrl;
-        link.download = 'heatmap.png';
-        link.click();
-        await axios.post('http://localhost:8080/graphics/report/log', {
-          userName: user,
-          graphicTitle: "Heatmap Export",
-          type: "PNG"
-        });
+        const mapElement = document.getElementById('map');
+        if (mapElement) {
+          // Capturar o mapa após o carregamento completo
+          const canvas = await html2canvas(mapElement, {
+            useCORS: true, // Habilitar CORS para imagens externas
+            logging: false, // Desativar logs para melhorar o desempenho
+            onclone: (document) => {
+              // Esperar até que o mapa esteja totalmente carregado
+              return new Promise((resolve) => {
+                const checkMapLoaded = () => {
+                  if (mapElement.offsetWidth > 0 && mapElement.offsetHeight > 0) {
+                    resolve();
+                  } else {
+                    setTimeout(checkMapLoaded, 100);
+                  }
+                };
+                checkMapLoaded();
+              });
+            }
+          });
+          canvas.toBlob((blob) => {
+            saveAs(blob, 'Heatmap.jpg');
+          });
+  
+          // Registrar a exportação no servidor
+          await axios.post('http://localhost:8080/graphics/report/log', {
+            userName: user,
+            graphicTitle: "Heatmap",
+            type: "JPEG"
+          });
+  
+          // Reexibir o mapa após a exportação
+          mapElement.style.display = 'block';
+        } else {
+          console.error('Map element not found.');
+        }
       } catch (error) {
-        console.error('Error exporting heatmap to PNG:', error);
+        console.error('Error exporting heatmap to JPEG:', error);
+      } finally {
+        setExporting(false);
       }
     }
   };
   
-
+  
+  
+  
   const handleExportCsvClick = async () => {
-    const csvData = heatmapData.map((coord) => ({
-      Latitude: coord.lat,
-      Longitude: coord.lng,
-      Sentiment: coord.sentiment
-    }));
-
-    const csv = Papa.unparse(csvData);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-    saveAs(blob, 'heatmap.csv');
-
-    try {
-      await axios.post('http://localhost:8080/graphics/report/log', {
-        userName: user,
-        graphicTitle: "Heatmap Export",
-        type: "CSV"
-      });
-    } catch (error) {
-      console.error('Error exporting heatmap to CSV:', error);
+    if (!exporting) {
+      setExporting(true);
+      try {
+        const csvData = heatmapData.map((coord) => ({
+          Latitude: coord.lat,
+          Longitude: coord.lng,
+          Sentiment: coord.sentiment
+        }));
+  
+        const csv = Papa.unparse(csvData);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+        saveAs(blob, 'Heatmap.csv');
+  
+        await axios.post('http://localhost:8080/graphics/report/log', {
+          userName: user,
+          graphicTitle: "Heatmap Export",
+          type: "CSV"
+        });
+      } catch (error) {
+        console.error('Error exporting heatmap to CSV:', error);
+      } finally {
+        setExporting(false);
+      }
     }
   };
-
   return (
     <>
       <Grid container alignItems="center" spacing={2}>
@@ -166,7 +201,9 @@ const GoogleMap = ({
       {loading ? (
         <div>Loading...</div>
       ) : (
-        <div id="map" style={{ width: '100%', height: '70%' }}></div>
+        heatmapData.length > 0 && (
+          <div id="map" style={{ width: '100%', height: '80%' }}></div>
+        )
       )}
     </>
   );

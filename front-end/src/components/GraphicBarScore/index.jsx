@@ -135,7 +135,7 @@ function App({ token, startDate, endDate, selectedSent, selectedState, selectedC
         const dataUrl = await domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff' });
         
         const link = document.createElement('a');
-        link.download = 'chart.jpg';
+        link.download = 'Review Score by Sentiment.jpg';
         link.href = dataUrl;
         link.click();
   
@@ -166,7 +166,7 @@ function App({ token, startDate, endDate, selectedSent, selectedState, selectedC
   
         const csv = Papa.unparse(data);
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-        saveAs(blob, 'chart.csv');
+        saveAs(blob, 'Review Score by Sentiment.csv');
   
         await axios.post('http://localhost:8080/graphics/report/log', {
           userName: user,

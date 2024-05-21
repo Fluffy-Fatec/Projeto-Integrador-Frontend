@@ -73,7 +73,7 @@ export function App({ token, startDate, endDate, selectedSent, selectedDataSourc
       try {
         const dataUrl = await domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff' });
         const link = document.createElement('a');
-        link.download = 'chart.jpg';
+        link.download = 'Sentiment Classification by Source.jpg';
         link.href = dataUrl;
         link.click();
   
@@ -102,7 +102,7 @@ export function App({ token, startDate, endDate, selectedSent, selectedDataSourc
   
       const csv = Papa.unparse(data);
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-      saveAs(blob, 'chart.csv');
+      saveAs(blob, 'Sentiment Classification by Source.csv');
   
       try {
         await axios.post('http://localhost:8080/graphics/report/log', {
@@ -143,7 +143,7 @@ export function App({ token, startDate, endDate, selectedSent, selectedDataSourc
     },
     yaxis: {
       title: {
-        text: 'Data source',
+        text: '',
         style: {
           color: '#888888'
         }

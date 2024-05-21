@@ -91,7 +91,7 @@ function App({ token, endDate, startDate, selectedDataSource }) {
       try {
         const dataUrl = await domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff' });
         const link = document.createElement('a');
-        link.download = 'chart.jpg';
+        link.download = 'Sentiment Treemap by State.jpg';
         link.href = dataUrl;
         link.click();
         
@@ -119,7 +119,7 @@ function App({ token, endDate, startDate, selectedDataSource }) {
   
         const csv = Papa.unparse(csvData);
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-        saveAs(blob, 'sentiment_treemap.csv');
+        saveAs(blob, 'Sentiment Treemap by State.csv');
   
         await axios.post('http://localhost:8080/graphics/report/log', {
           userName: user,

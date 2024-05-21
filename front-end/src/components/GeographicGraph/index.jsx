@@ -82,6 +82,7 @@ function ApexChart({ startDate, endDate, selectedState, selectedCountry, selecte
 
   const options = {
     chart: {
+      background: 'transparent',
       height: 350,
       type: 'line',
       toolbar: {
@@ -103,7 +104,7 @@ function ApexChart({ startDate, endDate, selectedState, selectedCountry, selecte
     },
     yaxis: {
       title: {
-        text: 'Count',
+        text: '',
         style: {
           color: '#888888'
         }
@@ -135,7 +136,7 @@ function ApexChart({ startDate, endDate, selectedState, selectedCountry, selecte
       try {
         const dataUrl = await domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff' });
         const link = document.createElement('a');
-        link.download = 'chart.jpg';
+        link.download = 'Count by Feelings by State.jpg';
         link.href = dataUrl;
         link.click();
         try {
@@ -165,7 +166,7 @@ function ApexChart({ startDate, endDate, selectedState, selectedCountry, selecte
     }));
     const csv = Papa.unparse(data);
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-    saveAs(blob, 'chart.csv');
+    saveAs(blob, 'Count by Feelings by State.csv');
     try {
       await axios.post('http://localhost:8080/graphics/report/log', {
         userName: user,
