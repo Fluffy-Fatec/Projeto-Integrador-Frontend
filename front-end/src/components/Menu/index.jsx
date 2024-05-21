@@ -212,9 +212,9 @@ function AboutModal({ open, onClose, darkMode }) {
                     <br /><br />
                     @Fluffy is a university project group that developed the entire platform.
                     <br /><br />
-                    <strong>Version Application:</strong> 1.0.0
+                    <strong>Version Application:</strong> 3.0.0
                     <br />
-                    <strong>Version IA:</strong> 1.0.0
+                    <strong>Version IA:</strong> 3.0.0
                     <br /><br />
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                         <a href="https://github.com/Fluffy-Fatec/Projeto-Integrador-Imagem" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>

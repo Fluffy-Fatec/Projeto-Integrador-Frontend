@@ -151,6 +151,7 @@ const GridDashboard = ({ darkMode, token }) => {
           type="date"
           value={startInput}
           onChange={handleStartInputChange}
+          color='success'
           InputLabelProps={{
             shrink: true,
           }}
@@ -162,9 +163,11 @@ const GridDashboard = ({ darkMode, token }) => {
           type="date"
           value={endInput}
           onChange={handleEndInputChange}
+          color='success'
           InputLabelProps={{
             shrink: true,
           }}
+          
           style={{ marginRight: '10px' }}
         />
         <FormControl variant="filled" style={{ minWidth: '150px', marginRight: '10px' }}>
@@ -266,17 +269,17 @@ const GridDashboard = ({ darkMode, token }) => {
       {!loading && !error && (
         <Grid container spacing={3} style={{ marginTop: '5px' }}>
           <Grid item xs={12} sm={4}>
-            <Paper style={{ height: 450 }}>
+            <Paper style={{ height: 400 }}>
               <HeatMap token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} data={dataFromApi} selectedCountry={selectedCountry} selectedDataSource={selectedDataSource} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <Paper style={{ height: 450 }}>
+            <Paper style={{ height: 400 }}>
               <Treemap token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} data={dataFromApi} selectedCountry={selectedCountry} selectedDataSource={selectedDataSource} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <Paper style={{ height: 450 }}>
+            <Paper style={{ height: 400 }}>
               <GraphicArea darkMode={darkMode} token={token} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} selectedState={selectedState} selectedCountry={selectedCountry} selectedDataSource={selectedDataSource} />
             </Paper>
           </Grid>

@@ -17,6 +17,7 @@ const WordGraphics = ({ token, selectedSent }) => {
     const [selectedWord, setSelectedWord] = useState(null);
     const [filter, setFilter] = useState(selectedSent || "1");
     const chartRef = useRef(null);
+    const user = localStorage.getItem('username');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -54,36 +55,56 @@ const WordGraphics = ({ token, selectedSent }) => {
         setFilter(event.target.value);
     };
 
-    const handleExportJpgClick = () => {
+    const handleExportJpgClick = async () => {
         if (chartRef.current) {
             setLoading(true);
-
-            domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff'})
-                .then((dataUrl) => {
-                    const link = document.createElement('a');
-                    link.download = 'wordcloud.jpg';
-                    link.href = dataUrl;
-                    link.click();
-                    setLoading(false);
-                })
-                .catch((error) => {
-                    setError('Erro ao exportar gráfico para JPG.');
-                    setLoading(false);
+    
+            try {
+                const dataUrl = await domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff'});
+                const link = document.createElement('a');
+                link.download = 'wordcloud.jpg';
+                link.href = dataUrl;
+                link.click();
+                setLoading(false);
+    
+                await axios.post('http://localhost:8080/graphics/report/log', {
+                    userName: user,
+                    graphicTitle: "Cloud Sentiment Word",
+                    type: "JPEG"
                 });
+            } catch (error) {
+                console.error('Error exporting chart JPEG:', error);
+                setError('Error exporting chart JPEG.');
+                setLoading(false);
+            }
+        } else {
+            setError('Chart data is incomplete or missing.');
         }
     };
-
-    const handleExportCsvClick = () => {
+    
+    const handleExportCsvClick = async () => {
         if (data) {
-            const csv = Papa.unparse(data); 
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-            saveAs(blob, 'wordcloud.csv');
+            try {
+                const csv = Papa.unparse(data);
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+                saveAs(blob, 'wordcloud.csv');
+    
+                await axios.post('http://localhost:8080/graphics/report/log', {
+                    userName: user,
+                    graphicTitle: "Cloud Sentiment Word",
+                    type: "CSV"
+                });
+            } catch (error) {
+                console.error('Error exporting chart data:', error);
+                setError('Error exporting chart data.');
+            }
+        } else {
+            setError('No data available to export.');
         }
     };
-
+    
     return (
         <>
-        <br />
             <Grid container alignItems="center" spacing={2}>
                 <Grid item xs={10}>
                     <Typography variant="h5" style={{ fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: '12px', color: '#888888', marginLeft: "10px" }}>Cloud Sentiment Word</Typography>

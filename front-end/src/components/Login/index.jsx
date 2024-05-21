@@ -53,6 +53,7 @@ export default function SignIn() {
         username: username,
         password: password
       });
+      localStorage.setItem('username', username);
 
       const token = response.data.token;
       Cookies.set('token', token);
