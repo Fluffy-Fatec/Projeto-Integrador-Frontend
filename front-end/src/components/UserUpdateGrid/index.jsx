@@ -10,6 +10,8 @@ import { styled } from '@mui/material/styles';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import UpdatePassword from "../UpdatePassword";
+import { Link } from 'react-router-dom';
+
 
 const Item = styled(Paper)(({ theme, darkMode }) => ({
     backgroundColor: darkMode,
@@ -247,39 +249,11 @@ const CustomComponent = ({ darkMode, token }) => {
                                 </Grid>
                             </Grid>
                             <Grid item xs={12} sx={{ textAlign: 'right', marginTop: '-12px', marginRight: '15px' }}>
-                                <Typography variant="subtitle1" sx={{ marginBottom: 1, textAlign: 'left', margin: '15px' }}>
-                                    <Checkbox
-                                        disabled
-                                        checked={isChecked}
-                                        onChange={handleCheckboxChange}
-                                        size="small"
-                                        color="success"
-                                    />
-                                    By submitting, I agree to the processing of my personal data by Fluffy Tech in accordance with the
-                                    <a style={{ color: '#11BF4E', textDecoration: 'none', marginLeft: '5px', fontWeight: 'bold' }}>
-                                        Privacy Policy
-                                    </a>.
-                                    I understand that I can change my preferences at any time.
+                                <Typography variant="subtitle1" sx={{ marginBottom: 1, textAlign: 'left', margin: '15px' }}> By using Fluffy Tech's services, I express my consent to the processing of my personal data as described. I understand that I can change my <Link to="/privacy" style={{ color: '#11BF4E', textDecoration: 'none', marginLeft: '5px', fontWeight: 'bold' }}> Privacy Policy </Link> preferences at any time.
                                 </Typography>
-                                <Button
-                                    type="submit"
-                                    fullWidth
-                                    disabled
-                                    variant="outlined"
-                                    sx={{
-                                        borderRadius: 5,
-                                        mt: 3,
-                                        mb: 2,
-                                        width: { xs: '100%', sm: 'auto' },
-                                    }}
-                                    style={{
-                                        backgroundColor: '#11BF4E',
-                                        color: 'white',
-                                        textTransform: 'none',
-                                    }}
-                                >
-                                    {capitalizeFirstLetter("Save Change")}
-                                </Button>
+                                <br />
+                                <br />
+                                <br />
                             </Grid>
                         </Grid>
                     </Item>
