@@ -31,6 +31,8 @@ function EnhancedTable({ token, dataSource }) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [thumbsUpClicked, setThumbsUpClicked] = useState({});
+  const [thumbsDownClicked, setThumbsDownClicked] = useState({});
 
   useEffect(() => {
     if (token && dataSource) {
@@ -77,13 +79,25 @@ function EnhancedTable({ token, dataSource }) {
     setPage(0);
   };
 
-  const handleThumbUpClick = (id) => {
-    console.log(`Row ID: ${id}`);
+  const handleThumbUpClick = async (id) => {
+    setThumbsUpClicked(prev => ({ ...prev, [id]: true }));
+    setThumbsDownClicked(prev => ({ ...prev, [id]: false }));
+
+    try {
+      await axios.post(`http://localhost:8080/review/classifier/${id}`, { classifier: 1 }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+    } catch (error) {
+      console.log("An error occurred:", error);
+    }
   };
 
   const handleThumbDownClick = (row) => {
     setSelectedRow(row);
     setSentiment(row.sentiment);
+    setThumbsDownClicked(prev => ({ ...prev, [row.id]: true }));
     setOpen(true);
   };
 
@@ -130,6 +144,12 @@ function EnhancedTable({ token, dataSource }) {
 
     try {
       await axios.put(`http://localhost:8080/graphics/update/${selectedRow.id}/${sentid}`, {}, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      await axios.post(`http://localhost:8080/review/classifier/${selectedRow.id}`, { classifier: 0 }, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -211,9 +231,11 @@ function EnhancedTable({ token, dataSource }) {
                   >
                     {key === 'classifier' ? (
                       <div style={{ display: 'flex', justifyContent: 'center' }}>
-                        <IconButton onClick={() => handleThumbUpClick(row.id)} aria-label="thumbs up">
-                          <ThumbUpIcon style={{ color: '#299D00' }} />
-                        </IconButton>
+                        {!thumbsDownClicked[row.id] && (
+                          <IconButton onClick={() => handleThumbUpClick(row.id)} aria-label="thumbs up">
+                            <ThumbUpIcon style={{ color: '#299D00' }} />
+                          </IconButton>
+                        )}
                         <IconButton onClick={() => handleThumbDownClick(row)} aria-label="thumbs down">
                           <ThumbDownIcon style={{ color: '#FF5151' }} />
                         </IconButton>
