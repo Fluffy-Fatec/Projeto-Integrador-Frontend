@@ -31,8 +31,7 @@ function EnhancedTable({ token, dataSource }) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [thumbsUpClicked, setThumbsUpClicked] = useState({});
-  const [thumbsDownClicked, setThumbsDownClicked] = useState({});
+  const [buttonVisibility, setButtonVisibility] = useState({});
 
   useEffect(() => {
     if (token && dataSource) {
@@ -59,12 +58,24 @@ function EnhancedTable({ token, dataSource }) {
         geolocation: item.geolocation,
         reviewCreationDate: new Date(item.reviewCreationDate).toLocaleDateString(),
         creationdate: new Date(item.creationdate).toLocaleDateString(),
-        classifier: ''
+        classifier: item.classifier
       }));
 
       formattedRows.sort((a, b) => a.id - b.id);
 
+      let visibilityInit = {};
+      formattedRows.forEach(row => {
+        if (row.classifier === 0) {
+          visibilityInit[row.id] = { showThumbUp: false, showThumbDown: true };
+        } else if (row.classifier === 1) {
+          visibilityInit[row.id] = { showThumbUp: true, showThumbDown: false };
+        } else {
+          visibilityInit[row.id] = { showThumbUp: true, showThumbDown: true };
+        }
+      });
+
       setRows(formattedRows);
+      setButtonVisibility(visibilityInit);
     } catch (error) {
       console.log("An error occurred:", error);
     }
@@ -80,15 +91,15 @@ function EnhancedTable({ token, dataSource }) {
   };
 
   const handleThumbUpClick = async (id) => {
-    setThumbsUpClicked(prev => ({ ...prev, [id]: true }));
-    setThumbsDownClicked(prev => ({ ...prev, [id]: false }));
+    setButtonVisibility(prev => ({ ...prev, [id]: { ...prev[id], showThumbDown: false } }));
 
     try {
-      await axios.post(`http://localhost:8080/review/classifier/${id}`, { classifier: 1 }, {
+      await axios.post(`http://localhost:8080/graphics/review/classifier/${id}`, { classifier: 1 }, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
+      console.log("LIKE");
     } catch (error) {
       console.log("An error occurred:", error);
     }
@@ -138,6 +149,7 @@ function EnhancedTable({ token, dataSource }) {
       setSnackbarOpen(true);
       return;
     }
+
     const sentimentMap = {
       'Negative': 0,
       'Neutral': 1,
@@ -153,20 +165,19 @@ function EnhancedTable({ token, dataSource }) {
         }
       });
 
-      await axios.post(`http://localhost:8080/review/classifier/${selectedRow.id}`, { classifier: 0 }, {
+      await axios.post(`http://localhost:8080/graphics/review/classifier/${selectedRow.id}`, { classifier: 0 }, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
 
+      console.log("DISLIKE");
+
       setRows(rows.map(row => row.id === selectedRow.id ? { ...row, sentiment } : row));
-      setSnackbarMessage(`Sentiment for row ID ${selectedRow.id}`);
+      setButtonVisibility(prev => ({ ...prev, [selectedRow.id]: { ...prev[selectedRow.id], showThumbUp: false } }));
+
+      setSnackbarMessage(`Sentiment for row ID ${selectedRow.id} updated.`);
       setSnackbarOpen(true);
-
-      // Update the state to hide the thumb up button after saving
-      setThumbsUpClicked(prev => ({ ...prev, [selectedRow.id]: true }));
-      setThumbsDownClicked(prev => ({ ...prev, [selectedRow.id]: false }));
-
       handleClose();
     } catch (error) {
       console.log("An error occurred:", error);
@@ -233,21 +244,19 @@ function EnhancedTable({ token, dataSource }) {
             {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
               <TableRow key={index}>
                 {Object.keys(row).map((key, idx) => (
-                  <TableCell
-                    key={idx}
-                    align={idx > 1 ? 'right' : 'left'}
-                    style={{ maxWidth: '200px', wordWrap: 'break-word' }}
-                  >
+                  <TableCell key={idx} align={idx > 1 ? 'right' : 'left'} style={{ maxWidth: '200px', wordWrap: 'break-word' }}>
                     {key === 'classifier' ? (
                       <div style={{ display: 'flex', justifyContent: 'center' }}>
-                        {!thumbsDownClicked[row.id] && (
+                        {buttonVisibility[row.id]?.showThumbUp && (
                           <IconButton onClick={() => handleThumbUpClick(row.id)} aria-label="thumbs up">
                             <ThumbUpIcon style={{ color: '#299D00' }} />
                           </IconButton>
                         )}
-                        <IconButton onClick={() => handleThumbDownClick(row)} aria-label="thumbs down">
-                          <ThumbDownIcon style={{ color: '#FF5151' }} />
-                        </IconButton>
+                        {buttonVisibility[row.id]?.showThumbDown && (
+                          <IconButton onClick={() => handleThumbDownClick(row)} aria-label="thumbs down">
+                            <ThumbDownIcon style={{ color: '#FF5151' }} />
+                          </IconButton>
+                        )}
                       </div>
                     ) : (
                       row[key]
@@ -267,7 +276,6 @@ function EnhancedTable({ token, dataSource }) {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
-
       <Modal
         open={open}
         onClose={handleClose}
@@ -345,7 +353,6 @@ function EnhancedTable({ token, dataSource }) {
           </div>
         </Box>
       </Modal>
-
       <Dialog
         open={confirmOpen}
         onClose={handleConfirmClose}
@@ -367,7 +374,6 @@ function EnhancedTable({ token, dataSource }) {
           </Button>
         </DialogActions>
       </Dialog>
-
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}
