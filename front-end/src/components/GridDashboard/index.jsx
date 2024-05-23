@@ -1,5 +1,6 @@
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FmdGoodIcon from '@mui/icons-material/FmdGood';
+import PrintIcon from '@mui/icons-material/Print';
 import PublicIcon from '@mui/icons-material/Public';
 import SearchOffRoundedIcon from '@mui/icons-material/SearchOffRounded';
 import { CircularProgress, Divider, FormControl, Grid, IconButton, Paper, Select, TextField } from '@mui/material';
@@ -17,7 +18,6 @@ import GraphicBarScore from '../GraphicBarScore';
 import GraphicPie from '../GraphicPie';
 import HeatMap from '../HeatMap';
 import Treemap from '../Treemap';
-
 const GridDashboard = ({ darkMode, token }) => {
   const [startDate, setStartDate] = useState(dayjs().year(2023).startOf('year').toISOString());
   const [endDate, setEndDate] = useState(dayjs().year(2024).endOf('year').toISOString());
@@ -142,6 +142,9 @@ const GridDashboard = ({ darkMode, token }) => {
     setSelectedCountry('');
   };
 
+  const handlePrintClick = () => {
+    window.print();
+  };
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <div style={{ marginTop: '50px' }}>
@@ -259,6 +262,9 @@ const GridDashboard = ({ darkMode, token }) => {
         >
           <SearchOffRoundedIcon />
         </IconButton>
+        <IconButton onClick={handlePrintClick} aria-label="Imprimir Gráfico">
+      <PrintIcon />
+    </IconButton>
       </div>
 
       <Divider style={{ marginTop: '5px' }} />
