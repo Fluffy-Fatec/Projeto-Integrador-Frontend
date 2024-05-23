@@ -91,24 +91,53 @@ function EnhancedTable({ token, dataSource }) {
   };
 
   const handleThumbUpClick = async (id) => {
-    setButtonVisibility(prev => ({ ...prev, [id]: { ...prev[id], showThumbDown: false } }));
+    const buttonState = buttonVisibility[id];
+    if (buttonState && !buttonState.showThumbDown) {
+      try {
+        await axios.post(`http://localhost:8080/graphics/review/classifier/${id}`, { classifier: null }, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        fetchData(token, dataSource);
+      } catch (error) {
+        console.log("An error occurred:", error);
+      }
+    } else {
+      setButtonVisibility(prev => ({ ...prev, [id]: { ...prev[id], showThumbDown: false } }));
 
-    try {
-      await axios.post(`http://localhost:8080/graphics/review/classifier/${id}`, { classifier: 1 }, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      console.log("LIKE");
-    } catch (error) {
-      console.log("An error occurred:", error);
+      try {
+        await axios.post(`http://localhost:8080/graphics/review/classifier/${id}`, { classifier: 1 }, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        console.log("LIKE");
+        fetchData(token, dataSource);
+      } catch (error) {
+        console.log("An error occurred:", error);
+      }
     }
   };
 
-  const handleThumbDownClick = (row) => {
-    setSelectedRow(row);
-    setSentiment(row.sentiment);
-    setOpen(true);
+  const handleThumbDownClick = async (row) => {
+    const buttonState = buttonVisibility[row.id];
+    if (buttonState && !buttonState.showThumbUp) {
+      try {
+        await axios.post(`http://localhost:8080/graphics/review/classifier/${row.id}`, { classifier: null }, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        fetchData(token, dataSource);
+      } catch (error) {
+        console.log("An error occurred:", error);
+      }
+    } else {
+      setSelectedRow(row);
+      setSentiment(row.sentiment);
+      setOpen(true);
+    }
   };
 
   const handleExportCSV = () => {
@@ -170,8 +199,6 @@ function EnhancedTable({ token, dataSource }) {
           'Authorization': `Bearer ${token}`
         }
       });
-
-      console.log("DISLIKE");
 
       setRows(rows.map(row => row.id === selectedRow.id ? { ...row, sentiment } : row));
       setButtonVisibility(prev => ({ ...prev, [selectedRow.id]: { ...prev[selectedRow.id], showThumbUp: false } }));
