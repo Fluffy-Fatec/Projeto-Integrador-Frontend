@@ -112,7 +112,6 @@ function EnhancedTable({ token, dataSource }) {
             'Authorization': `Bearer ${token}`
           }
         });
-        console.log("LIKE");
         fetchData(token, dataSource);
       } catch (error) {
         console.log("An error occurred:", error);
