@@ -37,15 +37,13 @@ const GridDashboard = ({ darkMode, token }) => {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [dataSourceResponse, countriesResponse, statesResponse] = await Promise.all([
+      const [dataSourceResponse, countriesResponse] = await Promise.all([
         axios.get('http://localhost:8080/graphics/datasource', { headers: { 'Authorization': `Bearer ${token}` } }),
-        axios.get('http://localhost:8080/graphics/countries', { headers: { 'Authorization': `Bearer ${token}` } }),
-        axios.get('http://localhost:8080/graphics/states', { headers: { 'Authorization': `Bearer ${token}` } })
+        axios.get('http://localhost:8080/graphics/countries', { headers: { 'Authorization': `Bearer ${token}` } })
       ]);
 
       setDataSourceOptions(dataSourceResponse.data);
       setCountries(countriesResponse.data);
-      setStates(statesResponse.data);
     } catch (error) {
       console.error('Error fetching data:', error);
       setError(error.message);
@@ -57,6 +55,19 @@ const GridDashboard = ({ darkMode, token }) => {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  const fetchStates = useCallback(async (country) => {
+    setLoading(true);
+    try {
+      const statesResponse = await axios.get(`http://localhost:8080/graphics/states?country=${country}`, { headers: { 'Authorization': `Bearer ${token}` } });
+      setStates(statesResponse.data);
+    } catch (error) {
+      console.error('Error fetching states:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
 
   const fetchDataByFilters = useCallback(async () => {
     setLoading(true);
@@ -119,7 +130,15 @@ const GridDashboard = ({ darkMode, token }) => {
   };
 
   const handleStateChange = (event) => {
-    setSelectedState(event.target.value);
+    const selectedValue = event.target.value;
+    
+    // Verificando se nenhum país está selecionado
+    if (!selectedCountry) {
+      alert("Por favor, selecione um país primeiro!");
+      return; // Impede a execução adicional se nenhum país estiver selecionado
+    }
+
+    setSelectedState(selectedValue);
   };
 
   const handleDataSourceChange = (event) => {
@@ -127,12 +146,13 @@ const GridDashboard = ({ darkMode, token }) => {
   };
 
   const handleCountryChange = (event) => {
-    setSelectedCountry(event.target.value);
-  };
-
-  const handleSelectChange = (event) => {
-    setSelectedCountry('');
-    handleCountryChange(event);
+    const country = event.target.value;
+    setSelectedCountry(country);
+    if (country) {
+      fetchStates(country);
+    } else {
+      setStates([]);
+    }
   };
 
   const handleClearFilters = () => {
@@ -140,6 +160,7 @@ const GridDashboard = ({ darkMode, token }) => {
     setSelectedState('');
     setSelectedDataSource('');
     setSelectedCountry('');
+    setStates([]);
   };
 
   return (
@@ -167,7 +188,6 @@ const GridDashboard = ({ darkMode, token }) => {
           InputLabelProps={{
             shrink: true,
           }}
-          
           style={{ marginRight: '10px' }}
         />
         <FormControl variant="filled" style={{ minWidth: '150px', marginRight: '10px' }}>
@@ -195,7 +215,7 @@ const GridDashboard = ({ darkMode, token }) => {
           <Select
             native
             value={selectedCountry}
-            onChange={handleSelectChange}
+            onChange={handleCountryChange}
             variant="outlined"
             color='success'
             fullWidth
@@ -225,6 +245,7 @@ const GridDashboard = ({ darkMode, token }) => {
               id: 'State',
               style: { paddingLeft: '40px', paddingRight: '30px' }
             }}
+            disabled={!selectedCountry} // Desabilita o seletor se nenhum país estiver selecionado
           >
             <option aria-label="All State" value="">All State</option>
             {states.map(state => (
