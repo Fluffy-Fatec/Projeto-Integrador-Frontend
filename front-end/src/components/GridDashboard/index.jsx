@@ -1,6 +1,5 @@
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FmdGoodIcon from '@mui/icons-material/FmdGood';
-import PrintIcon from '@mui/icons-material/Print';
 import PublicIcon from '@mui/icons-material/Public';
 import SearchOffRoundedIcon from '@mui/icons-material/SearchOffRounded';
 import { CircularProgress, Divider, FormControl, Grid, IconButton, Paper, Select, TextField } from '@mui/material';
@@ -18,6 +17,7 @@ import GraphicBarScore from '../GraphicBarScore';
 import GraphicPie from '../GraphicPie';
 import HeatMap from '../HeatMap';
 import Treemap from '../Treemap';
+
 const GridDashboard = ({ darkMode, token }) => {
   const [startDate, setStartDate] = useState(dayjs().year(2023).startOf('year').toISOString());
   const [endDate, setEndDate] = useState(dayjs().year(2024).endOf('year').toISOString());
@@ -132,10 +132,9 @@ const GridDashboard = ({ darkMode, token }) => {
   const handleStateChange = (event) => {
     const selectedValue = event.target.value;
     
-    // Verificando se nenhum país está selecionado
     if (!selectedCountry) {
       alert("Por favor, selecione um país primeiro!");
-      return; // Impede a execução adicional se nenhum país estiver selecionado
+      return;
     }
 
     setSelectedState(selectedValue);
@@ -163,9 +162,6 @@ const GridDashboard = ({ darkMode, token }) => {
     setStates([]);
   };
 
-  const handlePrintClick = () => {
-    window.print();
-  };
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <div style={{ marginTop: '50px' }}>
@@ -248,7 +244,7 @@ const GridDashboard = ({ darkMode, token }) => {
               id: 'State',
               style: { paddingLeft: '40px', paddingRight: '30px' }
             }}
-            disabled={!selectedCountry} // Desabilita o seletor se nenhum país estiver selecionado
+            disabled={!selectedCountry} 
           >
             <option aria-label="All State" value="">All State</option>
             {states.map(state => (
@@ -283,9 +279,6 @@ const GridDashboard = ({ darkMode, token }) => {
         >
           <SearchOffRoundedIcon />
         </IconButton>
-        <IconButton onClick={handlePrintClick} aria-label="Imprimir Gráfico">
-      <PrintIcon />
-    </IconButton>
       </div>
 
       <Divider style={{ marginTop: '5px' }} />
