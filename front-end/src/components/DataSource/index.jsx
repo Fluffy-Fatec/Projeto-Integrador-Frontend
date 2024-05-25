@@ -74,7 +74,7 @@ const CustomComponent = ({ darkMode, token }) => {
           )}
         </Grid>
 
-        <Grid item xs={12} sm={9} style={{ backgroundColor: darkMode ? '#111' : '#FFF', color: darkMode ? '#FFF' : '#000', padding: '25px' , marginTop: '60px'}}>
+        <Grid item xs={12} sm={9} style={{ backgroundColor: darkMode ? '#111' : '#FFF', color: darkMode ? '#FFF' : '#000', padding: '25px', marginTop: '60px' }}>
           <Item darkMode={darkMode}>
             {activeTable && (
               <TableReview darkMode={darkMode} token={token} dataSource={activeTable} />

@@ -3,9 +3,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Grid, IconButton, Typography } from "@mui/material";
 import axios from 'axios';
 import { saveAs } from 'file-saver';
+import html2canvas from 'html2canvas';
 import Papa from 'papaparse';
 import React, { useCallback, useEffect, useState } from 'react';
-import html2canvas from 'html2canvas';
 
 
 const GoogleMap = ({
@@ -128,14 +128,14 @@ const GoogleMap = ({
           canvas.toBlob((blob) => {
             saveAs(blob, 'Heatmap.jpg');
           });
-  
+
           // Registrar a exportação no servidor
           await axios.post('http://localhost:8080/graphics/report/log', {
             userName: user,
             graphicTitle: "Heatmap",
             type: "JPEG"
           });
-  
+
           // Reexibir o mapa após a exportação
           mapElement.style.display = 'block';
         } else {
@@ -148,10 +148,10 @@ const GoogleMap = ({
       }
     }
   };
-  
-  
-  
-  
+
+
+
+
   const handleExportCsvClick = async () => {
     if (!exporting) {
       setExporting(true);
@@ -161,11 +161,11 @@ const GoogleMap = ({
           Longitude: coord.lng,
           Sentiment: coord.sentiment
         }));
-  
+
         const csv = Papa.unparse(csvData);
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
         saveAs(blob, 'Heatmap.csv');
-  
+
         await axios.post('http://localhost:8080/graphics/report/log', {
           userName: user,
           graphicTitle: "Heatmap Export",

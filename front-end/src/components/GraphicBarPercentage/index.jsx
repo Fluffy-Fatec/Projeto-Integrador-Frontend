@@ -1,13 +1,13 @@
-import axios from "axios";
-import React, { useEffect, useState, useRef } from "react";
-import Chart from "react-apexcharts";
+import { faFileCsv, faFileImage } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFileCsv, faFileImage } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
 import domToImage from "dom-to-image";
-import Papa from "papaparse";
 import { saveAs } from "file-saver";
+import Papa from "papaparse";
+import React, { useEffect, useRef, useState } from "react";
+import Chart from "react-apexcharts";
 
 function App({ token, endDate, startDate, selectedDataSource }) {
   const [chartOptions, setChartOptions] = useState({});
@@ -17,7 +17,7 @@ function App({ token, endDate, startDate, selectedDataSource }) {
   const chartRef = useRef(null);
 
   useEffect(() => {
-    const user = localStorage.getItem('username'); 
+    const user = localStorage.getItem('username');
     if (!user) {
       setError('Nome de usuário não encontrado no armazenamento local.');
       setLoading(false);
@@ -162,7 +162,7 @@ function App({ token, endDate, startDate, selectedDataSource }) {
 
   const handleExportCsvClick = async () => {
     try {
-      setLoading(true); 
+      setLoading(true);
 
       if (chartSeries.length > 0 && chartSeries[0].data.length > 0) {
         const data = chartSeries[0].data.map((_, index) => ({
@@ -171,11 +171,11 @@ function App({ token, endDate, startDate, selectedDataSource }) {
           negative: chartSeries[1].data[index],
           neutral: chartSeries[2].data[index]
         }));
-  
+
         const csv = Papa.unparse(data);
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
         saveAs(blob, 'Sentiment by State.csv');
-  
+
         await axios.post('http://localhost:8080/graphics/report/log', {
           userName: localStorage.getItem('username'),
           graphicTitle: "Sentiment by State",
@@ -185,11 +185,11 @@ function App({ token, endDate, startDate, selectedDataSource }) {
         setError('No data available to export.');
       }
 
-      setLoading(false); 
+      setLoading(false);
     } catch (error) {
       console.error('Error exporting chart data:', error);
       setError('Error exporting chart data.');
-      setLoading(false); 
+      setLoading(false);
     }
   };
 

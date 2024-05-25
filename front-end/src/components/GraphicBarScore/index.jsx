@@ -133,12 +133,12 @@ function App({ token, startDate, endDate, selectedSent, selectedState, selectedC
     try {
       if (chartRef.current) {
         const dataUrl = await domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff' });
-        
+
         const link = document.createElement('a');
         link.download = 'Review Score by Sentiment.jpg';
         link.href = dataUrl;
         link.click();
-  
+
         await axios.post('http://localhost:8080/graphics/report/log', {
           userName: user,
           graphicTitle: "Review Score by Sentiment",
@@ -152,7 +152,7 @@ function App({ token, startDate, endDate, selectedSent, selectedState, selectedC
       setError('Error exporting chart JPEG.');
     }
   };
-  
+
 
   const handleExportCsvClick = async () => {
     try {
@@ -163,11 +163,11 @@ function App({ token, startDate, endDate, selectedSent, selectedState, selectedC
           negative: chartSeries[1].data[index],
           neutral: chartSeries[2].data[index]
         }));
-  
+
         const csv = Papa.unparse(data);
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
         saveAs(blob, 'Review Score by Sentiment.csv');
-  
+
         await axios.post('http://localhost:8080/graphics/report/log', {
           userName: user,
           graphicTitle: "Review Score by Sentiment",
@@ -181,7 +181,7 @@ function App({ token, startDate, endDate, selectedSent, selectedState, selectedC
       setError('Error exporting chart data.');
     }
   };
-  
+
 
   if (loading) {
     return <div>Loading...</div>;

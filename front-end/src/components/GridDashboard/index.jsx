@@ -131,7 +131,7 @@ const GridDashboard = ({ darkMode, token }) => {
 
   const handleStateChange = (event) => {
     const selectedValue = event.target.value;
-    
+
     if (!selectedCountry) {
       alert("Por favor, selecione um país primeiro!");
       return;
@@ -244,7 +244,7 @@ const GridDashboard = ({ darkMode, token }) => {
               id: 'State',
               style: { paddingLeft: '40px', paddingRight: '30px' }
             }}
-            disabled={!selectedCountry} 
+            disabled={!selectedCountry}
           >
             <option aria-label="All State" value="">All State</option>
             {states.map(state => (

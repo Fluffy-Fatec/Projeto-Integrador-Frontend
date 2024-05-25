@@ -1,13 +1,13 @@
-import axios from "axios";
-import React, { useEffect, useState, useRef } from "react";
-import Chart from "react-apexcharts";
+import { faFileCsv, faFileImage } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFileCsv, faFileImage } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
 import domToImage from "dom-to-image";
-import Papa from "papaparse";
 import { saveAs } from "file-saver";
+import Papa from "papaparse";
+import React, { useEffect, useRef, useState } from "react";
+import Chart from "react-apexcharts";
 
 function ApexChart({ startDate, endDate, selectedState, selectedCountry, selectedDataSource }) {
   const [chartData, setChartData] = useState([]);
@@ -155,7 +155,7 @@ function ApexChart({ startDate, endDate, selectedState, selectedCountry, selecte
       }
     }
   };
-  
+
 
   const handleExportCsvClick = async () => {
     const data = chartData.map(item => ({
