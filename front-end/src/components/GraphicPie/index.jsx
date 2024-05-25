@@ -1,13 +1,13 @@
-import axios from "axios";
-import React, { useEffect, useState, useRef } from "react";
-import Chart from "react-apexcharts";
+import { faFileCsv, faFileImage } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFileCsv, faFileImage } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
 import domToImage from "dom-to-image";
-import Papa from "papaparse";
 import { saveAs } from "file-saver";
+import Papa from "papaparse";
+import React, { useEffect, useRef, useState } from "react";
+import Chart from "react-apexcharts";
 
 function App({ token, startDate, endDate, selectedState, selectedCountry, selectedDataSource }) {
   const [chartData, setChartData] = useState({});
@@ -103,7 +103,7 @@ function App({ token, startDate, endDate, selectedState, selectedCountry, select
         link.download = 'Percentage of Sentiment.jpg';
         link.href = dataUrl;
         link.click();
-  
+
         await axios.post('http://localhost:8080/graphics/report/log', {
           userName: user,
           graphicTitle: "Percentage of Sentiment",
@@ -117,7 +117,7 @@ function App({ token, startDate, endDate, selectedState, selectedCountry, select
       setError('Error exporting chart JPEG.');
     }
   };
-  
+
 
   const handleExportCsvClick = async () => {
     try {
@@ -126,11 +126,11 @@ function App({ token, startDate, endDate, selectedState, selectedCountry, select
           sentiment: label,
           count: chartData.series[index]
         }));
-  
+
         const csv = Papa.unparse(data);
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
         saveAs(blob, 'Percentage of Sentiment.csv');
-  
+
         await axios.post('http://localhost:8080/graphics/report/log', {
           userName: user,
           graphicTitle: "Percentage of Sentiment",
@@ -144,8 +144,8 @@ function App({ token, startDate, endDate, selectedState, selectedCountry, select
       setError('Error exporting chart data.');
     }
   };
-  
- 
+
+
 
   useEffect(() => {
     if (token && startDate && endDate) {

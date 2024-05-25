@@ -1,19 +1,19 @@
-import axios from "axios";
-import React, { useEffect, useState, useRef } from "react";
-import Chart from "react-apexcharts";
+import { faFileCsv, faFileImage } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFileCsv, faFileImage } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
 import domToImage from "dom-to-image";
-import Papa from "papaparse";
 import { saveAs } from "file-saver";
+import Papa from "papaparse";
+import React, { useEffect, useRef, useState } from "react";
+import Chart from "react-apexcharts";
 
 export function App({ token, startDate, endDate, selectedSent, selectedDataSource }) {
   const [chartData, setChartData] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const chartRef = useRef(null); 
+  const chartRef = useRef(null);
   const user = localStorage.getItem('username');
 
   const fetchData = async () => {
@@ -76,7 +76,7 @@ export function App({ token, startDate, endDate, selectedSent, selectedDataSourc
         link.download = 'Sentiment Classification by Source.jpg';
         link.href = dataUrl;
         link.click();
-  
+
         await axios.post('http://localhost:8080/graphics/report/log', {
           userName: user,
           graphicTitle: "Sentiment Classification by Source",
@@ -90,7 +90,7 @@ export function App({ token, startDate, endDate, selectedSent, selectedDataSourc
       setError('No chart reference found.');
     }
   };
-  
+
   const handleExportCsvClick = async () => {
     if (chartData) {
       const data = Object.entries(chartData).map(([origin, counts]) => ({
@@ -99,11 +99,11 @@ export function App({ token, startDate, endDate, selectedSent, selectedDataSourc
         negative: counts.negative,
         neutral: counts.neutral
       }));
-  
+
       const csv = Papa.unparse(data);
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
       saveAs(blob, 'Sentiment Classification by Source.csv');
-  
+
       try {
         await axios.post('http://localhost:8080/graphics/report/log', {
           userName: user,
@@ -118,13 +118,13 @@ export function App({ token, startDate, endDate, selectedSent, selectedDataSourc
       setError('Chart data is incomplete or missing.');
     }
   };
-  
+
   const options = {
     chart: {
       type: 'bar',
       height: 350,
       toolbar: {
-        show: false 
+        show: false
       }
     },
     plotOptions: {

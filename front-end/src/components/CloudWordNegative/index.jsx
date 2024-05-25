@@ -1,4 +1,4 @@
-import { faFileCsv } from '@fortawesome/free-solid-svg-icons/faFileCsv'; // Importe também o ícone CSV, se ainda não estiver importado
+import { faFileCsv } from '@fortawesome/free-solid-svg-icons/faFileCsv';
 import { faFileImage } from '@fortawesome/free-solid-svg-icons/faFileImage';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button, Grid, Typography } from "@mui/material";
@@ -58,15 +58,15 @@ const WordGraphics = ({ token, selectedSent }) => {
     const handleExportJpgClick = async () => {
         if (chartRef.current) {
             setLoading(true);
-    
+
             try {
-                const dataUrl = await domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff'});
+                const dataUrl = await domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff' });
                 const link = document.createElement('a');
                 link.download = 'wordcloud.jpg';
                 link.href = dataUrl;
                 link.click();
                 setLoading(false);
-    
+
                 await axios.post('http://localhost:8080/graphics/report/log', {
                     userName: user,
                     graphicTitle: "Cloud Sentiment Word",
@@ -81,14 +81,14 @@ const WordGraphics = ({ token, selectedSent }) => {
             setError('Chart data is incomplete or missing.');
         }
     };
-    
+
     const handleExportCsvClick = async () => {
         if (data) {
             try {
                 const csv = Papa.unparse(data);
                 const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
                 saveAs(blob, 'wordcloud.csv');
-    
+
                 await axios.post('http://localhost:8080/graphics/report/log', {
                     userName: user,
                     graphicTitle: "Cloud Sentiment Word",
@@ -102,7 +102,7 @@ const WordGraphics = ({ token, selectedSent }) => {
             setError('No data available to export.');
         }
     };
-    
+
     return (
         <>
             <Grid container alignItems="center" spacing={2}>

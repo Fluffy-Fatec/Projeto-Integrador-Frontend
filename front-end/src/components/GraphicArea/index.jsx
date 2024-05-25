@@ -61,7 +61,7 @@ function App({ token, endDate, startDate, selectedSent, selectedState, selectedC
           chart: {
             background: 'transparent',
             toolbar: {
-              show: false 
+              show: false
             }
           },
           legend: {
@@ -109,13 +109,13 @@ function App({ token, endDate, startDate, selectedSent, selectedState, selectedC
 
   const handleExportCsvClick = async () => {
     try {
-      setLoading(true); 
-  
+      setLoading(true);
+
       if (chartReady && chartSeries.length > 0 && chartOptions.xaxis && chartOptions.xaxis.categories) {
         const csvData = [];
         const headerRow = ['Date', 'Positive', 'Negative', 'Neutral']; // Cabeçalho CSV
         csvData.push(headerRow);
-  
+
         chartOptions.xaxis.categories.forEach((category, index) => {
           const rowData = [
             category,
@@ -125,13 +125,13 @@ function App({ token, endDate, startDate, selectedSent, selectedState, selectedC
           ];
           csvData.push(rowData);
         });
-  
-        console.log('CSV Data:', csvData); 
-        
+
+        console.log('CSV Data:', csvData);
+
         const csv = Papa.unparse(csvData);
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
         saveAs(blob, 'Sentiment_Over_Time.csv');
-        
+
         await axios.post('http://localhost:8080/graphics/report/log', {
           userName: user,
           graphicTitle: "Sentiment Over Time",
@@ -144,11 +144,11 @@ function App({ token, endDate, startDate, selectedSent, selectedState, selectedC
       console.error('Error exporting chart CSV:', error);
       setError('Error exporting chart CSV.');
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
-  
-  
+
+
   const handleExportJpgClick = async () => {
     try {
       if (chartRef.current) {
@@ -170,7 +170,7 @@ function App({ token, endDate, startDate, selectedSent, selectedState, selectedC
       setError('Error exporting chart JPEG.');
     }
   };
-  
+
   if (loading) {
     return <div>Loading...</div>;
   }
