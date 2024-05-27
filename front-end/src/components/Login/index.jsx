@@ -53,6 +53,7 @@ export default function SignIn() {
         username: username,
         password: password
       });
+      localStorage.setItem('username', username);
 
       const token = response.data.token;
       Cookies.set('token', token);
@@ -178,13 +179,10 @@ export default function SignIn() {
             </CardContent>
           </Card>
           <Box mt={6} display="flex" justifyContent="space-between">
-            <Link href="https://github.com/Fluffy-Fatec/Projeto-Integrador-Imagem" variant="body2" sx={{ marginRight: 12, textDecoration: 'none', color: '#11BF4E' }}>
+            <Link href="https://github.com/Fluffy-Fatec/Projeto-Integrador-Imagem" variant="body2" sx={{ marginRight: -1, textDecoration: 'none', color: '#11BF4E' }}>
               Visit the project
             </Link>
             <Box mr={1} />
-            <Link href="/privacypolicy" variant="body2" sx={{ textDecoration: 'none', color: '#11BF4E' }}>
-              Privacy terms
-            </Link>
           </Box>
         </Box>
       </Container>

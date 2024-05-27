@@ -1,16 +1,23 @@
-import { Button, Typography } from "@mui/material";
+import { faFileCsv } from '@fortawesome/free-solid-svg-icons/faFileCsv';
+import { faFileImage } from '@fortawesome/free-solid-svg-icons/faFileImage';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Button, Grid, Typography } from "@mui/material";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
-import { animated, useSpring } from "react-spring";
-import { TagCloud } from "react-tagcloud";
+import domToImage from 'dom-to-image';
+import { saveAs } from 'file-saver';
+import Papa from 'papaparse';
+import React, { useEffect, useRef, useState } from "react";
+import ReactWordcloud from "react-wordcloud";
 
-const WorldGraphics = ({ token, selectedSent }) => {
+const WordGraphics = ({ token, selectedSent }) => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [highlightedWord, setHighlightedWord] = useState(null);
     const [selectedWord, setSelectedWord] = useState(null);
     const [filter, setFilter] = useState(selectedSent || "1");
+    const chartRef = useRef(null);
+    const user = localStorage.getItem('username');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -39,65 +46,99 @@ const WorldGraphics = ({ token, selectedSent }) => {
         fetchData();
     }, [token, filter, selectedSent]);
 
-    const wordTransitionProps = useSpring({
-        scale: highlightedWord ? 1.2 : 1,
-        config: { tension: 300, friction: 10 },
-    });
-
-    const handleMouseEnter = (word) => {
-        setHighlightedWord(word);
-    };
-
-    const handleMouseLeave = () => {
-        setHighlightedWord(null);
-    };
-
     const handleWordClick = (word) => {
-        setSelectedWord(word);
+        setSelectedWord(word.text);
     };
 
     const handleFilterChange = (event) => {
         setSelectedWord(null);
-        // setFilter(event.target.value);
+        setFilter(event.target.value);
+    };
+
+    const handleExportJpgClick = async () => {
+        if (chartRef.current) {
+            setLoading(true);
+
+            try {
+                const dataUrl = await domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff' });
+                const link = document.createElement('a');
+                link.download = 'wordcloud.jpg';
+                link.href = dataUrl;
+                link.click();
+                setLoading(false);
+
+                await axios.post('http://localhost:8080/graphics/report/log', {
+                    userName: user,
+                    graphicTitle: "Cloud Sentiment Word",
+                    type: "JPEG"
+                });
+            } catch (error) {
+                console.error('Error exporting chart JPEG:', error);
+                setError('Error exporting chart JPEG.');
+                setLoading(false);
+            }
+        } else {
+            setError('Chart data is incomplete or missing.');
+        }
+    };
+
+    const handleExportCsvClick = async () => {
+        if (data) {
+            try {
+                const csv = Papa.unparse(data);
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+                saveAs(blob, 'wordcloud.csv');
+
+                await axios.post('http://localhost:8080/graphics/report/log', {
+                    userName: user,
+                    graphicTitle: "Cloud Sentiment Word",
+                    type: "CSV"
+                });
+            } catch (error) {
+                console.error('Error exporting chart data:', error);
+                setError('Error exporting chart data.');
+            }
+        } else {
+            setError('No data available to export.');
+        }
     };
 
     return (
         <>
-            <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20 }}>Cloud Sentiment Word</Typography>
-            <div>
+            <Grid container alignItems="center" spacing={2}>
+                <Grid item xs={10}>
+                    <Typography variant="h5" style={{ fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: '12px', color: '#888888', marginLeft: "10px" }}>Cloud Sentiment Word</Typography>
+                </Grid>
+                <Grid item xs={0.7}>
+                    <FontAwesomeIcon icon={faFileCsv} onClick={handleExportCsvClick} style={{ cursor: 'pointer', color: '#888888', fontSize: '15px' }} />
+                </Grid>
+                <Grid item xs={0.7}>
+                    <FontAwesomeIcon icon={faFileImage} onClick={handleExportJpgClick} style={{ cursor: 'pointer', color: '#888888', fontSize: '15px' }} />
+                </Grid>
+            </Grid>
 
+            <div>
                 {loading && <p>Carregando...</p>}
                 {error && <p>{error}</p>}
                 {data && (
-                    <div style={{ width: "370px", height: "45px", marginLeft: "20px" }}>
-                        <TagCloud
-                            minSize={12}
-                            maxSize={35}
-                            tags={data
-                                .slice(0, 25)
-                                .map((item) => ({ value: item.word, count: Number(item.count) }))
-                            }
-                            onMouseEnter={(word) => handleMouseEnter(word)}
-                            onMouseLeave={() => handleMouseLeave()}
-                            onClick={(word) => handleWordClick(word)}
-                            renderer={(tag, size, color) => (
-                                <animated.span
-                                    key={tag.value}
-                                    style={{
-                                        cursor: "pointer",
-                                        fontSize: `${size}px`,
-                                        margin: "3px",
-                                        padding: "3px",
-                                        display: "inline-block",
-                                        color: highlightedWord === tag.value ? "red" : color,
-                                        transform: wordTransitionProps.scale.interpolate(scale => `scale(${scale})`),
-                                    }}
-                                >
-                                    {tag.value}
-                                </animated.span>
-                            )}
+                    <div style={{ maxWidth: "100%", height: "300px" }} ref={chartRef}>
+                        <ReactWordcloud
+                            options={{
+                                rotations: 2,
+                                rotationAngles: [-90, 0],
+                                colors: ['#06d6a0', '#ef476f', '#ffd166'],
+                                fontSizes: [22, 42],
+                            }}
+                            callbacks={{
+                                onWordClick: handleWordClick,
+                                onWordMouseOver: (word) => setHighlightedWord(word),
+                                onWordMouseOut: () => setHighlightedWord(null),
+                            }}
+                            words={data.slice(0, 25).map((item) => ({
+                                text: item.word,
+                                value: Number(item.count),
+                            }))}
                         />
-
                     </div>
                 )}
                 {selectedWord && (
@@ -111,4 +152,4 @@ const WorldGraphics = ({ token, selectedSent }) => {
     );
 };
 
-export default WorldGraphics;
+export default WordGraphics;

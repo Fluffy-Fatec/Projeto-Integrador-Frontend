@@ -1,131 +1,173 @@
-import Typography from '@mui/material/Typography';
+import { faFileCsv, faFileImage } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
-import { Chart } from "react-google-charts";
+import domToImage from "dom-to-image";
+import { saveAs } from "file-saver";
+import Papa from "papaparse";
+import React, { useEffect, useRef, useState } from "react";
+import Chart from "react-apexcharts";
 
 function App({ token, endDate, startDate, selectedSent, selectedState, selectedCountry, selectedDataSource }) {
-  const [chartData, setChartData] = useState([]);
+  const [chartOptions, setChartOptions] = useState({});
+  const [chartSeries, setChartSeries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  const fetchData = async () => {
-    try {
-      const formattedStartDate = new Date(startDate).toISOString().slice(0, -5) + 'Z';
-      const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
-
-      let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
-      
-      if (selectedSent !== '') {
-        url += `&sentimentoPredito=${selectedSent}`;
-      }
-
-      if (selectedState !== '') {
-        url += `&state=${selectedState}`;
-      }
-
-      if (selectedCountry !== '') {
-        url += `&country=${selectedCountry}`;
-      }
-
-      if (selectedDataSource !== '') {
-        url += `&datasource=${selectedDataSource}`;
-      }
-      
-      
-      const response = await axios.get(url);
-
-      const counts = {};
-
-      response.data.forEach(item => {
-        const weekNumber = getWeekNumber(new Date(item.reviewCreationDate));
-        if (!counts[weekNumber]) {
-          counts[weekNumber] = { 'Positive': 0, 'Negative': 0, 'Neutral': 0 };
-        }
-
-        if (item.sentimentoPredito === '2') {
-          counts[weekNumber]['Positive']++;
-        } else if (item.sentimentoPredito === '0') {
-          counts[weekNumber]['Negative']++;
-        } else if (item.sentimentoPredito === '1') {
-          counts[weekNumber]['Neutral']++;
-        }
-      });
-
-      const chartData = [['Week', 'Positive', 'Negative', 'Neutral']];
-      Object.keys(counts).forEach(weekNumber => {
-        chartData.push([`Week ${weekNumber}`, counts[weekNumber]['Positive'], counts[weekNumber]['Negative'], counts[weekNumber]['Neutral']]);
-      });
-
-      setChartData(chartData);
-      setLoading(false);
-    } catch (error) {
-      console.error('Erro ao buscar dados da API:', error);
-      setError('Erro ao buscar dados da API.');
-      setLoading(false);
-    }
-  };
-
-  const getWeekNumber = (date) => {
-    const oneJan = new Date(date.getFullYear(), 0, 1);
-    const millisecsInDay = 86400000;
-    return Math.ceil((((date - oneJan) / millisecsInDay) + oneJan.getDay() + 1) / 7);
-  };
+  const chartRef = useRef(null);
+  const [chartReady, setChartReady] = useState(false);
+  const user = localStorage.getItem('username');
 
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const formattedStartDate = new Date(startDate).toISOString().slice(0, -5) + 'Z';
+        const formattedEndDate = new Date(endDate).toISOString().slice(0, -5) + 'Z';
+
+        let url = `http://localhost:8080/graphics/listByDateRange?startDate=${encodeURIComponent(formattedStartDate)}&endDate=${encodeURIComponent(formattedEndDate)}`;
+
+        if (selectedSent) url += `&sentimentoPredito=${selectedSent}`;
+        if (selectedState) url += `&state=${selectedState}`;
+        if (selectedCountry) url += `&country=${selectedCountry}`;
+        if (selectedDataSource) url += `&datasource=${selectedDataSource}`;
+
+        const response = await axios.get(url);
+        const data = response.data;
+
+        const counts = {};
+        data.forEach(item => {
+          const monthYear = getMonthYear(new Date(item.reviewCreationDate));
+          if (!counts[monthYear]) {
+            counts[monthYear] = { 'Positive': 0, 'Negative': 0, 'Neutral': 0 };
+          }
+          if (item.sentimentoPredito === '2') counts[monthYear]['Positive']++;
+          if (item.sentimentoPredito === '0') counts[monthYear]['Negative']++;
+          if (item.sentimentoPredito === '1') counts[monthYear]['Neutral']++;
+        });
+
+        const categories = Object.keys(counts);
+        const series = Object.keys(counts[categories[0]]).map(sentiment => ({
+          name: sentiment,
+          data: categories.map(monthYear => counts[monthYear][sentiment])
+        }));
+
+        setChartOptions({
+          xaxis: {
+            categories: categories,
+            style: {
+              color: '#888888'
+            }
+          },
+          chart: {
+            background: 'transparent',
+            toolbar: {
+              show: false
+            }
+          },
+          legend: {
+            position: 'bottom',
+            offsetY: 5,
+            labels: {
+              color: '#888888',
+              useSeriesColors: false
+            }
+          },
+          title: {
+            style: {
+              fontSize: '12px',
+              fontWeight: 'bold',
+              fontFamily: 'Segoe UI',
+              color: '#888888',
+            },
+          },
+          colors: ['#06d6a0', '#ef476f', '#ffd166']
+        });
+
+        setChartSeries(series);
+        setChartReady(true);
+        setLoading(false);
+      } catch (error) {
+        console.error('Erro ao buscar dados da API:', error);
+        setError('Erro ao buscar dados da API.');
+        setLoading(false);
+      }
+    };
+
     if (token && startDate && endDate) {
       fetchData();
     } else {
       setError('Token de autenticação, startDate ou endDate não encontrados.');
       setLoading(false);
     }
-
   }, [token, startDate, endDate, selectedSent, selectedState, selectedCountry, selectedDataSource]);
 
-  const options = {
-    hAxis: {
-      title: "Time",
-      titleTextStyle: {
-        bold: true,
-        fontName: 'Segoe UI',
-        fontSize: 14,
-        color: '#808080',
-        italic: false
-      },
-      textStyle: {
-        fontName: 'Segoe UI',
-        fontSize: 12,
-        color: '#808080'
-      },
-    },
-    vAxis: {
-      title: "Comment Count",
-      minValue: 0,
-      titleTextStyle: {
-        bold: true,
-        fontName: 'Segoe UI',
-        fontSize: 14,
-        color: '#808080',
-        italic: false
-      },
-      textStyle: {
-        fontName: 'Segoe UI',
-        fontSize: 12,
-        color: '#808080'
-      },
-    },
-    chartArea: {
-      width: "65%",
-      height: "55%"
-    },
-    colors: ["#06d6a0", "#ef476f", "#ffd166"],
-    backgroundColor: 'transparent',
-    legend: {
-      position: 'bottom',
-      textStyle: {
-        fontName: 'Segoe UI',
-        fontSize: 12,
-        color: '#808080',
+  const getMonthYear = (date) => {
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+    return `${month}/${year}`;
+  };
+
+  const handleExportCsvClick = async () => {
+    try {
+      setLoading(true);
+
+      if (chartReady && chartSeries.length > 0 && chartOptions.xaxis && chartOptions.xaxis.categories) {
+        const csvData = [];
+        const headerRow = ['Date', 'Positive', 'Negative', 'Neutral']; // Cabeçalho CSV
+        csvData.push(headerRow);
+
+        chartOptions.xaxis.categories.forEach((category, index) => {
+          const rowData = [
+            category,
+            chartSeries[0].data[index], // Positive
+            chartSeries[1].data[index], // Negative
+            chartSeries[2].data[index]  // Neutral
+          ];
+          csvData.push(rowData);
+        });
+
+        console.log('CSV Data:', csvData);
+
+        const csv = Papa.unparse(csvData);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+        saveAs(blob, 'Sentiment_Over_Time.csv');
+
+        await axios.post('http://localhost:8080/graphics/report/log', {
+          userName: user,
+          graphicTitle: "Sentiment Over Time",
+          type: "CSV"
+        });
+      } else {
+        setError('Chart data is incomplete or missing.');
       }
+    } catch (error) {
+      console.error('Error exporting chart CSV:', error);
+      setError('Error exporting chart CSV.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  const handleExportJpgClick = async () => {
+    try {
+      if (chartRef.current) {
+        const dataUrl = await domToImage.toJpeg(chartRef.current.firstChild, { quality: 0.95, bgcolor: '#ffffff' });
+        const link = document.createElement('a');
+        link.download = 'Sentiment Over Time.jpg';
+        link.href = dataUrl;
+        link.click();
+        await axios.post('http://localhost:8080/graphics/report/log', {
+          userName: user,
+          graphicTitle: "Sentiment Over Time",
+          type: "JPEG"
+        });
+      } else {
+        setError('Chart data is incomplete or missing.');
+      }
+    } catch (error) {
+      console.error('Error exporting chart JPEG:', error);
+      setError('Error exporting chart JPEG.');
     }
   };
 
@@ -139,15 +181,32 @@ function App({ token, endDate, startDate, selectedSent, selectedState, selectedC
 
   return (
     <>
-      <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20 }}>Sentiment Over Time</Typography>
-      <Chart
-        chartType="AreaChart"
-        width="100%"
-        height="100%"
-        style={{ marginTop: '-75px' }}
-        data={chartData}
-        options={options}
-      />
+      {chartReady && (
+        <>
+          <Grid container alignItems="center" spacing={2}>
+            <Grid item xs={10}>
+              <Typography variant="h5" style={{ fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: '12px', color: '#888888', marginLeft: "10px" }}>
+                Sentiment Over Time
+              </Typography>
+            </Grid>
+            <Grid item xs={0.7}>
+              <FontAwesomeIcon icon={faFileCsv} onClick={handleExportCsvClick} style={{ cursor: 'pointer', color: '#888888', fontSize: '15px' }} />
+            </Grid>
+            <Grid item xs={0.7}>
+              <FontAwesomeIcon icon={faFileImage} onClick={handleExportJpgClick} style={{ cursor: 'pointer', color: '#888888', fontSize: '15px' }} />
+            </Grid>
+          </Grid>
+          <div ref={chartRef}>
+            <Chart
+              options={chartOptions}
+              series={chartSeries}
+              type="area"
+              width="100%"
+              height="350"
+            />
+          </div>
+        </>
+      )}
     </>
   );
 }

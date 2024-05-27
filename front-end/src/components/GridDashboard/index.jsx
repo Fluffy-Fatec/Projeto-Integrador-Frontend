@@ -1,9 +1,13 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { CircularProgress, Divider, FormControl, Grid, Paper, Select, TextField } from '@mui/material';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import FmdGoodIcon from '@mui/icons-material/FmdGood';
+import PublicIcon from '@mui/icons-material/Public';
+import SearchOffRoundedIcon from '@mui/icons-material/SearchOffRounded';
+import { CircularProgress, Divider, FormControl, Grid, IconButton, Paper, Select, TextField } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import React, { useCallback, useEffect, useState } from 'react';
 import CloudWordNegative from '../CloudWordNegative';
 import GeographicGraph from '../GeographicGraph';
 import GraphicArea from '../GraphicArea';
@@ -11,13 +15,8 @@ import GraphicBarDate from '../GraphicBarDate';
 import GraphicBarPercentage from '../GraphicBarPercentage';
 import GraphicBarScore from '../GraphicBarScore';
 import GraphicPie from '../GraphicPie';
-import TableReview from '../Tablereview';
 import HeatMap from '../HeatMap';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import FmdGoodIcon from '@mui/icons-material/FmdGood';
-import PublicIcon from '@mui/icons-material/Public';
-import { Button, IconButton } from '@mui/material';
-import SearchOffRoundedIcon from '@mui/icons-material/SearchOffRounded';
+import Treemap from '../Treemap';
 
 const GridDashboard = ({ darkMode, token }) => {
   const [startDate, setStartDate] = useState(dayjs().year(2023).startOf('year').toISOString());
@@ -38,15 +37,13 @@ const GridDashboard = ({ darkMode, token }) => {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [dataSourceResponse, countriesResponse, statesResponse] = await Promise.all([
+      const [dataSourceResponse, countriesResponse] = await Promise.all([
         axios.get('http://localhost:8080/graphics/datasource', { headers: { 'Authorization': `Bearer ${token}` } }),
-        axios.get('http://localhost:8080/graphics/countries', { headers: { 'Authorization': `Bearer ${token}` } }),
-        axios.get('http://localhost:8080/graphics/states', { headers: { 'Authorization': `Bearer ${token}` } })
+        axios.get('http://localhost:8080/graphics/countries', { headers: { 'Authorization': `Bearer ${token}` } })
       ]);
 
       setDataSourceOptions(dataSourceResponse.data);
       setCountries(countriesResponse.data);
-      setStates(statesResponse.data);
     } catch (error) {
       console.error('Error fetching data:', error);
       setError(error.message);
@@ -58,6 +55,19 @@ const GridDashboard = ({ darkMode, token }) => {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  const fetchStates = useCallback(async (country) => {
+    setLoading(true);
+    try {
+      const statesResponse = await axios.get(`http://localhost:8080/graphics/states?country=${country}`, { headers: { 'Authorization': `Bearer ${token}` } });
+      setStates(statesResponse.data);
+    } catch (error) {
+      console.error('Error fetching states:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
 
   const fetchDataByFilters = useCallback(async () => {
     setLoading(true);
@@ -82,7 +92,7 @@ const GridDashboard = ({ darkMode, token }) => {
 
       const response = await axios.get(url);
       setDataFromApi(response.data);
-      
+
     } catch (error) {
       console.error('Error fetching data:', error);
       setError(error.message);
@@ -120,7 +130,14 @@ const GridDashboard = ({ darkMode, token }) => {
   };
 
   const handleStateChange = (event) => {
-    setSelectedState(event.target.value);
+    const selectedValue = event.target.value;
+
+    if (!selectedCountry) {
+      alert("Por favor, selecione um país primeiro!");
+      return;
+    }
+
+    setSelectedState(selectedValue);
   };
 
   const handleDataSourceChange = (event) => {
@@ -128,12 +145,13 @@ const GridDashboard = ({ darkMode, token }) => {
   };
 
   const handleCountryChange = (event) => {
-    setSelectedCountry(event.target.value);
-  };
-
-  const handleSelectChange = (event) => {
-    setSelectedCountry('');
-    handleCountryChange(event);
+    const country = event.target.value;
+    setSelectedCountry(country);
+    if (country) {
+      fetchStates(country);
+    } else {
+      setStates([]);
+    }
   };
 
   const handleClearFilters = () => {
@@ -141,6 +159,7 @@ const GridDashboard = ({ darkMode, token }) => {
     setSelectedState('');
     setSelectedDataSource('');
     setSelectedCountry('');
+    setStates([]);
   };
 
   return (
@@ -152,6 +171,7 @@ const GridDashboard = ({ darkMode, token }) => {
           type="date"
           value={startInput}
           onChange={handleStartInputChange}
+          color='success'
           InputLabelProps={{
             shrink: true,
           }}
@@ -163,6 +183,7 @@ const GridDashboard = ({ darkMode, token }) => {
           type="date"
           value={endInput}
           onChange={handleEndInputChange}
+          color='success'
           InputLabelProps={{
             shrink: true,
           }}
@@ -193,7 +214,7 @@ const GridDashboard = ({ darkMode, token }) => {
           <Select
             native
             value={selectedCountry}
-            onChange={handleSelectChange}
+            onChange={handleCountryChange}
             variant="outlined"
             color='success'
             fullWidth
@@ -223,6 +244,7 @@ const GridDashboard = ({ darkMode, token }) => {
               id: 'State',
               style: { paddingLeft: '40px', paddingRight: '30px' }
             }}
+            disabled={!selectedCountry}
           >
             <option aria-label="All State" value="">All State</option>
             {states.map(state => (
@@ -252,7 +274,7 @@ const GridDashboard = ({ darkMode, token }) => {
         </FormControl>
         <IconButton
           onClick={handleClearFilters}
-          style={{ marginTop: '10px', width: '40px', marginLeft:'10px' }}
+          style={{ marginTop: '10px', width: '40px', marginLeft: '10px' }}
           color="error"
         >
           <SearchOffRoundedIcon />
@@ -267,48 +289,48 @@ const GridDashboard = ({ darkMode, token }) => {
       {!loading && !error && (
         <Grid container spacing={3} style={{ marginTop: '5px' }}>
           <Grid item xs={12} sm={4}>
-            <Paper style={{ height: 550 }}>
-            <HeatMap  token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} data={dataFromApi} selectedCountry={selectedCountry} selectedDataSource={selectedDataSource} />
+            <Paper style={{ height: 400 }}>
+              <HeatMap token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} data={dataFromApi} selectedCountry={selectedCountry} selectedDataSource={selectedDataSource} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <Paper style={{ height: 550 }}>
-              <TableReview token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} data={dataFromApi} selectedCountry={selectedCountry} selectedDataSource={selectedDataSource} />
+            <Paper style={{ height: 400 }}>
+              <Treemap token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} data={dataFromApi} selectedCountry={selectedCountry} selectedDataSource={selectedDataSource} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <Paper style={{ height: 550 }}>
-            <GraphicBarPercentage token={token} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} selectedDataSource={selectedDataSource} />
-            </Paper>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Paper style={{ height: 350 }}>
-              <GraphicPie token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} selectedState={selectedState} selectedCountry={selectedCountry} selectedDataSource={selectedDataSource} />
-            </Paper>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Paper style={{ height: 350 }}>
-              <GraphicBarScore token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} selectedState={selectedState} selectedCountry={selectedCountry} selectedDataSource={selectedDataSource} />
-            </Paper>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Paper style={{ height: 350 }}>
+            <Paper style={{ height: 400 }}>
               <GraphicArea darkMode={darkMode} token={token} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} selectedState={selectedState} selectedCountry={selectedCountry} selectedDataSource={selectedDataSource} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <Paper style={{ height: 350 }}>
+            <Paper style={{ height: 400 }}>
+              <GraphicPie token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} selectedState={selectedState} selectedCountry={selectedCountry} selectedDataSource={selectedDataSource} />
+            </Paper>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <Paper style={{ height: 400 }}>
+              <GraphicBarScore token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} selectedState={selectedState} selectedCountry={selectedCountry} selectedDataSource={selectedDataSource} />
+            </Paper>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <Paper style={{ height: 400 }}>
+              <GraphicBarPercentage token={token} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} selectedDataSource={selectedDataSource} />
+            </Paper>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <Paper style={{ height: 400 }}>
               <GraphicBarDate token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} selectedDataSource={selectedDataSource} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <Paper style={{ height: 350 }}>
+            <Paper style={{ height: 400 }}>
               <CloudWordNegative token={token} darkMode={darkMode} startDate={startDate} endDate={endDate} data={dataFromApi} selectedSent={selectedSent} selectedState={selectedState} selectedDataSource={selectedDataSource} />
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <Paper style={{ height: 350 }}>
-            <GeographicGraph token={token} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} data={dataFromApi} selectedCountry={selectedCountry} selectedDataSource={selectedDataSource} />
+            <Paper style={{ height: 400 }}>
+              <GeographicGraph token={token} startDate={startDate} endDate={endDate} selectedSent={selectedSent} selectedState={selectedState} data={dataFromApi} selectedCountry={selectedCountry} selectedDataSource={selectedDataSource} />
             </Paper>
           </Grid>
         </Grid>

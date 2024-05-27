@@ -1,13 +1,20 @@
-import Typography from '@mui/material/Typography';
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
-
-import { Chart } from 'react-google-charts';
+import { faFileCsv, faFileImage } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import axios from "axios";
+import domToImage from "dom-to-image";
+import { saveAs } from "file-saver";
+import Papa from "papaparse";
+import React, { useEffect, useRef, useState } from "react";
+import Chart from "react-apexcharts";
 
 export function App({ token, startDate, endDate, selectedSent, selectedDataSource }) {
-  const [chartData, setChartData] = useState([]);
+  const [chartData, setChartData] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const chartRef = useRef(null);
+  const user = localStorage.getItem('username');
 
   const fetchData = async () => {
     try {
@@ -23,52 +30,26 @@ export function App({ token, startDate, endDate, selectedSent, selectedDataSourc
         url += `&datasource=${selectedDataSource}`;
       }
 
-
       const response = await axios.get(url);
-      const stateCounts = {};
-      response.data.forEach(item => {
-        const state = item.geolocationState;
-        stateCounts[state] = (stateCounts[state] || 0) + 1;
-      });
 
-      const topStates = Object.keys(stateCounts)
-        .sort((a, b) => stateCounts[b] - stateCounts[a])
-        .slice(0, 5);
-
-      const groupedData = {};
+      const originCounts = {};
       response.data.forEach(item => {
-        const state = item.geolocationState;
-        if (topStates.includes(state)) {
-          const date = new Date(item.reviewCreationDate);
-          const week = getWeekNumber(date);
-          const year = date.getFullYear();
-          const weekKey = `${year}-W${week}`;
-          if (!groupedData[weekKey]) {
-            groupedData[weekKey] = {};
-            topStates.forEach(state => {
-              groupedData[weekKey][state] = 0;
-            });
-          }
-          groupedData[weekKey][state]++;
+        const origin = item.origin;
+        if (!originCounts[origin]) {
+          originCounts[origin] = { positive: 0, negative: 0, neutral: 0 };
+        }
+
+        const sentiment = item.sentimentoPredito;
+        if (sentiment === '2') {
+          originCounts[origin].positive++;
+        } else if (sentiment === '0') {
+          originCounts[origin].negative++;
+        } else if (sentiment === '1') {
+          originCounts[origin].neutral++;
         }
       });
 
-      const sortedWeeks = Object.keys(groupedData).sort((a, b) => {
-        const [aYear, aWeek] = a.split('-W').map(Number);
-        const [bYear, bWeek] = b.split('-W').map(Number);
-        if (aYear !== bYear) {
-          return aYear - bYear;
-        } else {
-          return aWeek - bWeek;
-        }
-      });
-
-      const chartData = [['Week', ...topStates]];
-      sortedWeeks.forEach(week => {
-        chartData.push([week, ...topStates.map(state => groupedData[week][state])]);
-      });
-
-      setChartData(chartData);
+      setChartData(originCounts);
       setLoading(false);
     } catch (error) {
       console.error('Erro ao buscar dados da API:', error);
@@ -86,59 +67,106 @@ export function App({ token, startDate, endDate, selectedSent, selectedDataSourc
     }
   }, [token, startDate, endDate, selectedSent, selectedDataSource]);
 
-  const options = {
-    chartArea: {
-      width: "65%",
-      height: "55%"
-    },
-    isStacked: false,
-    hAxis: {
-      title: "Week",
-      titleTextStyle: {
-        bold: true,
-        fontName: 'Segoe UI',
-        fontSize: 14,
-        color: '#808080',
-        italic: false
-      },
-      textStyle: {
-        fontName: 'Segoe UI',
-        fontSize: 12,
-        color: '#808080'
+
+  const handleExportJpgClick = async () => {
+    if (chartRef.current) {
+      try {
+        const dataUrl = await domToImage.toJpeg(chartRef.current, { quality: 0.95, bgcolor: '#ffffff' });
+        const link = document.createElement('a');
+        link.download = 'Sentiment Classification by Source.jpg';
+        link.href = dataUrl;
+        link.click();
+
+        await axios.post('http://localhost:8080/graphics/report/log', {
+          userName: user,
+          graphicTitle: "Sentiment Classification by Source",
+          type: "JPEG"
+        });
+      } catch (error) {
+        console.error('Error logging chart JPEG export:', error);
+        setError('Error logging chart JPEG export.');
       }
-    },
-    vAxis: {
-      title: "Comment Count",
-      minValue: 0,
-      titleTextStyle: {
-        bold: true,
-        fontName: 'Segoe UI',
-        fontSize: 14,
-        color: '#808080',
-        italic: false,
-        textStyle: {
-          fontName: 'Segoe UI',
-          fontSize: 12,
-          color: '#808080'
-        },
-      },
-    },
-    legend: {
-      position: 'bottom',
-      textStyle: {
-        fontName: 'Segoe UI',
-        fontSize: 12,
-        color: '#808080',
-      }
-    },
-    backgroundColor: 'transparent',
-    colors: ["#3C5AB7", "#F25774", "#11BF4E", "#FF7131", "#6D83C9"],
+    } else {
+      setError('No chart reference found.');
+    }
   };
 
-  const getWeekNumber = (date) => {
-    const onejan = new Date(date.getFullYear(), 0, 1);
-    const millisecsInDay = 86400000;
-    return Math.ceil((((date - onejan) / millisecsInDay) + onejan.getDay() + 1) / 7);
+  const handleExportCsvClick = async () => {
+    if (chartData) {
+      const data = Object.entries(chartData).map(([origin, counts]) => ({
+        origin,
+        positive: counts.positive,
+        negative: counts.negative,
+        neutral: counts.neutral
+      }));
+
+      const csv = Papa.unparse(data);
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+      saveAs(blob, 'Sentiment Classification by Source.csv');
+
+      try {
+        await axios.post('http://localhost:8080/graphics/report/log', {
+          userName: user,
+          graphicTitle: "Sentiment Classification by Source",
+          type: "CSV"
+        });
+      } catch (error) {
+        console.error('Error logging chart CSV export:', error);
+        setError('Error logging chart CSV export.');
+      }
+    } else {
+      setError('Chart data is incomplete or missing.');
+    }
+  };
+
+  const options = {
+    chart: {
+      type: 'bar',
+      height: 350,
+      toolbar: {
+        show: false
+      }
+    },
+    plotOptions: {
+      bar: {
+        horizontal: true,
+        columnWidth: '55%',
+        endingShape: 'rounded'
+      },
+    },
+    colors: ['#06d6a0', '#ef476f', '#ffd166'],
+    dataLabels: {
+      enabled: false
+    },
+    grid: {
+      borderColor: '#f1f1f1',
+    },
+    yaxis: {
+      title: {
+        text: '',
+        style: {
+          color: '#888888'
+        }
+      }
+    },
+    xaxis: {
+      categories: ['Positivo', 'Negativo', 'Neutro'],
+    },
+    tooltip: {
+      y: {
+        formatter: function (val) {
+          return val.toFixed(0);
+        }
+      }
+    },
+    title: {
+      style: {
+        fontSize: '12px',
+        fontWeight: 'bold',
+        fontFamily: 'Segoe UI',
+        color: '#888888',
+      },
+    },
   };
 
   if (loading) {
@@ -151,15 +179,28 @@ export function App({ token, startDate, endDate, selectedSent, selectedDataSourc
 
   return (
     <>
-      <Typography variant="h5" style={{ padding: '20px', fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: 20 }}>Sentiment Over Time by State</Typography>
-      <Chart
-        chartType="Histogram"
-        width="100%"
-        height="100%"
-        style={{ marginTop: '-75px' }}
-        data={chartData}
-        options={options}
-      />
+      <Grid container alignItems="center" spacing={2}>
+        <Grid item xs={10}>
+          <Typography variant="h5" style={{ fontWeight: 'bold', fontFamily: 'Segoe UI', fontSize: '12px', color: '#888888', marginLeft: "10px" }}>Sentiment Classification by Source</Typography>
+        </Grid>
+        <Grid item xs={0.7}>
+          <FontAwesomeIcon icon={faFileCsv} onClick={handleExportCsvClick} style={{ cursor: 'pointer', color: '#888888', fontSize: '15px' }} />
+        </Grid>
+        <Grid item xs={0.7}>
+          <FontAwesomeIcon icon={faFileImage} onClick={handleExportJpgClick} style={{ cursor: 'pointer', color: '#888888', fontSize: '15px' }} />
+        </Grid>
+      </Grid>
+      <div ref={chartRef}>
+        <Chart
+          options={options}
+          series={Object.entries(chartData).map(([origin, counts]) => ({
+            name: origin,
+            data: [counts.positive, counts.negative, counts.neutral]
+          }))}
+          type="bar"
+          height={350}
+        />
+      </div>
     </>
   );
 }
