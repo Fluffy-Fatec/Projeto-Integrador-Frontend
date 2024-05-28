@@ -87,6 +87,24 @@ export default function SignIn() {
             console.error('Error accepting terms or functions:', error);
         }
     };
+    const handleRejected = async () => {
+        try {
+            const acceptedFunctions = Object.keys(isChecked).filter(funcId => isChecked[funcId]);
+            const functionIds = acceptedFunctions.map(id => parseInt(id));
+
+
+            const functionResponse = await axios.post('http://localhost:8080/term/function/accept', {
+                username: storedUsername,
+                functionId: functionIds,
+                termAccepted: 'rejected'
+            });
+            console.log('Functions accepted successfully!');
+
+            navigate('/');
+        } catch (error) {
+            console.error('Error accepting terms or functions:', error);
+        }
+    };
 
     return (
         <ThemeProvider theme={defaultTheme}>
@@ -128,17 +146,34 @@ export default function SignIn() {
                                 </Grid>
                             ))}
                             <br />
-                            <Button onClick={handleAccept}
-                                style={{
-                                    borderRadius: 5,
-                                    marginTop: 3,
-                                    marginBottom: 2,
-                                    width: '100%',
-                                    marginLeft: 'auto',
-                                    background: "#11BF4E"
-                                }}
-                                variant="contained"
-                            >Submit</Button>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', width: '90%', margin: 'auto' }}>
+                                <Button onClick={handleAccept}
+                                    style={{
+                                        borderRadius: 5,
+                                        marginTop: 3,
+                                        marginBottom: 2,
+                                        width: '45%',
+                                        background: "#11BF4E"
+                                    }}
+                                    variant="contained"
+                                >
+                                    Submit
+                                </Button>
+                                <div style={{ width: '10%' }}></div> {/* Espaço entre os botões */}
+                                <Button onClick={handleRejected}
+                                    style={{
+                                        borderRadius: 5,
+                                        marginTop: 3,
+                                        marginBottom: 2,
+                                        width: '45%',
+                                        background: "#ef476f"
+                                    }}
+                                    variant="contained"
+                                >
+                                    Rejected
+                                </Button>
+                            </div>
+
                         </CardContent>
                     </Card>
                 </Box>
