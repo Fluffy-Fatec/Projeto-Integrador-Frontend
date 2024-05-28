@@ -63,6 +63,10 @@ function App({ token, endDate, startDate, selectedDataSource }) {
           stateData[state].total++;
         });
 
+        const sortedStates = Object.keys(stateData).sort((a, b) => {
+          return stateData[b].total - stateData[a].total;
+        }).slice(0,25 );
+
         const chartData = [];
         const chartSeriesData = [
           { name: 'Positive', data: [] },
@@ -70,7 +74,7 @@ function App({ token, endDate, startDate, selectedDataSource }) {
           { name: 'Neutral', data: [] }
         ];
 
-        for (const state in stateData) {
+        sortedStates.forEach(state => {
           const { positives, negatives, neutrals, total } = stateData[state];
           const positivePercentage = (positives / total) * 100;
           const negativePercentage = (negatives / total) * 100;
@@ -79,7 +83,7 @@ function App({ token, endDate, startDate, selectedDataSource }) {
           chartSeriesData[0].data.push(positivePercentage);
           chartSeriesData[1].data.push(negativePercentage);
           chartSeriesData[2].data.push(neutralPercentage);
-        }
+        });
 
         setChartOptions({
           chart: {

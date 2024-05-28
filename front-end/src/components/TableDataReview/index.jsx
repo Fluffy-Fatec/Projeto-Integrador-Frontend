@@ -32,6 +32,7 @@ function EnhancedTable({ token, dataSource }) {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [buttonVisibility, setButtonVisibility] = useState({});
+  const user = localStorage.getItem('username');
 
   useEffect(() => {
     if (token && dataSource) {
@@ -139,7 +140,7 @@ function EnhancedTable({ token, dataSource }) {
     }
   };
 
-  const handleExportCSV = () => {
+  const handleExportCSV = async () => {
     const sanitizedRows = rows.map(row => {
       const sanitizedRow = {};
       for (const key in row) {
@@ -153,7 +154,7 @@ function EnhancedTable({ token, dataSource }) {
       }
       return sanitizedRow;
     });
-
+  
     const csv = Papa.unparse(sanitizedRows);
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
@@ -163,7 +164,19 @@ function EnhancedTable({ token, dataSource }) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  
+    try {
+      await axios.post('http://localhost:8080/graphics/report/log', {
+        userName: user,
+        graphicTitle: dataSource,
+        type: "CSV"
+      });
+      console.log("Registro de log enviado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao enviar registro de log:", error);
+    }
   };
+  
 
   const handleClose = () => {
     setOpen(false);

@@ -68,7 +68,15 @@ function ApexChart({ startDate, endDate, selectedState, selectedCountry, selecte
           Neutral: countsByState[state]['Neutral']
         }));
 
-        setChartData(chartData);
+        const sortedChartData = chartData.sort((a, b) => {
+          const totalA = a.Positive + a.Negative + a.Neutral;
+          const totalB = b.Positive + b.Negative + b.Neutral;
+          return totalB - totalA;
+        });
+
+        const top15States = sortedChartData.slice(0, 25);
+
+        setChartData(top15States);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching data from API:', error);
