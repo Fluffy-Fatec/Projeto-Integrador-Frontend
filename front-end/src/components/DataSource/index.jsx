@@ -13,6 +13,19 @@ const Item = styled(Paper)(({ theme, darkMode }) => ({
   overflowY: 'auto',
 }));
 
+const CustomButton = styled(Button)(({ darkMode }) => ({
+  marginBottom: '10px',
+  backgroundColor: 'transparent', // Fundo transparente
+  color: '#299D00', // Cor do texto e do ícone
+  justifyContent: 'flex-start',
+  width: 'auto',
+  fontWeight: 'bold', // Fonte em negrito
+  '&:hover': {
+    backgroundColor: '#EAEAEA', // Cor de fundo ao passar o mouse
+    borderRadius: '10px', // Border-radius ao passar o mouse
+  },
+}));
+
 const CustomComponent = ({ darkMode, token }) => {
   const [activeTable, setActiveTable] = useState('');
   const [dataSourceOptions, setDataSourceOptions] = useState([]);
@@ -49,6 +62,9 @@ const CustomComponent = ({ darkMode, token }) => {
     <Box sx={{ flexGrow: 1, minHeight: '100%' }}>
       <Grid container style={{ minHeight: '100%' }}>
         <Grid item xs={12} sm={3} style={{ marginTop: '60px', maxWidth: '100%', flexBasis: '250px', backgroundColor: darkMode ? '#111' : '#FFF', padding: '20px', borderRight: '1px solid #ccc' }}>
+          <CustomButton darkMode={darkMode}>
+            + New
+          </CustomButton>
           {loading ? (
             <p>Loading...</p>
           ) : error ? (
