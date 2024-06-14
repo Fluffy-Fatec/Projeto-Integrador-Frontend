@@ -19,14 +19,14 @@ const Item = styled(Paper)(({ theme, darkMode }) => ({
 
 const CustomButton = styled(Button)(({ darkMode }) => ({
   marginBottom: '10px',
-  backgroundColor: 'transparent', // Fundo transparente
-  color: '#299D00', // Cor do texto e do ícone
+  backgroundColor: 'transparent',
+  color: '#299D00',
   justifyContent: 'flex-start',
   width: 'auto',
-  fontWeight: 'bold', // Fonte em negrito
+  fontWeight: 'bold',
   '&:hover': {
-    backgroundColor: '#EAEAEA', // Cor de fundo ao passar o mouse
-    borderRadius: '10px', // Border-radius ao passar o mouse
+    backgroundColor: '#EAEAEA',
+    borderRadius: '10px',
   },
 }));
 
@@ -41,12 +41,25 @@ const CustomComponent = ({ darkMode, token }) => {
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
     setOpen(false);
-    setSelectedFile(null); // Reiniciar o estado do arquivo selecionado
+    setSelectedFile(null);
   };
-  const handleSave = () => {
+
+  const handleSave = async () => {
     if (selectedFile) {
-      // Adicione aqui a lógica para salvar o arquivo
-      console.log('File selected for upload:', selectedFile);
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+
+      try {
+        const response = await axios.post('http://localhost:8080/graphics/upload', formData, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        console.log('File uploaded successfully:', response.data);
+      } catch (error) {
+        console.error('Error uploading file:', error);
+      }
     }
     handleClose();
   };
@@ -57,8 +70,8 @@ const CustomComponent = ({ darkMode, token }) => {
       try {
         const response = await axios.get('http://localhost:8080/graphics/datasource', {
           headers: {
-            'Authorization': `Bearer ${token}`
-          }
+            'Authorization': `Bearer ${token}`,
+          },
         });
         console.log('Data from API:', response.data);
         setDataSourceOptions(response.data);
@@ -94,9 +107,9 @@ const CustomComponent = ({ darkMode, token }) => {
   });
 
   return (
-    <Box sx={{ flexGrow: 1, minHeight: '100%' }}>
-      <Grid container style={{ minHeight: '100%' }}>
-        <Grid item xs={12} sm={3} style={{ marginTop: '60px', maxWidth: '100%', flexBasis: '250px', backgroundColor: darkMode ? '#111' : '#FFF', padding: '20px', borderRight: '1px solid #ccc' }}>
+<Box sx={{ flexGrow: 1, minHeight: '100vh' }}>
+      <Grid container style={{ minHeight: '100vh' }}>
+        <Grid item xs={12} sm={3} style={{ marginTop: '64px', maxWidth: '100%', flexBasis: '250px', backgroundColor: darkMode ? '#111' : '#FFF', padding: '20px', borderRight: '1px solid #ccc' }}>
           <CustomButton darkMode={darkMode} onClick={handleOpen}>
             + New
           </CustomButton>

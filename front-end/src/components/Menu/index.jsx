@@ -42,6 +42,7 @@ import AppDataSource from '../DataSource';
 import GridDashboard from '../GridDashboard';
 import GridManageAccounts from '../GridManageAccounts';
 import UserUpdateGrid from '../UserUpdateGrid';
+
 const drawerWidth = 240;
 
 const openedMixin = (theme) => ({
@@ -465,8 +466,13 @@ export default function Menu() {
                         {menuItems.slice(0, 4).map((text, index) => (
                             <ListItem key={text} disablePadding>
                                 <ListItemButton
-                                    onClick={() => handleItemClick(index)}
-                                    disabled={text === 'Documentation'} // Desabilita os itens 'Data Source', 'Monitoring' e 'Documentation'
+                                    onClick={() => {
+                                        handleItemClick(index);
+                                        if (text === 'Data Source') {
+                                            handleDrawerClose();
+                                        }
+                                    }}
+                                    disabled={text === 'Documentation'}
                                     sx={{
                                         height: '40px',
                                         borderRadius: clickedIndex === index ? '20px' : '0',
