@@ -42,6 +42,8 @@ import AppDataSource from '../DataSource';
 import GridDashboard from '../GridDashboard';
 import GridManageAccounts from '../GridManageAccounts';
 import UserUpdateGrid from '../UserUpdateGrid';
+import Tab from '../Tab';
+
 const drawerWidth = 240;
 
 const openedMixin = (theme) => ({
@@ -466,7 +468,7 @@ export default function Menu() {
                             <ListItem key={text} disablePadding>
                                 <ListItemButton
                                     onClick={() => handleItemClick(index)}
-                                    disabled={text === 'Documentation'} // Desabilita os itens 'Data Source', 'Monitoring' e 'Documentation'
+                                    disabled={text === 'Documentation'}
                                     sx={{
                                         height: '40px',
                                         borderRadius: clickedIndex === index ? '20px' : '0',
@@ -505,7 +507,6 @@ export default function Menu() {
                         <ListItem key={text} disablePadding>
                             <ListItemButton
                                 onClick={() => handleItemClick(index + 4)}
-                                disabled={text === 'Monitoring'} // Desabilita os itens 'Data Source', 'Monitoring' e 'Documentation'
                                 sx={{
                                     height: '40px',
                                     borderRadius: clickedIndex === index + 4 ? '10px' : '0',
@@ -594,6 +595,8 @@ export default function Menu() {
                     {clickedIndex === 0 && <AppDataSource darkMode={darkMode} token={token} theme={theme} />}
                     {clickedIndex === 1 && <GridDashboard darkMode={darkMode} token={token} theme={theme} />}
                     {clickedIndex === 3 && <UserUpdateGrid darkMode={darkMode} token={token} theme={theme} />}
+                    {isAdmin && clickedIndex === 4 && <Tab token={token} darkMode={darkMode} theme={theme} />}
+
                     {isAdmin && clickedIndex === 5 && <GridManageAccounts token={token} darkMode={darkMode} theme={theme} />}
                 </Box>
                 <IconButton
