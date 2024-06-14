@@ -119,20 +119,19 @@ const GridMonitoring = ({ token }) => {
                     <Grid container spacing={3}>
                         <Grid item xs={12} sm={4}>
                             <Typography variant={isMobile ? "h6" : "h4"}>
-                                {renderData(accuracy?.iaScore) !== '-' ? `${renderData(accuracy?.iaScore)}%` : '-'}
+                                {loading ? <CircularProgress /> : (renderData(accuracy?.iaScore) !== '-' ? `${renderData(accuracy?.iaScore)}%` : '-')}
                             </Typography>
-
                             <Typography>Accuracy</Typography>
                         </Grid>
                         <Grid item xs={12} sm={4}>
                             <Typography variant={isMobile ? "h6" : "h4"}>
-                                {renderData(accuracy?.idQuantitySentiment)}
+                                {loading ? <CircularProgress /> : renderData(accuracy?.idQuantitySentiment)}
                             </Typography>
                             <Typography>Quantity Sentimental</Typography>
                         </Grid>
                         <Grid item xs={12} sm={4}>
                             <Typography variant={isMobile ? "h6" : "h4"}>
-                                {renderData(review)}
+                                {loading ? <CircularProgress /> : renderData(review)}
                             </Typography>
                             <Typography>AI Reviews</Typography>
                         </Grid>
@@ -161,8 +160,8 @@ const GridMonitoring = ({ token }) => {
             </Grid>
             {dateAccuracy && (
                 <Grid item xs={12}>
-                    <Typography>Data de Deploy do AI: {dateAccuracy}</Typography>
-                </Grid>
+                    <Typography>AI Deployment Date: {dateAccuracy}</Typography>
+                    </Grid>
             )}
         </Grid>
     );

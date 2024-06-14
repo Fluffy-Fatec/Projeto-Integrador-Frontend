@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { AppBar, Box, Tab, Tabs, Typography, useTheme, Grid, Paper } from '@mui/material';
 import SwipeableViews from 'react-swipeable-views';
 import Monitoring from '../Monitoring';
+import Log from '../Log';
 
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -74,8 +75,7 @@ export default function FullWidthTabs({ token }) {
                 <TabPanel value={value} index={1} dir={theme.direction}>
                     <Grid container spacing={1} >
                         <Grid item xs={12} sm={12} >
-                            <Paper style={{ height: "80%", padding: 20 }}>
-                            </Paper>
+                            <Log  token={token}/>
                         </Grid>
                     </Grid>
                 </TabPanel>
