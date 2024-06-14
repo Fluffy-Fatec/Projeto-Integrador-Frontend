@@ -29,7 +29,7 @@ function DataTable({ token }) {
         creationDate: new Date(item.creationDate).toLocaleString()
       }));
 
-      // Reversing the order of rows to show latest items first
+     
       setRows(formattedRows.reverse());
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -42,12 +42,12 @@ function DataTable({ token }) {
 
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0); // Reset to first page when changing rows per page
+    setPage(0); 
   };
 
   return (
-    <Paper style={{ height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column', margin: 0, padding: 0, boxSizing: 'border-box' }}>
-      <TableContainer style={{ flex: 1, overflow: 'hidden' }}>
+    <Paper style={{width: '85vw', display: 'flex', flexDirection: 'column' }}>
+      <TableContainer style={{ flex: 1 }}>
         <Table stickyHeader>
           <TableHead>
             <TableRow>
