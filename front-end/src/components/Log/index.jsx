@@ -46,7 +46,7 @@ function DataTable({ token }) {
   };
 
   return (
-    <Paper style={{width: '85vw', display: 'flex', flexDirection: 'column' }}>
+    <Paper style={{width: '74vw', display: 'flex', flexDirection: 'column' }}>
       <TableContainer style={{ flex: 1 }}>
         <Table stickyHeader>
           <TableHead>

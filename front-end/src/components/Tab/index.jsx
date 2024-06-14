@@ -75,7 +75,7 @@ export default function FullWidthTabs({ token }) {
                 <TabPanel value={value} index={1} dir={theme.direction}>
                     <Grid container spacing={1} >
                         <Grid item xs={12} sm={12} >
-                            <Log />
+                            <Log  token={token}/>
                         </Grid>
                     </Grid>
                 </TabPanel>

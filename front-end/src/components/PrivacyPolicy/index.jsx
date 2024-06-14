@@ -45,7 +45,7 @@ export default function SignIn() {
             if (response.data) {
                 setFunctions(response.data);
                 const initialCheckedState = response.data.reduce((acc, func) => {
-                    acc[func.id] = false; // Utiliza o `id` da função
+                    acc[func.id] = false;
                     return acc;
                 }, {});
                 setIsChecked(initialCheckedState);
@@ -121,7 +121,7 @@ export default function SignIn() {
                     <Card>
                         <CardContent style={{ overflow: 'auto', maxHeight: 500 }}>
                             <Typography variant="h5" component="div">
-                                Privacy Policy
+                                Term of Acceptance
                             </Typography>
                             <br />
                             <Divider />
@@ -159,7 +159,7 @@ export default function SignIn() {
                                 >
                                     Submit
                                 </Button>
-                                <div style={{ width: '10%' }}></div> {/* Espaço entre os botões */}
+                                <div style={{ width: '10%' }}></div>
                                 <Button onClick={handleRejected}
                                     style={{
                                         borderRadius: 5,
