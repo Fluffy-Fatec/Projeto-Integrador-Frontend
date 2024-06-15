@@ -5,6 +5,8 @@ import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import Modal from '@mui/material/Modal';
 import Paper from '@mui/material/Paper';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 import Typography from '@mui/material/Typography';
 import { styled } from '@mui/material/styles';
 import axios from 'axios';
@@ -37,12 +39,17 @@ const CustomComponent = ({ darkMode, token }) => {
   const [error, setError] = useState(null);
   const [open, setOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [message, setMessage] = useState('');
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [severity, setSeverity] = useState('success');
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
     setOpen(false);
     setSelectedFile(null);
   };
+
+  const handleSnackbarClose = () => setSnackbarOpen(false);
 
   const handleSave = async () => {
     if (selectedFile) {
@@ -57,32 +64,41 @@ const CustomComponent = ({ darkMode, token }) => {
           },
         });
         console.log('File uploaded successfully:', response.data);
+        setMessage('Data entered successfully!');
+        setSeverity('success');
+        fetchData(); // Chama a função fetchData para atualizar a lista de data sources
       } catch (error) {
         console.error('Error uploading file:', error);
+        setMessage('Error! Unable to enter data.');
+        setSeverity('error');
+      } finally {
+        setSnackbarOpen(true);
       }
     }
     handleClose();
   };
 
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get('http://localhost:8080/graphics/datasource', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      console.log('Data from API:', response.data);
+      const sortedData = response.data.sort((a, b) => a.localeCompare(b));
+      setDataSourceOptions(sortedData);
+      setActiveTable(sortedData[0] || '');
+    } catch (error) {
+      console.error('Error fetching data sources:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get('http://localhost:8080/graphics/datasource', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-        console.log('Data from API:', response.data);
-        setDataSourceOptions(response.data);
-        setActiveTable(response.data[0] || '');
-      } catch (error) {
-        console.error('Error fetching data sources:', error);
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchData();
   }, [token]);
 
@@ -107,7 +123,7 @@ const CustomComponent = ({ darkMode, token }) => {
   });
 
   return (
-<Box sx={{ flexGrow: 1, minHeight: '100vh' }}>
+    <Box sx={{ flexGrow: 1, minHeight: '100vh' }}>
       <Grid container style={{ minHeight: '100vh' }}>
         <Grid item xs={12} sm={3} style={{ marginTop: '64px', maxWidth: '100%', flexBasis: '250px', backgroundColor: darkMode ? '#111' : '#FFF', padding: '20px', borderRight: '1px solid #ccc' }}>
           <CustomButton darkMode={darkMode} onClick={handleOpen}>
@@ -164,7 +180,6 @@ const CustomComponent = ({ darkMode, token }) => {
           p: 4,
         }}>
 
-
           <Typography id="modal-modal-title" variant="h6" component="h2" align="center">
             <strong>Insert New Data Source</strong>
           </Typography>
@@ -204,8 +219,11 @@ const CustomComponent = ({ darkMode, token }) => {
           </div>
         </Box>
       </Modal>
-
-
+      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
+        <Alert onClose={handleSnackbarClose} severity={severity} sx={{ width: '100%' }}>
+          {message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
