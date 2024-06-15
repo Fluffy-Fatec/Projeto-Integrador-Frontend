@@ -44,6 +44,7 @@ import GridManageAccounts from '../GridManageAccounts';
 import UserUpdateGrid from '../UserUpdateGrid';
 import Tab from '../Tab';
 
+
 const drawerWidth = 240;
 
 const openedMixin = (theme) => ({
@@ -467,7 +468,12 @@ export default function Menu() {
                         {menuItems.slice(0, 4).map((text, index) => (
                             <ListItem key={text} disablePadding>
                                 <ListItemButton
-                                    onClick={() => handleItemClick(index)}
+                                    onClick={() => {
+                                        handleItemClick(index);
+                                        if (text === 'Data Source') {
+                                            handleDrawerClose();
+                                        }
+                                    }}
                                     disabled={text === 'Documentation'}
                                     sx={{
                                         height: '40px',
