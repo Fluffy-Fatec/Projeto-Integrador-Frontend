@@ -42,6 +42,8 @@ import AppDataSource from '../DataSource';
 import GridDashboard from '../GridDashboard';
 import GridManageAccounts from '../GridManageAccounts';
 import UserUpdateGrid from '../UserUpdateGrid';
+import Tab from '../Tab';
+
 
 const drawerWidth = 240;
 
@@ -213,9 +215,9 @@ function AboutModal({ open, onClose, darkMode }) {
                     <br /><br />
                     @Fluffy is a university project group that developed the entire platform.
                     <br /><br />
-                    <strong>Version Application:</strong> 3.0.0
+                    <strong>Version Application:</strong> 4.0.0
                     <br />
-                    <strong>Version IA:</strong> 3.0.0
+                    <strong>Version AI:</strong> 4.0.0
                     <br /><br />
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                         <a href="https://github.com/Fluffy-Fatec/Projeto-Integrador-Imagem" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
@@ -426,7 +428,7 @@ export default function Menu() {
                                 </>
                             )}
                         </Typography>
-                        <Box sx={{ marginLeft: 'auto' }}> {/* Adicionando espaçamento entre os elementos */}
+                        <Box sx={{ marginLeft: 'auto' }}>
                             <IconButton
                                 onClick={toggleNotifications}
                                 size="large"
@@ -511,7 +513,6 @@ export default function Menu() {
                         <ListItem key={text} disablePadding>
                             <ListItemButton
                                 onClick={() => handleItemClick(index + 4)}
-                                disabled={text === 'Monitoring'} // Desabilita os itens 'Data Source', 'Monitoring' e 'Documentation'
                                 sx={{
                                     height: '40px',
                                     borderRadius: clickedIndex === index + 4 ? '10px' : '0',
@@ -600,6 +601,8 @@ export default function Menu() {
                     {clickedIndex === 0 && <AppDataSource darkMode={darkMode} token={token} theme={theme} />}
                     {clickedIndex === 1 && <GridDashboard darkMode={darkMode} token={token} theme={theme} />}
                     {clickedIndex === 3 && <UserUpdateGrid darkMode={darkMode} token={token} theme={theme} />}
+                    {isAdmin && clickedIndex === 4 && <Tab token={token} darkMode={darkMode} theme={theme} />}
+
                     {isAdmin && clickedIndex === 5 && <GridManageAccounts token={token} darkMode={darkMode} theme={theme} />}
                 </Box>
                 <IconButton

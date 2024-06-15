@@ -244,12 +244,12 @@ const CustomComponent = ({ darkMode, token }) => {
                             <Grid item xs={12}>
                                 <Grid item xs={12}>
                                     <Typography variant="subtitle1" sx={{ marginBottom: 1, textAlign: 'left', margin: '15px', fontWeight: 'bold', fontSize: '1.2rem' }}>
-                                        Privacy Policy
+                                        Term of Acceptance
                                     </Typography>
                                 </Grid>
                             </Grid>
                             <Grid item xs={12} sx={{ textAlign: 'right', marginTop: '-12px', marginRight: '15px' }}>
-                                <Typography variant="subtitle1" sx={{ marginBottom: 1, textAlign: 'left', margin: '15px' }}> By using Fluffy Tech's services, I express my consent to the processing of my personal data as described. I understand that I can change my <Link to="/privacy" style={{ color: '#11BF4E', textDecoration: 'none', marginLeft: '5px', fontWeight: 'bold' }}> Privacy Policy </Link> preferences at any time.
+                                <Typography variant="subtitle1" sx={{ marginBottom: 1, textAlign: 'left', margin: '15px' }}> By using Fluffy Tech's services, I express my consent to the processing of my personal data as described. I understand that I can change my <Link to="/privacy" style={{ color: '#11BF4E', textDecoration: 'none', marginLeft: '5px', fontWeight: 'bold' }}> Term of Acceptance </Link> preferences at any time.
                                 </Typography>
                                 <br />
                                 <br />
