@@ -13,25 +13,16 @@ function NewRegistrationUsers() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const url = `http://localhost:8080/ia/accuracy/month`;
+        const url = `http://localhost:8080/auth/log/login`;
         const headers = {
           Authorization: `Bearer ${token}`,
         };
         const response = await axios.get(url, { headers });
         const dataByMonth = response.data;
 
-        const monthlyAverages = {};
-        Object.keys(dataByMonth).forEach(month => {
-          const monthData = dataByMonth[month];
-          const totalScore = monthData.reduce((sum, data) => sum + data.iaScore, 0);
-          const averageScore = totalScore / monthData.length;
-          monthlyAverages[month] = averageScore.toFixed(2);
-        });
-
-        const sortedMonths = Object.keys(monthlyAverages).sort();
-
-        const labels = sortedMonths.map(month => month);
-        const series = sortedMonths.map(month => parseFloat(monthlyAverages[month]));
+        // Extract labels and series data
+        const labels = dataByMonth.map(item => item.dateTime);
+        const series = dataByMonth.map(item => item.countNewUsers);
 
         const chartData = {
           options: {
@@ -64,7 +55,7 @@ function NewRegistrationUsers() {
             },
             colors: ["#06d6a0"],
             title: {
-              text: "Accesses to the platform per month",
+              text: "Access per Month",
               align: "left",
               style: {
                 fontSize: "12px",
@@ -79,7 +70,7 @@ function NewRegistrationUsers() {
           },
           series: [
             {
-              name: "Average Accuracy",
+              name: "New Registrations",
               data: series,
             },
           ],
