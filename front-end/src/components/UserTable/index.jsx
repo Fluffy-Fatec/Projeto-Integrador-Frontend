@@ -29,7 +29,7 @@ function createData(id, name, email, creation_date, userRole) {
   return { id, name, email, creation_date, userRole };
 }
 
-function EnhancedTable(darkMode) {
+function EnhancedTable({ darkMode }) {
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('name');
   const [selected, setSelected] = useState([]);
@@ -127,23 +127,24 @@ function EnhancedTable(darkMode) {
 
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this item?")) {
-      alert("Item deleted successfully!");
-    }
-
-    try {
-      await axios.delete('http://localhost:8080/auth/delete/user/' + selected, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-      });
-      const remainingUsers = rows.filter(row => !selected.includes(row.id));
-      setRows(remainingUsers);
-      setSelected([]);
-    } catch (error) {
-      console.log("An error occurred while deleting:", error);
+      try {
+        await axios.delete('http://localhost:8080/auth/delete/user/' + selected, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+        });
+        const remainingUsers = rows.filter(row => !selected.includes(row.id));
+        setRows(remainingUsers);
+        setSelected([]);
+        alert("Item deleted successfully!");
+      } catch (error) {
+        console.log("An error occurred while deleting:", error);
+        alert("An error occurred while deleting the item.");
+      }
+    } else {
+      alert("Item deletion canceled.");
     }
   };
-
 
   const handleButtonClick = () => {
     setOpenPopup(true);
@@ -199,7 +200,8 @@ function EnhancedTable(darkMode) {
       </Box>
       <Paper sx={{ width: '100%', height: '52vh', mb: 2 }}>
         <Typography variant="h6" component="div" sx={{ p: 2 }}>
-          Users      </Typography>
+          Users
+        </Typography>
         <TableContainer style={{ overflowX: 'auto' }}>
           <Table
             sx={{ minWidth: "100%" }}
@@ -251,7 +253,7 @@ function EnhancedTable(darkMode) {
                         {row.name}
                       </TableCell>
                       <TableCell align="right">{row.email}</TableCell>
-                      <TableCell align="right">  {new Date(row.creation_date).toLocaleDateString()}</TableCell>
+                      <TableCell align="right">{new Date(row.creation_date).toLocaleDateString()}</TableCell>
                       <TableCell align="right">
                         {isEditMode ? (
                           <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
@@ -272,7 +274,7 @@ function EnhancedTable(darkMode) {
                         )}
                       </TableCell>
                       <TableCell align="right">
-                        <IconButton onClick={() => handleDelete([row.id])} disabled={!isItemSelected}>
+                        <IconButton onClick={handleDelete} disabled={!isItemSelected}>
                           <DeleteIcon />
                         </IconButton>
                       </TableCell>
