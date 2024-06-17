@@ -29,7 +29,6 @@ function DataTable({ token }) {
         creationDate: new Date(item.creationDate).toLocaleString()
       }));
 
-     
       setRows(formattedRows.reverse());
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -42,11 +41,11 @@ function DataTable({ token }) {
 
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0); 
+    setPage(0);
   };
 
   return (
-    <Paper style={{width: '74vw', display: 'flex', flexDirection: 'column' }}>
+    <Paper style={{ width: '82vw', height: '78vh', display: 'flex', flexDirection: 'column' }}>
       <TableContainer style={{ flex: 1 }}>
         <Table stickyHeader>
           <TableHead>
@@ -57,7 +56,6 @@ function DataTable({ token }) {
               <TableCell align="left" style={{ backgroundColor: theme.palette.mode === 'dark' ? '#424242' : '#f5f5f5', color: theme.palette.mode === 'dark' ? '#fff' : 'inherit', position: 'sticky', top: 0, zIndex: 1 }}>Creation Date</TableCell>
             </TableRow>
           </TableHead>
-
           <TableBody>
             {rows.length > 0 ? (
               rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
@@ -76,7 +74,6 @@ function DataTable({ token }) {
           </TableBody>
         </Table>
       </TableContainer>
-
       <TablePagination
         component="div"
         count={rows.length}

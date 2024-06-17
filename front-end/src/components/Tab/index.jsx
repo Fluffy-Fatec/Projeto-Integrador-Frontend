@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { AppBar, Box, Tab, Tabs, Typography, useTheme, Grid, Paper } from '@mui/material';
+import { AppBar, Box, Tab, Tabs, Typography, useTheme, Grid } from '@mui/material';
 import SwipeableViews from 'react-swipeable-views';
 import Monitoring from '../Monitoring';
 import Log from '../Log';
@@ -60,8 +60,8 @@ export default function FullWidthTabs({ token }) {
                     variant="fullWidth"
                     aria-label="full width tabs example"
                 >
-                    <Tab style={{ color: '#11BF4E' }} label="Item One" {...a11yProps(0)} />
-                    <Tab style={{ color: '#11BF4E' }} label="Item Two" {...a11yProps(1)} />
+                    <Tab style={{ color: '#11BF4E' }} label="Control Panel" {...a11yProps(0)} />
+                    <Tab style={{ color: '#11BF4E' }} label="Audit" {...a11yProps(1)} />
                 </Tabs>
             </AppBar>
             <SwipeableViews
@@ -73,9 +73,9 @@ export default function FullWidthTabs({ token }) {
                     <Monitoring token={token} />
                 </TabPanel>
                 <TabPanel value={value} index={1} dir={theme.direction}>
-                    <Grid container spacing={1} >
-                        <Grid item xs={12} sm={12} >
-                            <Log  token={token}/>
+                    <Grid container spacing={1}>
+                        <Grid item xs={12} sm={12}>
+                            <Log token={token} />
                         </Grid>
                     </Grid>
                 </TabPanel>
