@@ -8,15 +8,15 @@ import Paper from '@mui/material/Paper';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
 import { styled } from '@mui/material/styles';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import TableReview from '../TableDataReview';
 
 const Item = styled(Paper)(({ theme, darkMode }) => ({
-  backgroundColor: darkMode,
+  backgroundColor: darkMode ? '#333' : '#FFF',
   overflow: 'auto',
-  overflowY: 'auto',
 }));
 
 const CustomButton = styled(Button)(({ darkMode }) => ({
@@ -42,6 +42,7 @@ const CustomComponent = ({ darkMode, token }) => {
   const [message, setMessage] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [severity, setSeverity] = useState('success');
+  const [processing, setProcessing] = useState(false);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
@@ -55,24 +56,30 @@ const CustomComponent = ({ darkMode, token }) => {
     if (selectedFile) {
       const formData = new FormData();
       formData.append('file', selectedFile);
-
       try {
-        const response = await axios.post('http://localhost:8080/graphics/upload', formData, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-        console.log('File uploaded successfully:', response.data);
-        setMessage('Data entered successfully!');
+        setProcessing(true);
+
+        const response = await axios.post(
+          'http://localhost:8080/graphics/upload',
+          formData,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        );
+        console.log('Arquivo enviado com sucesso:', response.data);
+        setMessage('Dados inseridos com sucesso!');
         setSeverity('success');
-        fetchData(); // Chama a função fetchData para atualizar a lista de data sources
+        fetchData();
       } catch (error) {
-        console.error('Error uploading file:', error);
-        setMessage('Error! Unable to enter data.');
+        console.error('Erro ao enviar o arquivo:', error);
+        setMessage('Erro! Não foi possível inserir os dados.');
         setSeverity('error');
       } finally {
         setSnackbarOpen(true);
+        setProcessing(false);
       }
     }
     handleClose();
@@ -86,12 +93,12 @@ const CustomComponent = ({ darkMode, token }) => {
           'Authorization': `Bearer ${token}`,
         },
       });
-      console.log('Data from API:', response.data);
+      console.log('Dados da API:', response.data);
       const sortedData = response.data.sort((a, b) => a.localeCompare(b));
       setDataSourceOptions(sortedData);
       setActiveTable(sortedData[0] || '');
     } catch (error) {
-      console.error('Error fetching data sources:', error);
+      console.error('Erro ao buscar fontes de dados:', error);
       setError(error.message);
     } finally {
       setLoading(false);
@@ -121,11 +128,11 @@ const CustomComponent = ({ darkMode, token }) => {
     whiteSpace: 'nowrap',
     width: 1,
   });
-
+  
   return (
-    <Box sx={{ flexGrow: 1, minHeight: '100vh' }}>
-      <Grid container style={{ minHeight: '100vh' }}>
-        <Grid item xs={12} sm={3} style={{ marginTop: '64px', maxWidth: '100%', flexBasis: '250px', backgroundColor: darkMode ? '#111' : '#FFF', padding: '20px', borderRight: '1px solid #ccc' }}>
+    <Box sx={{ flexGrow: 1 }}>
+      <Grid container style={{ marginLeft: '20px' }}>
+        <Grid item xs={2} sm={2} style={{ marginTop: '64px', flexBasis: '250px', backgroundColor: darkMode ? '#111' : '#FFF', padding: '20px', borderRight: '1px solid #ccc' }}>
           <CustomButton darkMode={darkMode} onClick={handleOpen}>
             + New
           </CustomButton>
@@ -153,13 +160,12 @@ const CustomComponent = ({ darkMode, token }) => {
             ))
           )}
         </Grid>
-
-        <Grid item xs={12} sm={9} style={{ backgroundColor: darkMode ? '#111' : '#FFF', color: darkMode ? '#FFF' : '#000', padding: '25px', marginTop: '64px' }}>
-          <Item darkMode={darkMode}>
-            {activeTable && (
+        <Grid item xs={10} sm={10} style={{ backgroundColor: darkMode ? '#111' : '#FFF', color: darkMode ? '#FFF' : '#000', padding: '25px', marginTop: '64px' }}>
+          {activeTable && (
+            <Item darkMode={darkMode}>
               <TableReview darkMode={darkMode} token={token} dataSource={activeTable} />
-            )}
-          </Item>
+            </Item>
+          )}
         </Grid>
       </Grid>
       <Modal
@@ -179,17 +185,13 @@ const CustomComponent = ({ darkMode, token }) => {
           boxShadow: 24,
           p: 4,
         }}>
-
           <Typography id="modal-modal-title" variant="h6" component="h2" align="center">
             <strong>Insert New Data Source</strong>
           </Typography>
-
           <Typography id="modal-modal-description" variant="subtitle1" component="h4" align="center">
             Select the file to upload new data:
           </Typography>
-
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', flexDirection: 'column', alignItems: 'center' }}>
-
             <Button
               component="label"
               role={undefined}
@@ -201,11 +203,9 @@ const CustomComponent = ({ darkMode, token }) => {
               Select file
               <VisuallyHiddenInput type="file" onChange={handleFileChange} />
             </Button>
-
             <Typography variant="subtitle2" style={{ marginBottom: '10px', color: '#787878' }}>
               File Name: {selectedFile ? selectedFile.name : 'No file selected'}
             </Typography>
-
             <Button
               onClick={handleSave}
               variant="outlined"
@@ -215,7 +215,14 @@ const CustomComponent = ({ darkMode, token }) => {
             >
               Upload
             </Button>
-
+            {processing && (
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '20px' }}>
+                <CircularProgress size={24} sx={{ marginRight: '10px' }} />
+                <Typography variant="body2">
+                  Processing...
+                </Typography>
+              </Box>
+            )}
           </div>
         </Box>
       </Modal>

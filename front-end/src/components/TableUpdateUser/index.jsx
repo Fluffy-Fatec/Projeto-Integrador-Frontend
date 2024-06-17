@@ -14,7 +14,7 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
 import axios from 'axios';
-import Cookies from 'js-cookie'; // Importe a biblioteca js-cookie
+import Cookies from 'js-cookie';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 
@@ -45,7 +45,7 @@ function Row({ row, onApprove }) {
             <React.Fragment>
               <Button
                 variant="contained"
-                onClick={() => onApprove(row.id, 'aprovado')}
+                onClick={() => onApprove(row.id, 'Aprovado')}
                 sx={{
                   borderRadius: 5,
                   mt: 3,
